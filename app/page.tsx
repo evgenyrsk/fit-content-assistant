@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 type Mode = 'Исследовать' | 'Создать' | 'Проверить';
-type Format = 'Reels' | 'Telegram' | 'Карусель';
+type Format = 'Reels' | 'Telegram' | 'Threads' | 'Карусель';
 type View = 'workspace' | 'knowledge' | 'content' | 'history';
 type Theme = 'light' | 'dark';
 
@@ -66,7 +66,40 @@ const claims = [
   },
 ];
 
-const libraryItems = [
+const knowledgeClusters = [
+  { name: 'Все темы', count: 24, icon: '✣' },
+  { name: 'Гипертрофия', count: 7, icon: '↗' },
+  { name: 'Питание', count: 6, icon: '◌' },
+  { name: 'Восстановление', count: 5, icon: '≈' },
+  { name: 'Интенсивность', count: 4, icon: '⌁' },
+  { name: 'Авторегуляция', count: 2, icon: '◇' },
+];
+
+const trendTopics = [
+  {
+    title: 'Медленные повторы действительно дают больше мышц?',
+    angle: 'Популярное визуально убедительное утверждение, которое удобно разобрать через темп, усилие и тренировочный объём.',
+    platforms: ['Instagram', 'Threads'],
+    signal: 'Сильный потенциал',
+    science: 'Хорошая научная база',
+  },
+  {
+    title: 'Стоит ли делать 10 000 шагов, если вы уже тренируетесь?',
+    angle: 'Узнаваемая цифра, понятная практическая дилемма и возможность отделить здоровье от расхода калорий.',
+    platforms: ['Threads', 'Instagram'],
+    signal: 'Широкий интерес',
+    science: 'Хорошая научная база',
+  },
+  {
+    title: 'Почему «кортизольное лицо» — слишком простое объяснение?',
+    angle: 'Тема с высоким любопытством и хорошим потенциалом для спокойного разбора популярного упрощения.',
+    platforms: ['Instagram'],
+    signal: 'Контринтуитивно',
+    science: 'Нужен осторожный разбор',
+  },
+];
+
+const libraryItems: Array<{ format: Format; title: string; state: string; claims: number; updated: string }> = [
   { format: 'Reels', title: 'Отказ — это не пропуск в гипертрофию', state: 'Черновик', claims: 3, updated: 'Сегодня, 18:40' },
   { format: 'Telegram', title: 'Подход работает и без последнего кривого повтора', state: 'Готово', claims: 2, updated: 'Сегодня, 17:12' },
   { format: 'Карусель', title: '7 слайдов про тренировки до отказа', state: 'Редактура', claims: 4, updated: 'Вчера, 21:08' },
@@ -101,6 +134,17 @@ const contentByFormat: Record<Format, { title: string; meta: string; body: strin
       'Важная оговорка: это не магическое число. Лёгкие веса, выбор упражнения и опыт человека меняют контекст.',
     ],
   },
+  Threads: {
+    title: 'Отказ — не доказательство хорошего подхода',
+    meta: 'Одна мысль · разговорный тон · короткая цепочка без лекции',
+    body: [
+      'Иногда мы оцениваем подход не по тому, дал ли он мышце стимул, а по тому, насколько драматично он закончился.',
+      'Если не было гримасы и последнего кривого повтора — будто бы «не доработал».',
+      'Но отказ не делает подход автоматически эффективным. Часто он просто делает следующий подход хуже.',
+      'Остановиться за 1–3 возможных повтора до предела — не халтура. Для роста мышц этого обычно достаточно.',
+      'Отказ полезен как инструмент. Странно только превращать инструмент в обязательный ритуал.',
+    ],
+  },
   Карусель: {
     title: 'Нужно ли каждый подход делать до отказа?',
     meta: '7 слайдов · одна идея · один запоминающийся вывод',
@@ -125,11 +169,20 @@ export default function Home() {
   const [activeView, setActiveView] = useState<View>('workspace');
   const [theme, setTheme] = useState<Theme>('dark');
   const [knowledgeQuery, setKnowledgeQuery] = useState('');
+  const [activeCluster, setActiveCluster] = useState('Все темы');
+  const [confidenceFilter, setConfidenceFilter] = useState('Все уровни');
+  const [statusFilter, setStatusFilter] = useState('Все статусы');
+  const [trendScoutOpen, setTrendScoutOpen] = useState(false);
+  const [trendSource, setTrendSource] = useState('Instagram + Threads');
 
   const visibleClaims = showAllClaims ? claims : claims.slice(0, 2);
-  const filteredClaims = claims.filter((claim) =>
-    (claim.text + claim.topic + claim.confidence).toLowerCase().includes(knowledgeQuery.toLowerCase()),
-  );
+  const filteredClaims = claims.filter((claim) => {
+    const matchesQuery = (claim.text + claim.topic + claim.confidence).toLowerCase().includes(knowledgeQuery.toLowerCase());
+    const matchesCluster = activeCluster === 'Все темы' || claim.topic === activeCluster;
+    const matchesConfidence = confidenceFilter === 'Все уровни' || claim.confidence === confidenceFilter;
+    const matchesStatus = statusFilter === 'Все статусы' || claim.status === statusFilter;
+    return matchesQuery && matchesCluster && matchesConfidence && matchesStatus;
+  });
   const selectedContent = useMemo(
     () => activeFormat ? contentByFormat[activeFormat] : null,
     [activeFormat],
@@ -165,6 +218,13 @@ export default function Home() {
     setActiveFormat(format);
     window.history.replaceState(null, '', '#workspace');
     window.setTimeout(() => document.querySelector('.content-studio')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+  }
+
+  function chooseTrend(title: string) {
+    setTopic(title);
+    setActiveMode('Исследовать');
+    setTrendScoutOpen(false);
+    window.setTimeout(() => document.getElementById('topic')?.focus(), 0);
   }
 
   return (
@@ -268,6 +328,42 @@ export default function Home() {
                       </button>
                     </div>
                   </div>
+
+                  <button className="trend-trigger" onClick={() => setTrendScoutOpen((value) => !value)} aria-expanded={trendScoutOpen}>
+                    <span>✦</span>
+                    <p><strong>Подобрать актуальную тему</strong><small>Trend Scout · виральность + научный потенциал</small></p>
+                    <b>{trendScoutOpen ? '↑' : '↗'}</b>
+                  </button>
+
+                  {trendScoutOpen && (
+                    <section className="trend-scout">
+                      <div className="trend-header">
+                        <div><span>DEMO SIGNALS</span><h2>Что сейчас стоит исследовать</h2></div>
+                        <label>Источники
+                          <select value={trendSource} onChange={(event) => setTrendSource(event.target.value)}>
+                            <option>Instagram + Threads</option>
+                            <option>Instagram</option>
+                            <option>Threads</option>
+                          </select>
+                        </label>
+                      </div>
+                      <p className="trend-disclaimer">Пока показана продуктовая демонстрация отбора. Реальные показатели свежести и роста появятся после подключения live-источников.</p>
+                      <div className="trend-list">
+                        {trendTopics.map((trend, index) => (
+                          <article key={trend.title}>
+                            <span className="trend-rank">0{index + 1}</span>
+                            <div>
+                              <div className="trend-tags"><span>{trend.signal}</span><span>{trend.science}</span></div>
+                              <h3>{trend.title}</h3>
+                              <p>{trend.angle}</p>
+                              <small>{trend.platforms.join(' · ')}</small>
+                            </div>
+                            <button onClick={() => chooseTrend(trend.title)}>Исследовать <span>↗</span></button>
+                          </article>
+                        ))}
+                      </div>
+                    </section>
+                  )}
                 </div>
 
                 <aside className="signal-panel" aria-label="Карта доказательств">
@@ -372,10 +468,34 @@ export default function Home() {
                 <article><span>Умеренная уверенность</span><strong>8</strong><i className="medium-bar" /></article>
                 <article><span>Спорные / временные</span><strong>5</strong><i className="low-bar" /></article>
               </div>
+              <section className="cluster-panel">
+                <div className="cluster-heading"><div><p className="overline">TOPIC MAP</p><h2>Тематические кластеры</h2></div><span>Автоматическая группировка + ручные теги</span></div>
+                <div className="cluster-grid">
+                  {knowledgeClusters.map((cluster) => (
+                    <button className={activeCluster === cluster.name ? 'active' : ''} key={cluster.name} onClick={() => setActiveCluster(cluster.name)}>
+                      <i>{cluster.icon}</i><span><strong>{cluster.name}</strong><small>{cluster.count} claims</small></span><b>↗</b>
+                    </button>
+                  ))}
+                </div>
+              </section>
               <div className="library-panel">
                 <div className="library-toolbar">
-                  <div><p className="overline">CLAIM LIBRARY</p><h2>Проверенные утверждения</h2></div>
+                  <div><p className="overline">CLAIM LIBRARY</p><h2>Проверенные утверждения <span>{filteredClaims.length}</span></h2></div>
                   <label><span>⌕</span><input value={knowledgeQuery} onChange={(event) => setKnowledgeQuery(event.target.value)} placeholder="Найти claim или тему" /></label>
+                </div>
+                <div className="filter-row">
+                  <div className="filter-group"><span>Уверенность</span>
+                    <select value={confidenceFilter} onChange={(event) => setConfidenceFilter(event.target.value)}>
+                      <option>Все уровни</option><option>Высокая</option><option>Умеренная</option><option>Недостаточно данных</option>
+                    </select>
+                  </div>
+                  <div className="filter-group"><span>Статус</span>
+                    <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+                      <option>Все статусы</option><option>verified</option><option>provisional</option><option>disputed</option>
+                    </select>
+                  </div>
+                  <div className="filter-group"><span>Обновление</span><select defaultValue="Сначала свежие"><option>Сначала свежие</option><option>Требуют проверки</option><option>Сначала старые</option></select></div>
+                  <button onClick={() => { setKnowledgeQuery(''); setActiveCluster('Все темы'); setConfidenceFilter('Все уровни'); setStatusFilter('Все статусы'); }}>Сбросить</button>
                 </div>
                 <div className="knowledge-list">
                   {filteredClaims.map((claim) => (
@@ -386,6 +506,7 @@ export default function Home() {
                       <button aria-label="Открыть claim">↗</button>
                     </article>
                   ))}
+                  {filteredClaims.length === 0 && <div className="empty-knowledge"><span>⌕</span><h3>Ничего не найдено</h3><p>Измените запрос или сбросьте часть фильтров.</p></div>}
                 </div>
               </div>
             </section>
@@ -403,6 +524,15 @@ export default function Home() {
                 <article><span>В работе</span><strong>04</strong><small>черновики и редактура</small></article>
                 <article><span>Новые идеи</span><strong>01</strong><small>из базы знаний</small></article>
               </div>
+              <section className="platform-lanes">
+                <div className="cluster-heading"><div><p className="overline">FORMAT PLAYBOOKS</p><h2>Отдельный язык каждой платформы</h2></div><span>Не копируем один текст между соцсетями</span></div>
+                <div>
+                  <button onClick={() => openFormat('Reels')}><span>R</span><p><strong>Reels</strong><small>Хук · речь · визуал · удержание</small></p><b>↗</b></button>
+                  <button onClick={() => openFormat('Telegram')}><span>TG</span><p><strong>Telegram</strong><small>Контекст · польза · ясный вывод</small></p><b>↗</b></button>
+                  <button className="threads-lane" onClick={() => openFormat('Threads')}><span>Th</span><p><strong>Threads</strong><small>Одна мысль · живой голос · обсуждение</small></p><b>↗</b></button>
+                  <button onClick={() => openFormat('Карусель')}><span>IG</span><p><strong>Карусель</strong><small>Слайды · логика · визуальный ритм</small></p><b>↗</b></button>
+                </div>
+              </section>
               <div className="library-panel">
                 <div className="library-toolbar"><div><p className="overline">RECENT WORK</p><h2>Последние материалы</h2></div><button className="filter-button">Все форматы ↓</button></div>
                 <div className="content-table">
@@ -412,7 +542,7 @@ export default function Home() {
                       <span className="format-badge">{item.format}</span>
                       <div><h3>{item.title}</h3><p>{item.claims} связанных claims · {item.updated}</p></div>
                       <span className={'item-state state-' + item.state.toLowerCase()}>{item.state}</span>
-                      <button onClick={() => openFormat(item.format === 'Telegram' ? 'Telegram' : item.format === 'Карусель' ? 'Карусель' : 'Reels')}>↗</button>
+                      <button onClick={() => openFormat(item.format)}>↗</button>
                     </article>
                   ))}
                 </div>

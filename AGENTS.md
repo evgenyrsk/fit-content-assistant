@@ -17,6 +17,8 @@ These instructions apply to the entire Forme application repository.
 - Prefer clear, natural language over academic or marketing jargon.
 - Avoid guru language, false urgency, fear, and unsupported guarantees.
 - Label demonstrations and placeholder scientific results explicitly.
+- Never present demonstration trend signals as live Instagram or Threads data.
+- Treat Threads as an independent content format with one strong idea, natural voice, and discussion potential; do not reuse Telegram copy verbatim.
 
 ## Interface
 
@@ -24,6 +26,7 @@ These instructions apply to the entire Forme application repository.
 - Use the tokens and principles in `docs/DESIGN_SYSTEM.md`.
 - Preserve keyboard, touch, reduced-motion, and responsive behavior.
 - Every navigation item must lead to a meaningful working view.
+- Keep the knowledge base navigable through topic clusters, search, confidence, status, and freshness filters as it grows.
 - Keep spacing on the shared 6/10/14/20/28/40 px scale unless a component requires a documented exception.
 
 ## Project records
