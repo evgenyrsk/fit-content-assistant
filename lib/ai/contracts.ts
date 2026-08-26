@@ -79,7 +79,9 @@ export interface ContentDraft {
 export interface ModelRunRecord {
   runId: string;
   stage: PipelineStageId;
+  provider: 'openai' | 'openrouter';
   model: string;
+  routedProvider?: string;
   promptVersion: string;
   startedAt: string;
   retrievedIds: string[];

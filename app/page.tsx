@@ -20,6 +20,8 @@ import {
   LibraryBig,
   Moon,
   MoreHorizontal,
+  PanelLeftClose,
+  PanelLeftOpen,
   RotateCcw,
   Search,
   SlidersHorizontal,
@@ -196,6 +198,7 @@ export default function Home() {
   const [activeFormat, setActiveFormat] = useState<Format | null>(null);
   const [activeView, setActiveView] = useState<View>('workspace');
   const [theme, setTheme] = useState<Theme>('dark');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [knowledgeQuery, setKnowledgeQuery] = useState('');
   const [activeCluster, setActiveCluster] = useState('Все темы');
   const [confidenceFilter, setConfidenceFilter] = useState('Все уровни');
@@ -224,6 +227,8 @@ export default function Home() {
     const frame = window.requestAnimationFrame(() => {
       const storedTheme = window.localStorage.getItem('forme-theme') as Theme | null;
       if (storedTheme === 'light' || storedTheme === 'dark') setTheme(storedTheme);
+      const storedSidebar = window.localStorage.getItem('forme-sidebar');
+      if (storedSidebar === 'expanded') setSidebarCollapsed(false);
       document.documentElement.style.colorScheme = storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : 'dark';
       syncViewFromHash();
       hasHydratedPreferences.current = true;
@@ -240,6 +245,11 @@ export default function Home() {
     window.localStorage.setItem('forme-theme', theme);
     document.documentElement.style.colorScheme = theme;
   }, [theme]);
+
+  useEffect(() => {
+    if (!hasHydratedPreferences.current) return;
+    window.localStorage.setItem('forme-sidebar', sidebarCollapsed ? 'collapsed' : 'expanded');
+  }, [sidebarCollapsed]);
 
   function navigate(view: View) {
     setActiveView(view);
@@ -269,11 +279,21 @@ export default function Home() {
   }
 
   return (
-    <main className="app-shell" data-theme={theme}>
+    <main className="app-shell" data-theme={theme} data-sidebar={sidebarCollapsed ? 'collapsed' : 'expanded'}>
       <aside className="sidebar">
         <button className="brand" onClick={() => navigate('workspace')} aria-label="Forme, на главную">
           <span className="brand-mark">F</span>
           <span className="brand-copy"><strong>Forme</strong><small>Fitness Content OS</small></span>
+        </button>
+        <button
+          className="sidebar-toggle"
+          type="button"
+          onClick={() => setSidebarCollapsed((value) => !value)}
+          aria-label={sidebarCollapsed ? 'Развернуть меню' : 'Свернуть меню'}
+          aria-expanded={!sidebarCollapsed}
+          title={sidebarCollapsed ? 'Развернуть меню' : 'Свернуть меню'}
+        >
+          {sidebarCollapsed ? <PanelLeftOpen aria-hidden="true" /> : <PanelLeftClose aria-hidden="true" />}
         </button>
 
         <nav className="nav-list" aria-label="Основная навигация">
@@ -286,6 +306,7 @@ export default function Home() {
                 onClick={() => navigate(item.id)}
                 aria-current={activeView === item.id ? 'page' : undefined}
                 aria-label={item.label}
+                title={sidebarCollapsed ? item.label : undefined}
               >
                 <span><Icon aria-hidden="true" /></span><b>{item.label}</b>{item.count && <em>{item.count}</em>}
               </button>

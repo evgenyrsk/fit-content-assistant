@@ -26,6 +26,9 @@ A change is complete only when it:
 ## LLM rules
 
 - The LLM orchestrates the workflow and assists with interpretation and writing; it is not a source of truth.
+- Domain pipeline code must depend on the internal `LlmProvider`, never directly on a vendor SDK.
+- Do not hard-code provider or model ids. Check required capabilities per model and record the actual provider/model route for every run.
+- Keep retrieval, provenance, claims, and evidence gates provider-neutral; provider-specific tools belong behind adapters.
 - Give each model step the minimum required context and a strict structured output contract.
 - Separate planning, retrieval, evidence assessment, claim synthesis, content generation, style editing, and factual review.
 - Every generated factual sentence must be supported by an approved claim or explicitly marked as opinion, illustration, or hypothesis.
@@ -43,6 +46,8 @@ A change is complete only when it:
 - Store supporting, neutral, and contradicting evidence. Do not search only for confirmation.
 - Cite the exact source passage or chunk used for an evidence assessment.
 - Freshness requirements depend on the claim; time-sensitive claims must have a review deadline.
+- Treat the approved methodology in `docs/EVIDENCE_RELIABILITY.md` as a blocking release dependency. Until calibrated, automated assessments remain `needs_review`.
+- Do not reject or accept a study solely because of its funding source; assess sponsor role, transparency, design, reporting, and the totality of evidence separately.
 
 ## Knowledge and RAG
 

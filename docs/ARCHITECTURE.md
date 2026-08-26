@@ -2,9 +2,17 @@
 
 ## Поток данных
 
-`LLM Orchestrator → Research Engine → Evidence Engine → Knowledge Base → Content Engine → Independent review`
+`LLM Provider Adapter → LLM Orchestrator → Research Engine → Evidence Engine → Knowledge Base → Content Engine → Independent review`
 
 LLM связывает этапы и управляет инструментами, но не является источником истины. Канонические научные данные живут в версионируемой базе; каждый этап имеет отдельную схему ответа и gate. Подробности: `AI_SYSTEM.md`.
+
+### LLM Provider Layer
+
+- доменные этапы зависят только от внутреннего `LlmProvider`;
+- OpenAI и OpenRouter подключаются серверными адаптерами;
+- provider/model выбираются отдельно для research и content после общего eval;
+- capabilities проверяются явно, а фактический маршрут записывается в audit log;
+- retrieval и научная проверка остаются собственными слоями Forme, поэтому смена провайдера не меняет каноническую базу.
 
 ### Research Engine
 
@@ -62,3 +70,4 @@ LLM связывает этапы и управляет инструментам
 Модель не имеет права повышать уровень уверенности сверх того, что следует из evidence-записей. Контентный слой не редактирует научный вывод — только способ объяснения.
 
 Архитектурное решение по retrieval зафиксировано в `docs/decisions/0001-claim-first-hybrid-rag.md`.
+Граница LLM-провайдеров зафиксирована в `docs/decisions/0002-provider-neutral-llm.md`.
