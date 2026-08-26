@@ -1,6 +1,33 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Activity,
+  Apple,
+  ArrowDownRight,
+  ArrowUpRight,
+  BedDouble,
+  BookOpenText,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  CircleGauge,
+  Command,
+  Dumbbell,
+  FileText,
+  History,
+  LayoutDashboard,
+  LibraryBig,
+  Moon,
+  MoreHorizontal,
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+  Sparkles,
+  Sun,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 
 type Mode = 'Исследовать' | 'Создать' | 'Проверить';
 type Format = 'Reels' | 'Telegram' | 'Threads' | 'Карусель';
@@ -13,11 +40,11 @@ const modes: Array<{ name: Mode; index: string }> = [
   { name: 'Проверить', index: '03' },
 ];
 
-const navItems: Array<{ id: View; icon: string; label: string; count?: string }> = [
-  { id: 'workspace', icon: '⌁', label: 'Рабочая область' },
-  { id: 'knowledge', icon: '◫', label: 'База знаний', count: '24' },
-  { id: 'content', icon: '◇', label: 'Контент', count: '08' },
-  { id: 'history', icon: '↗', label: 'История' },
+const navItems: Array<{ id: View; icon: LucideIcon; label: string; count?: string }> = [
+  { id: 'workspace', icon: LayoutDashboard, label: 'Рабочая область' },
+  { id: 'knowledge', icon: LibraryBig, label: 'База знаний', count: '24' },
+  { id: 'content', icon: FileText, label: 'Контент', count: '08' },
+  { id: 'history', icon: History, label: 'История' },
 ];
 
 const viewMeta: Record<View, { overline: string; title: string }> = {
@@ -67,12 +94,12 @@ const claims = [
 ];
 
 const knowledgeClusters = [
-  { name: 'Все темы', count: 24, icon: '✣' },
-  { name: 'Гипертрофия', count: 7, icon: '↗' },
-  { name: 'Питание', count: 6, icon: '◌' },
-  { name: 'Восстановление', count: 5, icon: '≈' },
-  { name: 'Интенсивность', count: 4, icon: '⌁' },
-  { name: 'Авторегуляция', count: 2, icon: '◇' },
+  { name: 'Все темы', count: 24, icon: BookOpenText },
+  { name: 'Гипертрофия', count: 7, icon: Dumbbell },
+  { name: 'Питание', count: 6, icon: Apple },
+  { name: 'Восстановление', count: 5, icon: BedDouble },
+  { name: 'Интенсивность', count: 4, icon: Activity },
+  { name: 'Авторегуляция', count: 2, icon: CircleGauge },
 ];
 
 const trendTopics = [
@@ -161,6 +188,7 @@ const contentByFormat: Record<Format, { title: string; meta: string; body: strin
 };
 
 export default function Home() {
+  const hasHydratedPreferences = useRef(false);
   const [topic, setTopic] = useState('Нужно ли тренироваться до отказа для роста мышц?');
   const [activeMode, setActiveMode] = useState<Mode>('Исследовать');
   const [status, setStatus] = useState<'idle' | 'working' | 'ready'>('ready');
@@ -189,13 +217,26 @@ export default function Home() {
   );
 
   useEffect(() => {
-    const storedTheme = window.localStorage.getItem('forme-theme') as Theme | null;
-    if (storedTheme === 'light' || storedTheme === 'dark') setTheme(storedTheme);
-    const hash = window.location.hash.replace('#', '') as View;
-    if (navItems.some((item) => item.id === hash)) setActiveView(hash);
+    const syncViewFromHash = () => {
+      const hash = window.location.hash.replace('#', '') as View;
+      if (navItems.some((item) => item.id === hash)) setActiveView(hash);
+    };
+    const frame = window.requestAnimationFrame(() => {
+      const storedTheme = window.localStorage.getItem('forme-theme') as Theme | null;
+      if (storedTheme === 'light' || storedTheme === 'dark') setTheme(storedTheme);
+      document.documentElement.style.colorScheme = storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : 'dark';
+      syncViewFromHash();
+      hasHydratedPreferences.current = true;
+    });
+    window.addEventListener('hashchange', syncViewFromHash);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('hashchange', syncViewFromHash);
+    };
   }, []);
 
   useEffect(() => {
+    if (!hasHydratedPreferences.current) return;
     window.localStorage.setItem('forme-theme', theme);
     document.documentElement.style.colorScheme = theme;
   }, [theme]);
@@ -236,16 +277,20 @@ export default function Home() {
         </button>
 
         <nav className="nav-list" aria-label="Основная навигация">
-          {navItems.map((item) => (
-            <button
-              className={'nav-item ' + (activeView === item.id ? 'active' : '')}
-              key={item.id}
-              onClick={() => navigate(item.id)}
-              aria-current={activeView === item.id ? 'page' : undefined}
-            >
-              <span>{item.icon}</span><b>{item.label}</b>{item.count && <em>{item.count}</em>}
-            </button>
-          ))}
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                className={'nav-item ' + (activeView === item.id ? 'active' : '')}
+                key={item.id}
+                onClick={() => navigate(item.id)}
+                aria-current={activeView === item.id ? 'page' : undefined}
+                aria-label={item.label}
+              >
+                <span><Icon aria-hidden="true" /></span><b>{item.label}</b>{item.count && <em>{item.count}</em>}
+              </button>
+            );
+          })}
         </nav>
 
         <div className="side-spacer" />
@@ -257,7 +302,7 @@ export default function Home() {
         <button className="user-card" type="button">
           <span>ЕР</span>
           <span><strong>Евгений</strong><small>Личный проект</small></span>
-          <b>•••</b>
+          <MoreHorizontal aria-hidden="true" />
         </button>
       </aside>
 
@@ -275,10 +320,10 @@ export default function Home() {
               aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}
               title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
             >
-              <span>{theme === 'dark' ? '☀' : '◐'}</span>
+              <span>{theme === 'dark' ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}</span>
               <b>{theme === 'dark' ? 'Light' : 'Dark'}</b>
             </button>
-            <button className="quiet-button" type="button">⌘ K</button>
+            <button className="quiet-button" type="button" aria-label="Открыть палитру команд"><Command aria-hidden="true" /> K</button>
           </div>
         </header>
 
@@ -322,17 +367,17 @@ export default function Home() {
                       }}
                     />
                     <div className="command-footer">
-                      <span>⌘ Enter, чтобы запустить</span>
+                      <span><Command aria-hidden="true" /> Enter, чтобы запустить</span>
                       <button onClick={startWork} disabled={status === 'working' || !topic.trim()}>
-                        {status === 'working' ? 'Анализирую…' : 'Начать'} <i>↗</i>
+                        {status === 'working' ? 'Анализирую…' : 'Начать'} <ArrowUpRight aria-hidden="true" />
                       </button>
                     </div>
                   </div>
 
                   <button className="trend-trigger" onClick={() => setTrendScoutOpen((value) => !value)} aria-expanded={trendScoutOpen}>
-                    <span>✦</span>
+                    <span><Sparkles aria-hidden="true" /></span>
                     <p><strong>Подобрать актуальную тему</strong><small>Trend Scout · виральность + научный потенциал</small></p>
-                    <b>{trendScoutOpen ? '↑' : '↗'}</b>
+                    {trendScoutOpen ? <ChevronUp aria-hidden="true" /> : <ArrowUpRight aria-hidden="true" />}
                   </button>
 
                   {trendScoutOpen && (
@@ -358,7 +403,7 @@ export default function Home() {
                               <p>{trend.angle}</p>
                               <small>{trend.platforms.join(' · ')}</small>
                             </div>
-                            <button onClick={() => chooseTrend(trend.title)}>Исследовать <span>↗</span></button>
+                            <button onClick={() => chooseTrend(trend.title)}>Исследовать <ArrowUpRight aria-hidden="true" /></button>
                           </article>
                         ))}
                       </div>
@@ -404,20 +449,23 @@ export default function Home() {
                       <h3>Отказ — инструмент,<br />а не обязательное<br /><em>условие роста.</em></h3>
                       <p>Если подход заканчивается достаточно близко к отказу, мышцы получают сильный стимул. Постоянный полный отказ может добавить усталости быстрее, чем пользы.</p>
                     </div>
-                    <div className="practical-note"><span>Практический смысл</span><p>Большинство рабочих подходов можно заканчивать, когда в запасе остаётся примерно 1–3 повтора.</p><b>↘</b></div>
+                    <div className="practical-note"><span>Практический смысл</span><p>Большинство рабочих подходов можно заканчивать, когда в запасе остаётся примерно 1–3 повтора.</p><ArrowDownRight aria-hidden="true" /></div>
                   </article>
 
                   <section className="evidence-card">
                     <div className="evidence-header">
                       <div><p className="overline">EVIDENCE LEDGER</p><h3>Проверенные тезисы</h3></div>
-                      <button onClick={() => setShowAllClaims((value) => !value)}>{showAllClaims ? 'Свернуть' : 'Показать все'} <span>{showAllClaims ? '↑' : '↓'}</span></button>
+                      <button onClick={() => setShowAllClaims((value) => !value)}>
+                        {showAllClaims ? 'Свернуть' : 'Показать все'}
+                        {showAllClaims ? <ChevronUp aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
+                      </button>
                     </div>
                     <div className="claim-list">
                       {visibleClaims.map((claim) => (
                         <article className="claim" key={claim.text}>
                           <span className={'claim-marker ' + claim.tone}>{claim.marker}</span>
                           <div><span className={'claim-confidence ' + claim.tone}>{claim.confidence}</span><p>{claim.text}</p><small>{claim.evidence}</small></div>
-                          <b>↗</b>
+                          <ArrowUpRight aria-hidden="true" />
                         </article>
                       ))}
                     </div>
@@ -431,7 +479,7 @@ export default function Home() {
                 <div className="format-buttons">
                   {(Object.keys(contentByFormat) as Format[]).map((format) => (
                     <button className={activeFormat === format ? 'chosen' : ''} key={format} onClick={() => setActiveFormat(format)}>
-                      <span>{format}</span><i>↗</i>
+                      <span>{format}</span><ArrowUpRight aria-hidden="true" />
                     </button>
                   ))}
                 </div>
@@ -441,7 +489,7 @@ export default function Home() {
                 <section className="content-studio">
                   <div className="studio-header">
                     <div><p className="overline">{activeFormat} · ЧЕРНОВИК</p><h2>{selectedContent.title}</h2><span>{selectedContent.meta}</span></div>
-                    <button onClick={() => setActiveFormat(null)} aria-label="Закрыть редактор">×</button>
+                    <button onClick={() => setActiveFormat(null)} aria-label="Закрыть редактор"><X aria-hidden="true" /></button>
                   </div>
                   <div className="draft">
                     {selectedContent.body.map((paragraph, index) => (
@@ -449,7 +497,7 @@ export default function Home() {
                     ))}
                   </div>
                   <aside className="factcheck">
-                    <div><span>✓</span><p><strong>Фактчек пройден</strong><small>Использовано 2 ключевых claim · высокая / умеренная уверенность</small></p></div>
+                    <div><span><Check aria-hidden="true" /></span><p><strong>Фактчек пройден</strong><small>Использовано 2 ключевых claim · высокая / умеренная уверенность</small></p></div>
                     <p>Личный опыт не используется как доказательство. Категоричных утверждений сверх данных нет.</p>
                   </aside>
                 </section>
@@ -471,17 +519,20 @@ export default function Home() {
               <section className="cluster-panel">
                 <div className="cluster-heading"><div><p className="overline">TOPIC MAP</p><h2>Тематические кластеры</h2></div><span>Автоматическая группировка + ручные теги</span></div>
                 <div className="cluster-grid">
-                  {knowledgeClusters.map((cluster) => (
-                    <button className={activeCluster === cluster.name ? 'active' : ''} key={cluster.name} onClick={() => setActiveCluster(cluster.name)}>
-                      <i>{cluster.icon}</i><span><strong>{cluster.name}</strong><small>{cluster.count} claims</small></span><b>↗</b>
-                    </button>
-                  ))}
+                  {knowledgeClusters.map((cluster) => {
+                    const Icon = cluster.icon;
+                    return (
+                      <button className={activeCluster === cluster.name ? 'active' : ''} key={cluster.name} onClick={() => setActiveCluster(cluster.name)}>
+                        <i><Icon aria-hidden="true" /></i><span><strong>{cluster.name}</strong><small>{cluster.count} claims</small></span><ArrowUpRight aria-hidden="true" />
+                      </button>
+                    );
+                  })}
                 </div>
               </section>
               <div className="library-panel">
                 <div className="library-toolbar">
                   <div><p className="overline">CLAIM LIBRARY</p><h2>Проверенные утверждения <span>{filteredClaims.length}</span></h2></div>
-                  <label><span>⌕</span><input value={knowledgeQuery} onChange={(event) => setKnowledgeQuery(event.target.value)} placeholder="Найти claim или тему" /></label>
+                  <label><Search aria-hidden="true" /><input value={knowledgeQuery} onChange={(event) => setKnowledgeQuery(event.target.value)} placeholder="Найти claim или тему" /></label>
                 </div>
                 <div className="filter-row">
                   <div className="filter-group"><span>Уверенность</span>
@@ -495,7 +546,7 @@ export default function Home() {
                     </select>
                   </div>
                   <div className="filter-group"><span>Обновление</span><select defaultValue="Сначала свежие"><option>Сначала свежие</option><option>Требуют проверки</option><option>Сначала старые</option></select></div>
-                  <button onClick={() => { setKnowledgeQuery(''); setActiveCluster('Все темы'); setConfidenceFilter('Все уровни'); setStatusFilter('Все статусы'); }}>Сбросить</button>
+                  <button onClick={() => { setKnowledgeQuery(''); setActiveCluster('Все темы'); setConfidenceFilter('Все уровни'); setStatusFilter('Все статусы'); }}><RotateCcw aria-hidden="true" /> Сбросить</button>
                 </div>
                 <div className="knowledge-list">
                   {filteredClaims.map((claim) => (
@@ -503,10 +554,10 @@ export default function Home() {
                       <span className={'claim-marker ' + claim.tone}>{claim.marker}</span>
                       <div className="knowledge-main"><div><span>{claim.topic}</span><em>{claim.status}</em></div><h3>{claim.text}</h3><p>{claim.evidence}</p></div>
                       <span className={'knowledge-confidence ' + claim.tone}>{claim.confidence}</span>
-                      <button aria-label="Открыть claim">↗</button>
+                      <button aria-label="Открыть claim"><ArrowUpRight aria-hidden="true" /></button>
                     </article>
                   ))}
-                  {filteredClaims.length === 0 && <div className="empty-knowledge"><span>⌕</span><h3>Ничего не найдено</h3><p>Измените запрос или сбросьте часть фильтров.</p></div>}
+                  {filteredClaims.length === 0 && <div className="empty-knowledge"><span><Search aria-hidden="true" /></span><h3>Ничего не найдено</h3><p>Измените запрос или сбросьте часть фильтров.</p></div>}
                 </div>
               </div>
             </section>
@@ -516,7 +567,7 @@ export default function Home() {
             <section className="product-view">
               <div className="view-hero content-hero">
                 <div><p className="overline">CONTENT LIBRARY</p><h1>Одна научная база.<br /><em>Много сильных историй.</em></h1><p>Все материалы сохраняют связь с claims и источниками — даже после публикации.</p></div>
-                <button className="hero-action" onClick={() => navigate('workspace')}>Создать материал <span>↗</span></button>
+                <button className="hero-action" onClick={() => navigate('workspace')}>Создать материал <ArrowUpRight aria-hidden="true" /></button>
               </div>
               <div className="content-summary">
                 <article><span>Всего материалов</span><strong>08</strong><small>за последние 30 дней</small></article>
@@ -527,14 +578,14 @@ export default function Home() {
               <section className="platform-lanes">
                 <div className="cluster-heading"><div><p className="overline">FORMAT PLAYBOOKS</p><h2>Отдельный язык каждой платформы</h2></div><span>Не копируем один текст между соцсетями</span></div>
                 <div>
-                  <button onClick={() => openFormat('Reels')}><span>R</span><p><strong>Reels</strong><small>Хук · речь · визуал · удержание</small></p><b>↗</b></button>
-                  <button onClick={() => openFormat('Telegram')}><span>TG</span><p><strong>Telegram</strong><small>Контекст · польза · ясный вывод</small></p><b>↗</b></button>
-                  <button className="threads-lane" onClick={() => openFormat('Threads')}><span>Th</span><p><strong>Threads</strong><small>Одна мысль · живой голос · обсуждение</small></p><b>↗</b></button>
-                  <button onClick={() => openFormat('Карусель')}><span>IG</span><p><strong>Карусель</strong><small>Слайды · логика · визуальный ритм</small></p><b>↗</b></button>
+                  <button onClick={() => openFormat('Reels')}><span>R</span><p><strong>Reels</strong><small>Хук · речь · визуал · удержание</small></p><ArrowUpRight aria-hidden="true" /></button>
+                  <button onClick={() => openFormat('Telegram')}><span>TG</span><p><strong>Telegram</strong><small>Контекст · польза · ясный вывод</small></p><ArrowUpRight aria-hidden="true" /></button>
+                  <button className="threads-lane" onClick={() => openFormat('Threads')}><span>Th</span><p><strong>Threads</strong><small>Одна мысль · живой голос · обсуждение</small></p><ArrowUpRight aria-hidden="true" /></button>
+                  <button onClick={() => openFormat('Карусель')}><span>IG</span><p><strong>Карусель</strong><small>Слайды · логика · визуальный ритм</small></p><ArrowUpRight aria-hidden="true" /></button>
                 </div>
               </section>
               <div className="library-panel">
-                <div className="library-toolbar"><div><p className="overline">RECENT WORK</p><h2>Последние материалы</h2></div><button className="filter-button">Все форматы ↓</button></div>
+                <div className="library-toolbar"><div><p className="overline">RECENT WORK</p><h2>Последние материалы</h2></div><button className="filter-button"><SlidersHorizontal aria-hidden="true" /> Все форматы <ChevronDown aria-hidden="true" /></button></div>
                 <div className="content-table">
                   {libraryItems.map((item, index) => (
                     <article key={item.title}>
@@ -542,7 +593,7 @@ export default function Home() {
                       <span className="format-badge">{item.format}</span>
                       <div><h3>{item.title}</h3><p>{item.claims} связанных claims · {item.updated}</p></div>
                       <span className={'item-state state-' + item.state.toLowerCase()}>{item.state}</span>
-                      <button onClick={() => openFormat(item.format)}>↗</button>
+                      <button onClick={() => openFormat(item.format)} aria-label={`Открыть материал: ${item.title}`}><ArrowUpRight aria-hidden="true" /></button>
                     </article>
                   ))}
                 </div>
@@ -565,13 +616,13 @@ export default function Home() {
                   <button>Обновлённые выводы <span>01</span></button>
                 </aside>
                 <div className="history-feed">
-                  <div className="history-heading"><div><p className="overline">TIMELINE</p><h2>Последние исследования</h2></div><button>Экспорт истории ↗</button></div>
+                  <div className="history-heading"><div><p className="overline">TIMELINE</p><h2>Последние исследования</h2></div><button>Экспорт истории <ArrowUpRight aria-hidden="true" /></button></div>
                   {historyItems.map((item) => (
                     <article key={item.title}>
                       <div className="history-date"><strong>{item.date}</strong><span>{item.time}</span></div>
                       <i />
                       <div><span className={'history-state ' + (item.state === 'Перепроверить' ? 'attention' : '')}>{item.state}</span><h3>{item.title}</h3><p>{item.detail}</p></div>
-                      <button aria-label="Открыть исследование">↗</button>
+                      <button aria-label="Открыть исследование"><ArrowUpRight aria-hidden="true" /></button>
                     </article>
                   ))}
                 </div>

@@ -12,22 +12,31 @@
 - [x] Добавить самостоятельный Threads playbook.
 - [x] Спроектировать тематические кластеры и комбинируемые фильтры базы знаний.
 - [x] Добавить UX Trend Scout с честной маркировкой демонстрационных сигналов.
+- [x] Перевести интерфейсные иконки на единый SVG-набор и закрепить правила иконографии.
+- [x] Оформить development environment, CI quality gate и Definition of Done.
+- [x] Зафиксировать LLM-конвейер, eval-gates и claim-first hybrid RAG.
 - [ ] Подключить GitHub после повторной авторизации.
 
 ## Этап 1 — Реальный вертикальный сценарий
 
 - [ ] Схема D1 для claims, sources, research runs и content items.
+- [ ] Подключить Responses API и серверные секреты.
+- [ ] Реализовать строгие схемы этапов LLM-конвейера и audit log.
 - [ ] Поиск PubMed/Crossref по одному вопросу.
 - [ ] Подключить реальные источники трендов Instagram/Threads или надёжные публичные прокси-сигналы.
 - [ ] Структурированная оценка источников.
 - [ ] Сохранение claims с confidence и limitations.
 - [ ] Создание Reels на основе сохранённых claims.
 - [ ] Трассировка content → claims → sources.
+- [ ] Regression eval-набор и blocking release gates.
+- [ ] Собрать и утвердить первую версию авторского style profile.
 
 ## Этап 2 — Рабочая база знаний
 
 - [ ] Поиск и фильтры по claims.
 - [ ] Версионирование и `superseded`.
+- [ ] Раздельные индексы evidence chunks и approved claims.
+- [ ] Hybrid retrieval и reranking с измеримым recall.
 - [ ] Повторная проверка устаревших тезисов.
 - [ ] Telegram, Threads, карусели и Stories.
 - [ ] Импорт пользовательских заметок и личного опыта с явной маркировкой.

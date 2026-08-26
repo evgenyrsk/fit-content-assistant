@@ -2,7 +2,9 @@
 
 ## Поток данных
 
-`Research Engine → Evidence Engine → Knowledge Base → Content Engine`
+`LLM Orchestrator → Research Engine → Evidence Engine → Knowledge Base → Content Engine → Independent review`
+
+LLM связывает этапы и управляет инструментами, но не является источником истины. Канонические научные данные живут в версионируемой базе; каждый этап имеет отдельную схему ответа и gate. Подробности: `AI_SYSTEM.md`.
 
 ### Research Engine
 
@@ -49,10 +51,14 @@
 - Web-интерфейс: React/TypeScript.
 - Серверная логика: Cloudflare Worker-compatible runtime.
 - Операционная БД MVP: SQLite/D1.
-- Поиск по знаниям: сначала структурные фильтры и полнотекстовый поиск; embeddings добавляются только там, где действительно улучшают recall.
+- Поиск по знаниям: claim-first hybrid RAG — структурные фильтры, полнотекстовый поиск, embeddings и reranking.
+- Канонические записи: D1/SQLite; embeddings и vector store являются перестраиваемым retrieval-индексом.
+- Индексы: отдельные пространства для raw evidence chunks и approved claim versions.
 - Научные источники: PubMed/NCBI, Crossref, DOI и открытые издательские метаданные.
 - Модель: структурированные ответы по строгой схеме; каждый этап получает только нужный контекст.
 
 ## Ключевое ограничение
 
 Модель не имеет права повышать уровень уверенности сверх того, что следует из evidence-записей. Контентный слой не редактирует научный вывод — только способ объяснения.
+
+Архитектурное решение по retrieval зафиксировано в `docs/decisions/0001-claim-first-hybrid-rag.md`.
