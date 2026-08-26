@@ -8,6 +8,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://forme-fitness-content-os.evgenyrsk7.chatgpt.site'),
   title: 'Forme — научный редактор фитнес-контента',
   description: 'От научного вопроса до понятного и точного контента.',
   openGraph: {
