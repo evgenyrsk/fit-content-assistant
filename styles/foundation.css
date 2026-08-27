@@ -18,6 +18,10 @@
   --space-4: 20px;
   --space-5: 28px;
   --space-6: 40px;
+  --type-caption: 12px;
+  --type-meta: 13px;
+  --type-body: 15px;
+  --type-body-lg: 16px;
   --page-bg: #f4f5ef;
   --panel-bg: #ffffff;
   --panel-soft: #f8faf7;
@@ -37,6 +41,8 @@ body {
     var(--paper);
   color: var(--ink);
   font-family: var(--font-manrope), Arial, sans-serif;
+  font-size: var(--type-body-lg);
+  line-height: 1.5;
 }
 button, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
@@ -45,5 +51,4 @@ button:focus-visible, a:focus-visible, textarea:focus-visible {
   outline: 3px solid rgba(73,103,242,.35);
   outline-offset: 2px;
 }
-
 
