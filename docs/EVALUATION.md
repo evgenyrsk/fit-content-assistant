@@ -32,6 +32,9 @@
 - база знаний возвращает только канонические claim versions, а не source candidates.
 - source intake не сохраняет chunks для ретракций, expressions of concern, не исследовательских форматов и недостаточных аннотаций;
 - любое intake-решение содержит versioned reason codes и не удаляет candidate из истории поиска.
+- full-text adapter отклоняет неизвестные/ограничительные лицензии и тексты без Methods/Results;
+- повторный abstract import не понижает `full_text`, а PMC import не скрывает более строгий PubMed record status;
+- Source Inbox читает последние intake-решения и явно показывает срок revalidation.
 
 ### Экспертные и модельные graders
 

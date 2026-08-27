@@ -19,11 +19,19 @@ export interface ScientificSourceDocument {
   title: string;
   doi?: string;
   pmid?: string;
+  pmcid?: string;
   publicationTypes: string[];
   recordStatus: EvidenceRecordStatus;
   contentLevel: SourceContentLevel;
   chunks: SourceDocumentChunk[];
+  reuseRights?: SourceReuseRights;
   fetchedAt: string;
+}
+
+export interface SourceReuseRights {
+  status: 'permitted' | 'unknown';
+  license: string;
+  origin: 'pmc_open_access';
 }
 
 export interface SourceDocumentCoverage {
@@ -34,6 +42,18 @@ export interface SourceDocumentCoverage {
   rejected: number;
   unavailable: number;
   decisions: SourceIntakeDecision[];
+}
+
+export interface FullTextCoverage {
+  requested: number;
+  stored: number;
+  unavailable: number;
+  documents: Array<{
+    sourceId: string;
+    pmcid: string;
+    license: string;
+    chunkCount: number;
+  }>;
 }
 
 export type SourceIntakeDecisionType = 'admitted_to_triage' | 'rejected';

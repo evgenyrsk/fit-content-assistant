@@ -5,6 +5,7 @@ import type { ContentFormat, Mode } from '@/features/shared';
 import { ContentComposer } from './content-composer';
 import { ResearchConsole } from './research-console';
 import { ResearchResult } from './research-result';
+import { SourceReviewQueue } from './source-review-queue';
 import { useResearchSearch } from './use-research-search';
 
 interface WorkspaceViewProps {
@@ -37,6 +38,7 @@ export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewPro
     <>
       <ResearchConsole topic={topic} mode={mode} status={status} trendOpen={trendOpen} trendSource={trendSource} onTopicChange={setTopic} onModeChange={setMode} onStart={startWork} onTrendToggle={() => setTrendOpen((value) => !value)} onTrendSourceChange={setTrendSource} onTrendChoose={chooseTrend} />
       <ResearchResult topic={topic} working={status === 'working'} result={result} error={error} showAllClaims={showAllClaims} onToggleClaims={() => setShowAllClaims((value) => !value)} />
+      <SourceReviewQueue refreshKey={result?.runId ?? ''} />
       <ContentComposer activeFormat={activeFormat} onFormatChange={onFormatChange} />
     </>
   );

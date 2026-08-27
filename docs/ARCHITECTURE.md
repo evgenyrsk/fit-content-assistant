@@ -34,6 +34,8 @@ LLM связывает этапы и управляет инструментам
 - сохраняет версию prompt, модельный run и событие решения отдельно от найденных source candidates.
 - явно различает `metadata_only`, `abstract_only` и `full_text`; аннотация служит для triage и не открывает evidence gate.
 - разделяет полную историю candidates и исследовательский архив: chunks сохраняются только после versioned deterministic intake, а причины допуска/отказа остаются в D1.
+- после intake пакетно проверяет официальный PMC Open Access corpus, сохраняет только allowlisted reuse licenses и повышает документ до `full_text` лишь при наличии Methods/Results;
+- хранит content level, PMCID, license и reuse origin отдельно от библиографической записи, не допуская downgrade при повторном импорте abstract.
 - Trend Scout отдельно собирает сигналы свежести и роста тем из доступных социальных источников, затем оценивает их научную проверяемость и отсутствие дублей в контент-архиве.
 - публичные Google Trends/News signals всегда маркируются как proxy; PubMed Research Pulse показывает свежесть научной повестки, но не социальную виральность; прямые Threads/Instagram signals требуют разрешённого API-доступа.
 
@@ -58,6 +60,8 @@ LLM связывает этапы и управляет инструментам
 - `claims`
 - `sources`
 - `source_chunks`
+- `source_documents`
+- `source_intake_decisions`
 - `source_assessments`
 - `claim_versions`
 - `claim_evidence`
@@ -104,3 +108,4 @@ LLM связывает этапы и управляет инструментам
 Экономная provider-agnostic маршрутизация зафиксирована в `docs/decisions/0005-provider-agnostic-economy-routing.md`.
 Граница между abstract triage, full-text appraisal и claims зафиксирована в `docs/decisions/0006-abstract-ingestion-and-evidence-gates.md`.
 Отбор источников в исследовательский архив зафиксирован в `docs/decisions/0007-deterministic-source-intake.md`.
+Rights-aware full-text ingestion зафиксирован в `docs/decisions/0008-rights-aware-full-text-ingestion.md`.

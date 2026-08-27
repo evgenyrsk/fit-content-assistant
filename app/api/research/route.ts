@@ -3,10 +3,11 @@ import { env } from 'cloudflare:workers';
 import { executeResearchPlan } from '@/lib/application/orchestration/execute-research-plan';
 import { researchPlanPrompt } from '@/lib/application/orchestration/research-plan-prompt';
 import { buildScientificQuery } from '@/lib/application/use-cases/build-scientific-query';
+import { ingestFullTextDocuments } from '@/lib/application/use-cases/ingest-full-text-documents';
 import { ingestSourceDocuments } from '@/lib/application/use-cases/ingest-source-documents';
 import { searchScientificSources } from '@/lib/application/use-cases/search-scientific-sources';
 import { methodologyRelease } from '@/lib/domain';
-import type { ResearchPlanningTrace, ScientificSourceCandidate, SourceDocumentCoverage } from '@/lib/domain';
+import type { FullTextCoverage, ResearchPlanningTrace, ScientificSourceCandidate, SourceDocumentCoverage } from '@/lib/domain';
 import { D1AuditEventStore } from '@/lib/infrastructure/d1/d1-audit-event-store';
 import { D1ModelRunStore } from '@/lib/infrastructure/d1/d1-model-run-store';
 import { D1SourceDocumentStore } from '@/lib/infrastructure/d1/d1-source-document-store';
@@ -16,6 +17,7 @@ import { D1ResearchRunStore } from '@/lib/infrastructure/d1/d1-research-run-stor
 import { ensurePipelineSchema } from '@/lib/infrastructure/d1/ensure-pipeline-schema';
 import { ensureResearchSchema } from '@/lib/infrastructure/d1/ensure-research-schema';
 import { CrossrefSearch } from '@/lib/infrastructure/scientific/crossref-search';
+import { PmcOpenAccessLoader } from '@/lib/infrastructure/scientific/pmc-open-access-loader';
 import { PubmedDocumentLoader } from '@/lib/infrastructure/scientific/pubmed-document-loader';
 import { PubmedSearch } from '@/lib/infrastructure/scientific/pubmed-search';
 import { createLlmRuntime } from '@/lib/infrastructure/llm/create-llm-runtime';
@@ -88,6 +90,22 @@ async function capturePubmedDocuments(
   }
 }
 
+async function capturePmcFullText(
+  coverage: SourceDocumentCoverage,
+  database: D1Database,
+): Promise<FullTextCoverage> {
+  const ids = coverage.decisions.flatMap((decision) =>
+    decision.decision === 'admitted_to_triage' ? [decision.sourceId.replace('pmid:', '')] : []);
+  try {
+    return await ingestFullTextDocuments(ids, {
+      loader: new PmcOpenAccessLoader(),
+      store: new D1SourceDocumentStore(database),
+    });
+  } catch {
+    return { requested: ids.length, stored: 0, unavailable: ids.length, documents: [] };
+  }
+}
+
 export async function POST(request: Request): Promise<Response> {
   const body = await request.json().catch(() => ({})) as ResearchRequestBody;
   const query = requestQuery(body);
@@ -117,9 +135,11 @@ export async function POST(request: Request): Promise<Response> {
     await new D1ResearchRunStore(runtime.DB).saveSearch(discovered);
     const documentCoverage = await capturePubmedDocuments(result.candidates, runtime.DB, runtime);
     await new D1SourceIntakeDecisionStore(runtime.DB).saveAll(runId, documentCoverage.decisions);
+    const fullTextCoverage = await capturePmcFullText(documentCoverage, runtime.DB);
     const completed = {
       ...discovered,
       documentCoverage,
+      fullTextCoverage,
       warnings: [
         ...discovered.warnings,
         ...(documentCoverage.unavailable > 0 ? ['Часть аннотаций PubMed не удалось сохранить.'] : []),
@@ -138,6 +158,7 @@ export async function POST(request: Request): Promise<Response> {
         modelRunId: planning.modelRun?.runId, methodologyVersion: methodologyRelease.version,
         automaticClaimApprovalEnabled: methodologyRelease.automatedClaimApprovalEnabled,
         documentCoverage,
+        fullTextCoverage,
       },
       occurredAt: result.completedAt,
     });

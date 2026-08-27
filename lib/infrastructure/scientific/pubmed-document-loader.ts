@@ -66,7 +66,7 @@ function parseArticle(article: string, fetchedAt: string): ScientificSourceDocum
   const publicationTypes = elementValues(article, 'PublicationType');
   return {
     sourceId, provider: 'pubmed', externalId: pmid, title,
-    doi: articleId(article, 'doi'), pmid, publicationTypes,
+    doi: articleId(article, 'doi'), pmid, pmcid: articleId(article, 'pmc'), publicationTypes,
     recordStatus: recordStatus(article, publicationTypes),
     contentLevel: chunks.length > 0 ? 'abstract_only' : 'metadata_only',
     chunks, fetchedAt,

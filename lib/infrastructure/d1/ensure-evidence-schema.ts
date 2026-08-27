@@ -8,6 +8,13 @@ const evidenceSchema = [
     UNIQUE (source_id, content_hash)
   )`,
   `CREATE INDEX IF NOT EXISTS idx_source_chunks_source ON source_chunks(source_id)`,
+  `CREATE TABLE IF NOT EXISTS source_documents (
+    source_id TEXT PRIMARY KEY REFERENCES sources(id), source_provider TEXT NOT NULL,
+    content_level TEXT NOT NULL, pmcid TEXT, reuse_status TEXT NOT NULL DEFAULT 'unknown',
+    license TEXT, reuse_origin TEXT, fetched_at TEXT NOT NULL
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_source_documents_pmcid
+  ON source_documents(pmcid) WHERE pmcid IS NOT NULL`,
   `CREATE TABLE IF NOT EXISTS source_intake_decisions (
     research_run_id TEXT NOT NULL REFERENCES research_runs(id),
     source_id TEXT NOT NULL REFERENCES sources(id), decision TEXT NOT NULL,

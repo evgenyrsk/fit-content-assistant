@@ -82,8 +82,9 @@
 ## Автономный трек без LLM
 
 - [x] Versioned intake-gate для PubMed sources без эвристики «престижности».
-- [ ] PubMed Central Open Access full-text ingestion и section completeness gate.
-- [ ] Очередь ручного source review и аудируемый override.
+- [x] PubMed Central Open Access full-text ingestion, license allowlist и section completeness gate.
+- [x] Постоянная Source Inbox с full-text/intake/revalidation фильтрами.
+- [ ] Ручной source review и аудируемый override.
 - [ ] Перепроверка corrections, expressions of concern и retractions.
 - [ ] Lexical search по source chunks и каноническим claims.
 - [ ] Ручное создание/утверждение claims с полной evidence-трассировкой.

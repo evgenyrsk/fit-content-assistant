@@ -47,6 +47,7 @@ A change is complete only when it:
 - Keep all discovered candidates in research history, but admit source chunks to the research corpus only through the versioned intake policy with explicit reasons.
 - Do not use journal prestige, citation count, funding source alone, result direction, or title-keyword matching as an automatic source-intake decision.
 - Cite the exact source passage or chunk used for an evidence assessment.
+- Retrieve and persist full text only through official or user-authorized channels with recorded reuse rights; never bypass paywalls, authentication, access controls, or publisher terms.
 - Freshness requirements depend on the claim; time-sensitive claims must have a review deadline.
 - Treat the approved methodology in `docs/EVIDENCE_RELIABILITY.md` as a blocking release dependency. Until calibrated, automated assessments remain `needs_review`.
 - Do not reject or accept a study solely because of its funding source; assess sponsor role, transparency, design, reporting, and the totality of evidence separately.

@@ -7,13 +7,14 @@ const fixture = `<?xml version="1.0"?><PubmedArticleSet><PubmedArticle><MedlineC
 <AbstractText Label="METHODS">Randomized trial methods.</AbstractText>
 <AbstractText Label="RESULTS">Strength increased.</AbstractText></Abstract>
 <PublicationTypeList><PublicationType>Randomized Controlled Trial</PublicationType></PublicationTypeList>
-</Article></MedlineCitation><PubmedData><ArticleIdList><ArticleId IdType="doi">10.1000/test</ArticleId></ArticleIdList>
+</Article></MedlineCitation><PubmedData><ArticleIdList><ArticleId IdType="doi">10.1000/test</ArticleId><ArticleId IdType="pmc">PMC123</ArticleId></ArticleIdList>
 </PubmedData></PubmedArticle></PubmedArticleSet>`;
 
 test('parses section-level abstract provenance without calling it full text', () => {
   const [document] = parsePubmedDocuments(fixture, '2026-08-27T00:00:00.000Z');
   assert.equal(document.sourceId, 'pmid:123');
   assert.equal(document.title, 'Creatine & strength');
+  assert.equal(document.pmcid, 'PMC123');
   assert.equal(document.contentLevel, 'abstract_only');
   assert.equal(document.chunks[0].locator, 'abstract:methods');
   assert.equal(document.chunks[1].text, 'Strength increased.');

@@ -11,7 +11,7 @@ Forme использует **claim-first hybrid RAG**. Векторный пои
 
 Content Engine по умолчанию ищет только в `approved_claims`. Доступ к `source_chunks` открывается исследовательскому конвейеру, а не финальному писателю.
 
-Текущий ingestion сохраняет секции PubMed-аннотаций в `source_chunks` с locator и content hash. Они индексируются как `abstract_only` и пригодны для triage, но не переходят в assessment-grade evidence. Полные тексты будут поступать через отдельные разрешённые adapters; смена уровня доступа не стирает предыдущую provenance.
+Текущий ingestion сохраняет секции PubMed-аннотаций в `source_chunks` с locator и content hash. Они индексируются как `abstract_only` и пригодны для triage, но не переходят в assessment-grade evidence. Для прошедших intake записей PMC Open Access adapter добавляет разрешённые Methods/Results/Discussion passages с PMCID, license и offset. Смена уровня доступа не стирает предыдущую provenance.
 
 ## Почему не «просто векторная база»
 

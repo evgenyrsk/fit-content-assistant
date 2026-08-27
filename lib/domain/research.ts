@@ -1,4 +1,4 @@
-export type ScientificSourceProvider = 'pubmed' | 'crossref';
+export type ScientificSourceProvider = 'pubmed' | 'crossref' | 'pmc';
 
 export interface ScientificSourceCandidate {
   id: string;
@@ -51,4 +51,5 @@ export interface ResearchSearchResult {
   completedAt: string;
   planning?: ResearchPlanningTrace;
   documentCoverage?: import('./source-document.ts').SourceDocumentCoverage;
+  fullTextCoverage?: import('./source-document.ts').FullTextCoverage;
 }

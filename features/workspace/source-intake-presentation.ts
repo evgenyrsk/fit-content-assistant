@@ -11,15 +11,26 @@ const reasonLabels: Record<SourceIntakeReason, string> = {
   non_research_publication: 'не исследовательский тип публикации',
 };
 
-export function intakePresentation(decision?: SourceIntakeDecision): {
+export function intakeReasonText(reasons: SourceIntakeReason[]): string {
+  return reasons.map((reason) => reasonLabels[reason]).join(' · ');
+}
+
+export function intakePresentation(decision?: SourceIntakeDecision, fullTextLicense?: string): {
   label: string;
   details: string;
-  state: 'admitted' | 'rejected' | 'candidate';
+  state: 'fulltext' | 'admitted' | 'rejected' | 'candidate';
 } {
+  if (fullTextLicense) {
+    return {
+      label: 'Полный текст PMC',
+      details: `${fullTextLicense} · секции сохранены с provenance`,
+      state: 'fulltext',
+    };
+  }
   if (!decision) {
     return { label: 'Кандидат', details: 'Сохранён только в истории поиска', state: 'candidate' };
   }
-  const details = decision.reasons.map((reason) => reasonLabels[reason]).join(' · ');
+  const details = intakeReasonText(decision.reasons);
   return decision.decision === 'admitted_to_triage'
     ? { label: 'Допущен в triage', details, state: 'admitted' }
     : { label: 'Отсеян', details, state: 'rejected' };

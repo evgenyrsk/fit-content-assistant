@@ -73,6 +73,10 @@
   .insight-grid { display: block; }
   .source-candidate-list { grid-template-columns: 1fr; }
   .source-candidate-list article { border-right: 0; }
+  .source-queue-panel { padding: 19px; border-radius: 19px; }
+  .source-queue-panel > nav { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .source-queue-panel > nav button:last-child { grid-column: 1 / -1; }
+  .source-queue-item { grid-template-columns: 34px minmax(0,1fr) 30px; gap: 10px; }
   .research-trace { margin-inline: 13px; grid-template-columns: auto minmax(0,1fr); }
   .research-trace > em { grid-column: 2; white-space: normal; }
   .verdict-card, .evidence-card { border-radius: 19px; }

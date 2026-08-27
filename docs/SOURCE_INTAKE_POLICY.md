@@ -36,11 +36,12 @@ PubMed-запись допускается в исследовательский
 
 ## Следующие автономные этапы без LLM
 
-1. Подключить разрешённые полные тексты PubMed Central Open Access и проверку полноты секций.
-2. Сделать отдельную очередь source review с ручным include/exclude и обязательной причиной override.
-3. Добавить периодическую перепроверку corrections, expressions of concern и retractions.
-4. Реализовать lexical search по source metadata/chunks и каноническим claims до подключения embeddings.
-5. Добавить ручное создание и утверждение claim с полной трассировкой.
-6. Перевести архив контента, статусы и календарь из демонстрационных данных в D1.
+1. ~~Подключить разрешённые полные тексты PubMed Central Open Access и проверку полноты секций.~~
+2. ~~Сделать постоянную очередь source review с фильтрами full text, triage, rejected и revalidation.~~
+3. Добавить ручной include/exclude с обязательной причиной override.
+4. Добавить периодическую перепроверку corrections, expressions of concern и retractions.
+5. Реализовать lexical search по source metadata/chunks и каноническим claims до подключения embeddings.
+6. Добавить ручное создание и утверждение claim с полной трассировкой.
+7. Перевести архив контента, статусы и календарь из демонстрационных данных в D1.
 
 Этапы, которые всё равно потребуют участия владельца: добавление LLM secret, экспертная калибровка evidence-методологии и формирование авторского style profile.
