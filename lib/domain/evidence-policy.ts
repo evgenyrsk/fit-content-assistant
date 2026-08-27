@@ -1,8 +1,9 @@
 import { isQuestionDesignCompatible } from './evidence-routing.ts';
 import { requiredStudyDimensions, type StudyAssessmentInput, type StudyGateReason, type StudyGateResult } from './evidence-methodology.ts';
+import { integrityGateReasons } from './study-integrity-policy.ts';
 
 export const methodologyRelease = {
-  version: '0.1.0-draft',
+  version: '0.2.0-draft',
   calibrated: false,
   automatedClaimApprovalEnabled: false,
 } as const;
@@ -35,6 +36,7 @@ function collectEscalationReasons(input: StudyAssessmentInput): StudyGateReason[
   const reviewReasons: StudyGateReason[] = [];
   if (input.dimensions.some((item) => item.judgement === 'high_concern')) reviewReasons.push('high_bias_concern');
   if (input.sponsorRole === 'not_reported' || input.sponsorRole === 'partially_reported') reviewReasons.push('sponsor_role_unclear');
+  reviewReasons.push(...integrityGateReasons(input.studyDesign, input.integrityChecks));
   return reviewReasons;
 }
 

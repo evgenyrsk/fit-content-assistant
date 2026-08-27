@@ -1,5 +1,6 @@
 import { ArrowUpRight, CircleAlert, Database } from 'lucide-react';
 import type { ResearchSearchResult } from '@/lib/domain';
+import { ResearchPipelineTrace } from './research-pipeline-trace';
 
 interface ScientificSourceResultsProps {
   result: ResearchSearchResult;
@@ -16,6 +17,7 @@ export function ScientificSourceResults({ result }: ScientificSourceResultsProps
         <div><p className="overline">LIVE SOURCE DISCOVERY</p><h3>{result.candidates.length} кандидатов для оценки</h3></div>
         <span className="review-pill"><CircleAlert aria-hidden="true" /> Нужна оценка</span>
       </header>
+      {result.planning && <ResearchPipelineTrace planning={result.planning} />}
       <div className="source-candidate-list">
         {result.candidates.map((source, index) => (
           <article key={source.id}>

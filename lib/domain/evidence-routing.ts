@@ -23,7 +23,7 @@ export function routeAppraisal(question: EvidenceQuestionType, design: StudyDesi
     return { instrument: 'robins_e', reportingGuideline: 'strobe', reportingGuidelineIsQualityScore: false, automatedDraftAllowed: false, notes: ['Human confirmation is required during methodology calibration.'] };
   }
   if (design === 'diagnostic_accuracy') {
-    return { instrument: 'quadas2', reportingGuideline: 'stard_2015', reportingGuidelineIsQualityScore: false, automatedDraftAllowed: false, notes: ['Tool must be tailored to the review question before use.'] };
+    return { instrument: 'quadas3', reportingGuideline: 'stard_2015', reportingGuidelineIsQualityScore: false, automatedDraftAllowed: false, notes: ['Assess a specific accuracy estimate against a review-specific ideal test accuracy study.'] };
   }
   if (design === 'systematic_review_meta_analysis') {
     return { instrument: 'amstar2', reportingGuideline: 'prisma_2020', reportingGuidelineIsQualityScore: false, automatedDraftAllowed: true, notes: ['AMSTAR 2 critical domains are retained; no numeric total score is produced.'] };

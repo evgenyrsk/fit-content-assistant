@@ -43,7 +43,7 @@ export class D1ResearchRunStore implements ResearchRunStore {
         result.runId,
         result.query,
         result.status,
-        JSON.stringify({ providers: result.searchedProviders }),
+        JSON.stringify({ providers: result.searchedProviders, planning: result.planning }),
         result.completedAt,
         result.completedAt,
       ),

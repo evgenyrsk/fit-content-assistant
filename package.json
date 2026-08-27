@@ -13,8 +13,9 @@
     "typecheck": "tsc --noEmit",
     "architecture": "node scripts/check-architecture.mjs",
     "test:domain": "node --experimental-strip-types --test lib/domain/*.test.ts",
+    "test:application": "node --experimental-strip-types --test lib/application/orchestration/*.test.ts lib/application/use-cases/*.test.ts",
     "test:adapters": "node --experimental-strip-types --test lib/infrastructure/scientific/*.test.ts lib/infrastructure/trends/*.test.ts lib/infrastructure/llm/*.test.ts",
-    "check": "npm run architecture && npm run lint && npm run typecheck && npm run test:domain && npm run test:adapters && npm run build"
+    "check": "npm run architecture && npm run lint && npm run typecheck && npm run test:domain && npm run test:application && npm run test:adapters && npm run build"
   },
   "dependencies": {
     "lucide-react": "^1.34.0",

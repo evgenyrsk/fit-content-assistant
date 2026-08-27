@@ -73,6 +73,8 @@
   .insight-grid { display: block; }
   .source-candidate-list { grid-template-columns: 1fr; }
   .source-candidate-list article { border-right: 0; }
+  .research-trace { margin-inline: 13px; grid-template-columns: auto minmax(0,1fr); }
+  .research-trace > em { grid-column: 2; white-space: normal; }
   .verdict-card, .evidence-card { border-radius: 19px; }
   .evidence-card { margin-top: 12px; padding: 19px; }
   .verdict-card { min-height: 475px; padding: 19px; }

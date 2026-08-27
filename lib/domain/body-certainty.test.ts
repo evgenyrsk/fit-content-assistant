@@ -15,7 +15,7 @@ function makeBody(overrides: Partial<BodyOfEvidenceAssessment> = {}): BodyOfEvid
     proposedCertainty: 'high',
     rationale: 'All required domains were considered.',
     humanReview: 'confirmed',
-    methodologyVersion: '0.1.0-draft',
+    methodologyVersion: '0.2.0-draft',
     ...overrides,
   };
 }

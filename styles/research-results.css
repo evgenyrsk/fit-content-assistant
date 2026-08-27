@@ -41,6 +41,15 @@
 .live-research-card > header h3 { margin: 6px 0 0; font-size: 19px; letter-spacing: -.035em; }
 .review-pill { padding: 7px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; color: #8d6425; background: #fbf0d7; font-size: var(--type-caption); font-weight: 850; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
 .review-pill svg { width: 13px; height: 13px; }
+.research-trace { margin: 16px 20px 0; padding: 15px; border: 1px solid var(--border-main); border-radius: 15px; display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 12px; align-items: start; background: var(--panel-soft); }
+.research-trace > span { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: var(--forest-800); background: var(--acid); }
+.research-trace > span svg { width: 17px; height: 17px; }
+.research-trace strong { display: block; font-size: var(--type-meta); }
+.research-trace p { margin: 4px 0 8px; color: var(--text-soft); font-size: var(--type-caption); line-height: 1.5; }
+.research-trace small { display: flex; align-items: flex-start; gap: 6px; color: var(--text-soft); font-size: var(--type-caption); line-height: 1.45; overflow-wrap: anywhere; }
+.research-trace small svg { width: 13px; height: 13px; margin-top: 2px; flex: 0 0 auto; }
+.research-trace > em { padding: 6px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px; color: #7a652b; background: rgba(221,244,91,.25); font-size: var(--type-caption); font-style: normal; font-weight: 800; white-space: nowrap; }
+.research-trace > em svg { width: 13px; height: 13px; }
 .source-candidate-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); }
 .source-candidate-list article { min-height: 145px; padding: 20px 22px; border-right: 1px solid var(--border-main); border-bottom: 1px solid var(--border-main); display: grid; grid-template-columns: 28px minmax(0,1fr) auto; gap: 12px; }
 .source-candidate-list article:nth-child(2n) { border-right: 0; }
@@ -118,4 +127,3 @@
 footer { margin-top: 20px; padding: 15px 3px 0; border-top: 1px solid #dfe3dc; display: flex; align-items: center; justify-content: space-between; gap: 20px; color: #9ba29c; font-size: var(--type-caption); }
 footer span { font-weight: 850; text-transform: uppercase; letter-spacing: .1em; }
 footer p { max-width: 650px; margin: 0; text-align: right; line-height: 1.5; }
-

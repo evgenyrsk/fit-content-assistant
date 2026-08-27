@@ -21,6 +21,9 @@
 - публичный язык не может быть сильнее confidence и review status;
 - source adapters проходят fixture-based contract tests;
 - LLM adapters обязаны передавать strict schema и возвращать usage/cost metadata.
+- research plan обязан содержать disconfirming evidence; лишнее поле или неполная схема блокируют модельный результат.
+- неподдерживаемый structured output и ошибка контракта переводят research plan в видимый deterministic fallback.
+- каждый модельный research plan сохраняет provider, model, prompt version, usage/cost и gate decision.
 
 ### Экспертные и модельные graders
 

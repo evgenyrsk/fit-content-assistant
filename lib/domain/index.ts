@@ -5,5 +5,6 @@ export * from './evidence-methodology.ts';
 export * from './evidence-policy.ts';
 export * from './evidence-routing.ts';
 export * from './research.ts';
+export * from './study-integrity-policy.ts';
 export * from './trends.ts';
 export * from './public-claim-language.ts';

@@ -23,7 +23,7 @@ export type AppraisalInstrument =
   | 'rob2'
   | 'robins_i_2016'
   | 'robins_e'
-  | 'quadas2'
+  | 'quadas3'
   | 'amstar2'
   | 'expert_protocol_required';
 
@@ -58,6 +58,33 @@ export type EvidenceRecordStatus =
   | 'retracted'
   | 'unknown';
 
+export type StudyIntegrityCheckId =
+  | 'prospective_registration'
+  | 'prespecified_outcomes'
+  | 'sample_size_justification'
+  | 'randomization_process'
+  | 'allocation_concealment'
+  | 'blinding_or_objective_measurement'
+  | 'missing_data_handling'
+  | 'multiplicity_control'
+  | 'confounding_control'
+  | 'temporal_order'
+  | 'comprehensive_search'
+  | 'duplicate_assessment'
+  | 'missing_results_assessment'
+  | 'sponsor_analysis_independence'
+  | 'data_code_availability';
+
+export type IntegrityCheckState = 'adequate' | 'concern' | 'unclear' | 'not_applicable';
+
+export interface StudyIntegrityCheck {
+  check: StudyIntegrityCheckId;
+  state: IntegrityCheckState;
+  rationale: string;
+  provenanceIds: string[];
+  assessor: 'model_draft' | 'human';
+}
+
 export interface DimensionAssessment {
   dimension: StudyDimension;
   judgement: DimensionJudgement;
@@ -77,6 +104,7 @@ export interface StudyAssessmentInput {
   provenanceComplete: boolean;
   sponsorRole: 'fully_reported' | 'partially_reported' | 'not_reported' | 'not_applicable';
   dimensions: DimensionAssessment[];
+  integrityChecks: StudyIntegrityCheck[];
 }
 
 export type StudyGateDecision =
@@ -96,6 +124,18 @@ export type StudyGateReason =
   | 'high_bias_concern'
   | 'sponsor_role_unclear'
   | 'question_design_mismatch'
+  | 'design_checks_incomplete'
+  | 'design_checks_unclear'
+  | 'registration_or_protocol_concern'
+  | 'selective_reporting_concern'
+  | 'randomization_concern'
+  | 'measurement_bias_concern'
+  | 'attrition_concern'
+  | 'multiplicity_concern'
+  | 'confounding_or_temporality_concern'
+  | 'imprecision_concern'
+  | 'review_methods_concern'
+  | 'sponsor_independence_concern'
   | 'eligible_with_recorded_caveats';
 
 export interface StudyGateResult {

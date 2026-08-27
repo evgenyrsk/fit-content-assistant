@@ -14,6 +14,32 @@ export interface ScientificSourceCandidate {
   discoveredAt: string;
 }
 
+export interface ResearchPlanDraft {
+  normalizedQuestion: string;
+  questionType: import('./evidence-methodology.ts').EvidenceQuestionType;
+  population: string;
+  intervention: string | null;
+  comparator: string | null;
+  outcomes: string[];
+  inclusionCriteria: string[];
+  exclusionCriteria: string[];
+  disconfirmingEvidence: string[];
+  searchQuery: string;
+  ambiguities: string[];
+}
+
+export type ResearchPlanningMode = 'model_draft' | 'deterministic_fallback' | 'awaiting_provider';
+
+export interface ResearchPlanningTrace {
+  mode: ResearchPlanningMode;
+  searchQuery: string;
+  promptVersion: string;
+  reviewRequired: true;
+  provider?: string;
+  model?: string;
+  draft?: ResearchPlanDraft;
+}
+
 export interface ResearchSearchResult {
   runId: string;
   query: string;
@@ -23,4 +49,5 @@ export interface ResearchSearchResult {
   unavailableProviders: ScientificSourceProvider[];
   warnings: string[];
   completedAt: string;
+  planning?: ResearchPlanningTrace;
 }

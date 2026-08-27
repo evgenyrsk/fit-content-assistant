@@ -8,7 +8,7 @@ Forme — модульный монолит с явными feature-границ
 
 `infrastructure → application ports → domain`
 
-API routes служат composition root, а не содержат бизнес-правила. Текущий вертикальный срез связывает PubMed/Crossref, deterministic query normalization и D1 через `/api/research`; публичные live proxies, опциональный Threads adapter и историю trend signals — через `/api/trends`.
+API routes служат composition root, а не содержат бизнес-правила. Текущий вертикальный срез связывает provider-neutral research planning, PubMed/Crossref, fail-closed query fallback и D1 audit trail через `/api/research`; публичные live proxies, опциональный Threads adapter и историю trend signals — через `/api/trends`.
 
 ## Поток данных
 
@@ -22,6 +22,7 @@ LLM связывает этапы и управляет инструментам
 - OpenAI и OpenRouter подключаются серверными адаптерами;
 - provider/model выбираются отдельно для research и content после общего eval;
 - capabilities проверяются явно, а фактический маршрут записывается в audit log;
+- отсутствие ключа или невалидный structured output не маскируются: поиск продолжает безопасный deterministic route с видимым статусом;
 - retrieval и научная проверка остаются собственными слоями Forme, поэтому смена провайдера не меняет каноническую базу.
 
 ### Research Engine
@@ -30,6 +31,7 @@ LLM связывает этапы и управляет инструментам
 - сначала ищет в собственной базе;
 - затем обращается к PubMed, Crossref и издательским страницам;
 - сохраняет метаданные и полный контекст поиска.
+- сохраняет версию prompt, модельный run и событие решения отдельно от найденных source candidates.
 - Trend Scout отдельно собирает сигналы свежести и роста тем из доступных социальных источников, затем оценивает их научную проверяемость и отсутствие дублей в контент-архиве.
 - публичные Google Trends/News signals всегда маркируются как proxy; PubMed Research Pulse показывает свежесть научной повестки, но не социальную виральность; прямые Threads/Instagram signals требуют разрешённого API-доступа.
 
