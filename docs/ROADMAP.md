@@ -50,7 +50,7 @@
 - [ ] Проверить прямой OpenAI и OpenRouter на одном eval-наборе, затем выбрать primary/fallback по качеству, функциям, задержке и стоимости.
 - [ ] Реализовать строгие схемы этапов LLM-конвейера и audit log.
 - [x] Поиск PubMed/Crossref по одному вопросу с сохранением source candidates.
-- [x] Подключить публичные live proxy-сигналы Google Trends/News с явной маркировкой.
+- [x] Подключить Google Trends/News proxy и PubMed Research Pulse с явной маркировкой типа сигнала.
 - [ ] Подключить прямые Threads/Instagram signals после получения разрешённых Meta tokens.
 - [ ] Структурированная оценка источников.
 - [ ] Сохранение claims с confidence и limitations.

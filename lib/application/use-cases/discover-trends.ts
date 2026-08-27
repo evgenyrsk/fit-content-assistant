@@ -22,6 +22,7 @@ export async function discoverTrends(
   const candidates: TrendCandidate[] = [];
   const activeSources: TrendSource[] = [];
   const unavailableSources: TrendSource[] = [];
+  const sourceErrors: Partial<Record<TrendSource, string>> = {};
   settled.forEach((outcome, index) => {
     const source = dependencies.providers[index].source;
     if (outcome.status === 'fulfilled') {
@@ -29,6 +30,7 @@ export async function discoverTrends(
       candidates.push(...outcome.value);
     } else {
       unavailableSources.push(source);
+      sourceErrors[source] = outcome.reason instanceof Error ? outcome.reason.message : 'Источник недоступен.';
     }
   });
   for (const source of dependencies.expectedSources ?? []) {
@@ -41,6 +43,7 @@ export async function discoverTrends(
     candidates: ranked,
     activeSources,
     unavailableSources,
+    sourceErrors,
     status: ranked.length > 0 ? 'live' : 'unavailable',
     message: ranked.length > 0
       ? 'Сигналы актуальности получены в реальном времени; научная достоверность ещё не оценена.'

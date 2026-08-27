@@ -18,7 +18,7 @@ export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewPro
   const { status, result, error, start } = useResearchSearch();
   const [showAllClaims, setShowAllClaims] = useState(false);
   const [trendOpen, setTrendOpen] = useState(false);
-  const [trendSource, setTrendSource] = useState<'all' | 'google_trends' | 'google_news' | 'threads' | 'instagram'>('all');
+  const [trendSource, setTrendSource] = useState<'all' | 'google_trends' | 'google_news' | 'pubmed_pulse' | 'threads' | 'instagram'>('all');
 
   async function startWork() {
     if (!topic.trim()) return;

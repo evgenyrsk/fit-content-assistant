@@ -8,6 +8,7 @@ import { GoogleNewsFeed } from '@/lib/infrastructure/trends/google-news-feed';
 import { ThreadsKeywordSearch } from '@/lib/infrastructure/trends/threads-keyword-search';
 import { D1TrendSignalStore } from '@/lib/infrastructure/d1/d1-trend-signal-store';
 import { ensureTrendSchema } from '@/lib/infrastructure/d1/ensure-trend-schema';
+import { PubmedResearchPulse } from '@/lib/infrastructure/trends/pubmed-research-pulse';
 
 function runtime(): Record<string, string | D1Database | undefined> {
   return env as unknown as Record<string, string | D1Database | undefined>;
@@ -18,13 +19,20 @@ function requestedSources(value: string | null): TrendSource[] {
   if (value === 'instagram') return ['instagram'];
   if (value === 'google_trends') return ['google_trends'];
   if (value === 'google_news') return ['google_news'];
-  return ['google_trends', 'google_news', 'threads', 'instagram'];
+  if (value === 'pubmed_pulse') return ['pubmed_pulse'];
+  return ['google_trends', 'google_news', 'pubmed_pulse', 'threads', 'instagram'];
 }
 
 function configuredProviders(expected: TrendSource[], settings: Record<string, string | D1Database | undefined>): TrendProvider[] {
   const providers: TrendProvider[] = [];
   if (expected.includes('google_trends')) providers.push(new GoogleTrendsRss());
   if (expected.includes('google_news')) providers.push(new GoogleNewsFeed());
+  if (expected.includes('pubmed_pulse')) {
+    providers.push(new PubmedResearchPulse({
+      apiKey: typeof settings.PUBMED_API_KEY === 'string' ? settings.PUBMED_API_KEY : undefined,
+      email: typeof settings.NCBI_EMAIL === 'string' ? settings.NCBI_EMAIL : undefined,
+    }));
+  }
   const token = settings.THREADS_ACCESS_TOKEN;
   const version = settings.THREADS_API_VERSION;
   if (expected.includes('threads') && typeof token === 'string' && typeof version === 'string') {

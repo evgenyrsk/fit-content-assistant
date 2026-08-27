@@ -2,7 +2,7 @@ export type Mode = 'Исследовать' | 'Создать' | 'Провери
 export type ContentFormat = 'Reels' | 'Telegram' | 'Threads' | 'Карусель';
 export type ViewId = 'workspace' | 'knowledge' | 'content' | 'history';
 export type Theme = 'light' | 'dark';
-export type TrendSourceChoice = 'all' | 'google_trends' | 'google_news' | 'threads' | 'instagram';
+export type TrendSourceChoice = 'all' | 'google_trends' | 'google_news' | 'pubmed_pulse' | 'threads' | 'instagram';
 
 export interface DemoClaim {
   confidence: 'Высокая' | 'Умеренная' | 'Недостаточно данных';

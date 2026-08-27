@@ -17,7 +17,7 @@ export function TrendScout({ source, onSourceChange, onChoose }: TrendScoutProps
         <div><span><Radio aria-hidden="true" /> LIVE SIGNALS</span><h2>Что сейчас стоит исследовать</h2></div>
         <label>Источники
           <select value={source} onChange={(event) => onSourceChange(event.target.value as TrendSourceChoice)}>
-            <option value="all">Все доступные</option><option value="google_trends">Google Trends</option><option value="google_news">Google News proxy</option><option value="threads">Threads</option><option value="instagram">Instagram</option>
+            <option value="all">Все доступные</option><option value="google_trends">Google Trends</option><option value="google_news">Google News proxy</option><option value="pubmed_pulse">PubMed Research Pulse</option><option value="threads">Threads</option><option value="instagram">Instagram</option>
           </select>
         </label>
       </div>

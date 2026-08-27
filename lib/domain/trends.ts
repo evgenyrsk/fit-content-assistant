@@ -1,4 +1,4 @@
-export type TrendSource = 'google_trends' | 'google_news' | 'threads' | 'instagram';
+export type TrendSource = 'google_trends' | 'google_news' | 'pubmed_pulse' | 'threads' | 'instagram';
 
 export interface TrendCandidate {
   id: string;
@@ -20,6 +20,7 @@ export interface TrendDiscoveryResult {
   candidates: TrendCandidate[];
   activeSources: TrendSource[];
   unavailableSources: TrendSource[];
+  sourceErrors: Partial<Record<TrendSource, string>>;
   status: 'live' | 'unavailable';
   message: string;
   refreshedAt: string;

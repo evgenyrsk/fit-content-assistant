@@ -13,7 +13,7 @@ Forme разделяет четыре самостоятельных этапа:
 
 ## Текущее состояние
 
-Работает интерактивный интерфейс MVP, реальный поиск source candidates в PubMed/Crossref, сохранение research runs в D1 и live Trend Scout на публичных proxy-сигналах. Найденные публикации не выдаются за проверенные claims. OpenAI/OpenRouter adapters готовы к подключению секретов; модельный evidence/content pipeline ещё не активирован.
+Работает интерактивный интерфейс MVP, реальный поиск source candidates в PubMed/Crossref, сохранение research runs в D1 и live Trend Scout на публичных proxy-сигналах и PubMed Research Pulse. Найденные публикации не выдаются за проверенные claims. OpenAI/OpenRouter adapters готовы к подключению секретов; модельный evidence/content pipeline ещё не активирован.
 
 ## Документы
 
