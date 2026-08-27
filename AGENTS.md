@@ -48,6 +48,9 @@ A change is complete only when it:
 - Freshness requirements depend on the claim; time-sensitive claims must have a review deadline.
 - Treat the approved methodology in `docs/EVIDENCE_RELIABILITY.md` as a blocking release dependency. Until calibrated, automated assessments remain `needs_review`.
 - Do not reject or accept a study solely because of its funding source; assess sponsor role, transparency, design, reporting, and the totality of evidence separately.
+- Keep reporting completeness, result-level risk of bias, and outcome-level body certainty as separate records. A reporting checklist is never a quality score.
+- Route appraisal by question and study design through the domain evidence policy. Run deterministic hard stops before any LLM synthesis.
+- Until the methodology is calibrated and the release flag changes, every body-of-evidence assessment requires human confirmation and cannot automatically approve a claim.
 
 ## Knowledge and RAG
 

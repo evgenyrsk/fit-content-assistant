@@ -37,6 +37,9 @@ LLM связывает этапы и управляет инструментам
 - различает статистическую и практическую значимость;
 - учитывает противоречащие результаты;
 - возвращает вывод и уровень уверенности, а не список ссылок.
+- разделяет reporting guidance, appraisal конкретного результата и certainty корпуса данных по исходу;
+- маршрутизирует инструмент по вопросу и study design, а deterministic hard stops выполняет до LLM-синтеза;
+- до экспертной калибровки любой body assessment требует ручного подтверждения.
 
 ### Knowledge Base
 
@@ -80,3 +83,4 @@ LLM связывает этапы и управляет инструментам
 Архитектурное решение по retrieval зафиксировано в `docs/decisions/0001-claim-first-hybrid-rag.md`.
 Граница LLM-провайдеров зафиксирована в `docs/decisions/0002-provider-neutral-llm.md`.
 Границы модульного монолита зафиксированы в `docs/decisions/0003-modular-monolith-and-code-boundaries.md`.
+Разделение уровней научной оценки зафиксировано в `docs/decisions/0004-separate-study-appraisal-and-body-certainty.md`.

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Activity, Apple, ArrowUpRight, BedDouble, BookOpenText, CircleGauge, Dumbbell, RotateCcw, Search, type LucideIcon } from 'lucide-react';
 import { claims } from '@/features/shared';
+import { EvidenceMethodologyCard } from './evidence-methodology-card';
 
 const clusters: Array<{ name: string; count: number; icon: LucideIcon }> = [
   { name: 'Все темы', count: 24, icon: BookOpenText },
@@ -41,6 +42,7 @@ export function KnowledgeView() {
         <article><span>Умеренная уверенность</span><strong>8</strong><i className="medium-bar" /></article>
         <article><span>Спорные / временные</span><strong>5</strong><i className="low-bar" /></article>
       </div>
+      <EvidenceMethodologyCard />
       <section className="cluster-panel">
         <div className="cluster-heading"><div><p className="overline">TOPIC MAP</p><h2>Тематические кластеры</h2></div><span>Автоматическая группировка + ручные теги</span></div>
         <div className="cluster-grid">

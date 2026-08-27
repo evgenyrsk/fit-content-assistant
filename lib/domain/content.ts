@@ -1,4 +1,4 @@
-import type { ReviewDecision } from './evidence';
+import type { ReviewDecision } from './evidence.ts';
 
 export type ContentFormat = 'reels' | 'telegram' | 'threads' | 'carousel';
 

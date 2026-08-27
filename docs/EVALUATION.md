@@ -14,6 +14,10 @@
 - content confidence не выше claim confidence;
 - live-статус невозможен без source id и observed_at;
 - просроченный ключевой claim блокирует публикацию.
+- ретракция и отсутствие целевого outcome исключают результат из supporting evidence;
+- incomplete provenance, missing appraisal dimensions и unverified record status завершаются `needs_human_review`;
+- reporting checklist никогда не преобразуется в quality score;
+- неоткалиброванная методология не может автоматически утвердить claim.
 
 ### Экспертные и модельные graders
 
@@ -36,6 +40,7 @@
 - ни одной потери обязательной оговорки;
 - retrieval recall и style score не ниже последней принятой версии;
 - ручная проверка новых опасных классов тем перед публикацией.
+- domain policy tests проходят для каждого изменения evidence gate.
 
 OpenAI Evals позволяют запускать versioned eval-наборы и graders; их используем вместе с локальными тестами, а не вместо них. Результат eval хранится с model id и prompt version, чтобы смена модели не была «слепым» обновлением.
 
