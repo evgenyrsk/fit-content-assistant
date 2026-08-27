@@ -65,6 +65,8 @@
   .command-footer { justify-content: flex-end; }
   .signal-panel { min-height: 300px; padding-inline: 20px; }
   .evidence-orbit { height: 215px; width: 215px; }
+  .signal-core { inset: 34%; }
+  .signal-core span { letter-spacing: .04em; white-space: nowrap; }
   .flow-strip { min-height: 62px; padding-inline: 10px; }
   .flow-strip > div > span { width: 29px; height: 29px; }
   .section-title { align-items: flex-start; flex-direction: column; }
@@ -78,8 +80,9 @@
   .verdict-content h3 { font-size: 36px; }
   .content-launcher { padding: 20px; border-radius: 19px; }
   .launcher-index { display: none; }
-  .format-buttons { width: 100%; overflow-x: auto; padding-bottom: 3px; }
-  .format-buttons button { flex: 0 0 105px; }
+  .format-buttons { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; padding-bottom: 0; }
+  .format-buttons button { width: 100%; min-width: 0; padding: 0 9px 0 11px; gap: 8px; white-space: nowrap; }
+  .format-buttons button > svg { flex: 0 0 auto; }
   .content-studio { padding: 20px; border-radius: 19px; }
   .studio-header h2 { font-size: 20px; }
   .factcheck { align-items: flex-start; flex-direction: column; }
