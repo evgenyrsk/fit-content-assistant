@@ -51,6 +51,8 @@
 [data-theme='dark'] .research-trace > span { color: var(--forest-950); }
 [data-theme='dark'] .research-trace > em { color: #c9da72; background: rgba(221,244,91,.08); }
 [data-theme='dark'] .source-candidate-list small { color: #8db99a; }
+[data-theme='dark'] .source-intake-status[data-state='admitted'] { color: #9ad5a7; background: rgba(91,157,105,.13); }
+[data-theme='dark'] .source-intake-status[data-state='rejected'] { color: #ee9a9a; background: rgba(190,74,74,.12); }
 [data-theme='dark'] .content-launcher { border-color: var(--border-main); background: radial-gradient(circle at 7% 110%, rgba(221,244,91,.1), transparent 11rem), #121c16; }
 [data-theme='dark'] .launcher-index { border-color: var(--border-main); color: #9aac9e; background: #18231c; }
 [data-theme='dark'] .launcher-copy div > p:last-child { color: #7f8a82; }

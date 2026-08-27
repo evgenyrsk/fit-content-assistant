@@ -10,6 +10,7 @@ import type { ResearchPlanningTrace, ScientificSourceCandidate, SourceDocumentCo
 import { D1AuditEventStore } from '@/lib/infrastructure/d1/d1-audit-event-store';
 import { D1ModelRunStore } from '@/lib/infrastructure/d1/d1-model-run-store';
 import { D1SourceDocumentStore } from '@/lib/infrastructure/d1/d1-source-document-store';
+import { D1SourceIntakeDecisionStore } from '@/lib/infrastructure/d1/d1-source-intake-decision-store';
 import { ensureEvidenceSchema } from '@/lib/infrastructure/d1/ensure-evidence-schema';
 import { D1ResearchRunStore } from '@/lib/infrastructure/d1/d1-research-run-store';
 import { ensurePipelineSchema } from '@/lib/infrastructure/d1/ensure-pipeline-schema';
@@ -80,7 +81,10 @@ async function capturePubmedDocuments(
       store: new D1SourceDocumentStore(database),
     });
   } catch {
-    return { requested: ids.length, stored: 0, abstractOnly: 0, unavailable: ids.length };
+    return {
+      requested: ids.length, fetched: 0, stored: 0, abstractOnly: 0,
+      rejected: 0, unavailable: ids.length, decisions: [],
+    };
   }
 }
 
@@ -112,12 +116,16 @@ export async function POST(request: Request): Promise<Response> {
     const discovered = { ...result, planning: planning.trace };
     await new D1ResearchRunStore(runtime.DB).saveSearch(discovered);
     const documentCoverage = await capturePubmedDocuments(result.candidates, runtime.DB, runtime);
+    await new D1SourceIntakeDecisionStore(runtime.DB).saveAll(runId, documentCoverage.decisions);
     const completed = {
       ...discovered,
       documentCoverage,
       warnings: [
         ...discovered.warnings,
         ...(documentCoverage.unavailable > 0 ? ['Часть аннотаций PubMed не удалось сохранить.'] : []),
+        ...(documentCoverage.rejected > 0
+          ? [`Intake-gate исключил ${documentCoverage.rejected} источников из исследовательского архива.`]
+          : []),
       ],
     };
     if (planning.modelRun) await new D1ModelRunStore(runtime.DB).save(planning.modelRun);

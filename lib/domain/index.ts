@@ -8,6 +8,7 @@ export * from './evidence-routing.ts';
 export * from './knowledge.ts';
 export * from './research.ts';
 export * from './source-document.ts';
+export * from './source-intake-policy.ts';
 export * from './source-assessment.ts';
 export * from './study-integrity-policy.ts';
 export * from './trends.ts';

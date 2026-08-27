@@ -44,6 +44,8 @@ A change is complete only when it:
 - Preserve study design and population. Do not generalize from trained adults to all people without an explicit limitation.
 - Distinguish statistical significance, effect size, practical importance, and certainty.
 - Store supporting, neutral, and contradicting evidence. Do not search only for confirmation.
+- Keep all discovered candidates in research history, but admit source chunks to the research corpus only through the versioned intake policy with explicit reasons.
+- Do not use journal prestige, citation count, funding source alone, result direction, or title-keyword matching as an automatic source-intake decision.
 - Cite the exact source passage or chunk used for an evidence assessment.
 - Freshness requirements depend on the claim; time-sensitive claims must have a review deadline.
 - Treat the approved methodology in `docs/EVIDENCE_RELIABILITY.md` as a blocking release dependency. Until calibrated, automated assessments remain `needs_review`.

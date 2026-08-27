@@ -57,6 +57,9 @@
 .source-candidate-list small { color: #4f7d5c; font-size: var(--type-caption); font-weight: 850; text-transform: uppercase; letter-spacing: .05em; }
 .source-candidate-list h4 { margin: 8px 0; font-size: var(--type-body); line-height: 1.45; }
 .source-candidate-list p { margin: 0; color: var(--text-soft); font-size: var(--type-caption); line-height: 1.5; }
+.source-intake-status { width: fit-content; max-width: 100%; margin-top: 10px; padding: 5px 8px; border: 1px solid var(--border-main); border-radius: 8px; display: inline-flex; color: var(--text-soft); background: var(--panel-soft); font-size: 11px; font-weight: 800; line-height: 1.35; }
+.source-intake-status[data-state='admitted'] { color: #3c7049; border-color: rgba(77,136,90,.28); background: rgba(91,157,105,.09); }
+.source-intake-status[data-state='rejected'] { color: #a24747; border-color: rgba(177,76,76,.25); background: rgba(190,74,74,.08); }
 .source-candidate-list a { width: 29px; height: 29px; border: 1px solid var(--border-main); border-radius: 9px; display: grid; place-items: center; color: var(--text-soft); background: var(--panel-soft); }
 .source-candidate-list a svg { width: 14px; height: 14px; }
 .live-research-card > footer { margin: 0; padding: 17px 22px; border: 0; display: flex; align-items: center; justify-content: flex-start; gap: 11px; color: var(--text-soft); background: var(--panel-soft); text-transform: none; }

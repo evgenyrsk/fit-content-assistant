@@ -58,6 +58,7 @@
   - [ ] Content brief, platform draft, voice edit и final fact review.
 - [x] Поиск PubMed/Crossref по одному вопросу с сохранением source candidates.
 - [x] Пакетная загрузка PubMed-аннотаций и сохранение секций как provenance chunks.
+- [x] Разделить search history и исследовательский архив; добавить deterministic source intake с причинами отказа.
 - [x] Запретить abstract-only источникам открывать evidence gate.
 - [x] Подключить Google Trends/News proxy и PubMed Research Pulse с явной маркировкой типа сигнала.
 - [ ] Подключить прямые Threads/Instagram signals после получения разрешённых Meta tokens.
@@ -77,6 +78,16 @@
 - [ ] Повторная проверка устаревших тезисов.
 - [ ] Telegram, Threads, карусели и Stories.
 - [ ] Импорт пользовательских заметок и личного опыта с явной маркировкой.
+
+## Автономный трек без LLM
+
+- [x] Versioned intake-gate для PubMed sources без эвристики «престижности».
+- [ ] PubMed Central Open Access full-text ingestion и section completeness gate.
+- [ ] Очередь ручного source review и аудируемый override.
+- [ ] Перепроверка corrections, expressions of concern и retractions.
+- [ ] Lexical search по source chunks и каноническим claims.
+- [ ] Ручное создание/утверждение claims с полной evidence-трассировкой.
+- [ ] Реальный D1-архив контента, статусы и календарь.
 
 ## Этап 4 — Content intelligence
 

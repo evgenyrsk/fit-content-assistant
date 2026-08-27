@@ -30,6 +30,8 @@
 - claim synthesis не вызывается до готового body gate и не может повысить certainty;
 - каждый evidence-этап отклоняет неизвестные поля и сохраняет model run отдельно от доменного решения;
 - база знаний возвращает только канонические claim versions, а не source candidates.
+- source intake не сохраняет chunks для ретракций, expressions of concern, не исследовательских форматов и недостаточных аннотаций;
+- любое intake-решение содержит versioned reason codes и не удаляет candidate из истории поиска.
 
 ### Экспертные и модельные graders
 
