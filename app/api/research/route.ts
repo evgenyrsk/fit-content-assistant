@@ -3,16 +3,20 @@ import { env } from 'cloudflare:workers';
 import { executeResearchPlan } from '@/lib/application/orchestration/execute-research-plan';
 import { researchPlanPrompt } from '@/lib/application/orchestration/research-plan-prompt';
 import { buildScientificQuery } from '@/lib/application/use-cases/build-scientific-query';
+import { ingestSourceDocuments } from '@/lib/application/use-cases/ingest-source-documents';
 import { searchScientificSources } from '@/lib/application/use-cases/search-scientific-sources';
 import { methodologyRelease } from '@/lib/domain';
-import type { ResearchPlanningTrace } from '@/lib/domain';
+import type { ResearchPlanningTrace, ScientificSourceCandidate, SourceDocumentCoverage } from '@/lib/domain';
 import { D1AuditEventStore } from '@/lib/infrastructure/d1/d1-audit-event-store';
 import { D1ModelRunStore } from '@/lib/infrastructure/d1/d1-model-run-store';
-import { CrossrefSearch } from '@/lib/infrastructure/scientific/crossref-search';
-import { PubmedSearch } from '@/lib/infrastructure/scientific/pubmed-search';
+import { D1SourceDocumentStore } from '@/lib/infrastructure/d1/d1-source-document-store';
+import { ensureEvidenceSchema } from '@/lib/infrastructure/d1/ensure-evidence-schema';
 import { D1ResearchRunStore } from '@/lib/infrastructure/d1/d1-research-run-store';
 import { ensurePipelineSchema } from '@/lib/infrastructure/d1/ensure-pipeline-schema';
 import { ensureResearchSchema } from '@/lib/infrastructure/d1/ensure-research-schema';
+import { CrossrefSearch } from '@/lib/infrastructure/scientific/crossref-search';
+import { PubmedDocumentLoader } from '@/lib/infrastructure/scientific/pubmed-document-loader';
+import { PubmedSearch } from '@/lib/infrastructure/scientific/pubmed-search';
 import { createLlmRuntime } from '@/lib/infrastructure/llm/create-llm-runtime';
 
 interface ResearchRequestBody {
@@ -21,6 +25,12 @@ interface ResearchRequestBody {
 
 function bindings(): Record<string, string | D1Database | undefined> {
   return env as unknown as Record<string, string | D1Database | undefined>;
+}
+
+function requestQuery(body: ResearchRequestBody): string | null {
+  if (typeof body.query !== 'string') return null;
+  const query = body.query.trim();
+  return query.length >= 3 && query.length <= 500 ? query : null;
 }
 
 type PlanningOutcome = {
@@ -55,10 +65,29 @@ async function planResearch(query: string, runId: string, runtime: ReturnType<ty
   };
 }
 
+async function capturePubmedDocuments(
+  candidates: ScientificSourceCandidate[],
+  database: D1Database,
+  runtime: ReturnType<typeof bindings>,
+): Promise<SourceDocumentCoverage> {
+  const ids = candidates.flatMap((candidate) => candidate.pmid ? [candidate.pmid] : []);
+  try {
+    return await ingestSourceDocuments(ids, {
+      loader: new PubmedDocumentLoader({
+        apiKey: runtime.PUBMED_API_KEY as string,
+        email: runtime.NCBI_EMAIL as string,
+      }),
+      store: new D1SourceDocumentStore(database),
+    });
+  } catch {
+    return { requested: ids.length, stored: 0, abstractOnly: 0, unavailable: ids.length };
+  }
+}
+
 export async function POST(request: Request): Promise<Response> {
   const body = await request.json().catch(() => ({})) as ResearchRequestBody;
-  const query = typeof body.query === 'string' ? body.query.trim() : '';
-  if (query.length < 3 || query.length > 500) {
+  const query = requestQuery(body);
+  if (!query) {
     return Response.json({ error: 'Введите вопрос длиной от 3 до 500 символов.' }, { status: 400 });
   }
   const runtime = bindings();
@@ -71,6 +100,7 @@ export async function POST(request: Request): Promise<Response> {
   ];
   try {
     await ensureResearchSchema(runtime.DB);
+    await ensureEvidenceSchema(runtime.DB);
     await ensurePipelineSchema(runtime.DB);
     const runId = crypto.randomUUID();
     const planning = await planResearch(query, runId, createLlmRuntime(runtime));
@@ -79,8 +109,17 @@ export async function POST(request: Request): Promise<Response> {
       retrievalQuery: planning.trace.searchQuery,
       createId: () => runId,
     });
-    const completed = { ...result, planning: planning.trace };
-    await new D1ResearchRunStore(runtime.DB).saveSearch(completed);
+    const discovered = { ...result, planning: planning.trace };
+    await new D1ResearchRunStore(runtime.DB).saveSearch(discovered);
+    const documentCoverage = await capturePubmedDocuments(result.candidates, runtime.DB, runtime);
+    const completed = {
+      ...discovered,
+      documentCoverage,
+      warnings: [
+        ...discovered.warnings,
+        ...(documentCoverage.unavailable > 0 ? ['Часть аннотаций PubMed не удалось сохранить.'] : []),
+      ],
+    };
     if (planning.modelRun) await new D1ModelRunStore(runtime.DB).save(planning.modelRun);
     await new D1AuditEventStore(runtime.DB).save({
       id: crypto.randomUUID(), aggregateType: 'research_run', aggregateId: runId,
@@ -90,6 +129,7 @@ export async function POST(request: Request): Promise<Response> {
         planningMode: planning.trace.mode, promptVersion: planning.trace.promptVersion,
         modelRunId: planning.modelRun?.runId, methodologyVersion: methodologyRelease.version,
         automaticClaimApprovalEnabled: methodologyRelease.automatedClaimApprovalEnabled,
+        documentCoverage,
       },
       occurredAt: result.completedAt,
     });

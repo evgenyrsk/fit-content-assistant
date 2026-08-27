@@ -31,7 +31,7 @@ export function ScientificSourceResults({ result }: ScientificSourceResultsProps
           </article>
         ))}
       </div>
-      <footer><Database aria-hidden="true" /><p><strong>Сохранено в исследовательскую историю.</strong> Найденная публикация ещё не является доказанным claim: дальше идут проверка дизайна, риска смещения и совокупности данных.</p></footer>
+      <footer><Database aria-hidden="true" /><p><strong>{result.documentCoverage?.stored ?? 0} аннотаций сохранено с provenance.</strong> Это не full text и не доказанный claim: дальше идут оценка дизайна, риска смещения, совокупности данных и ручное подтверждение.</p></footer>
     </section>
   );
 }

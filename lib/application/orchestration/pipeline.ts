@@ -3,6 +3,7 @@ export type PipelineStageId =
   | 'research_plan'
   | 'retrieval'
   | 'source_assessment'
+  | 'body_assessment'
   | 'claim_synthesis'
   | 'claim_review'
   | 'knowledge_commit'
@@ -24,6 +25,7 @@ export const FORME_PIPELINE: readonly PipelineStage[] = [
   { id: 'research_plan', purpose: 'Plan a falsifiable and balanced search.', input: 'Typed intent', output: 'Research plan', gate: 'Includes disconfirming evidence criteria.' },
   { id: 'retrieval', purpose: 'Retrieve existing claims and source candidates.', input: 'Research plan', output: 'Ranked candidates with provenance', gate: 'Coverage and diversity thresholds pass.' },
   { id: 'source_assessment', purpose: 'Assess evidence without writing content.', input: 'Source candidates', output: 'Source assessments', gate: 'Every assessment cites exact passages.' },
+  { id: 'body_assessment', purpose: 'Assess certainty for one outcome across eligible studies.', input: 'Source assessments', output: 'Body assessment', gate: 'GRADE domains and contradictory evidence are explicit.' },
   { id: 'claim_synthesis', purpose: 'Create atomic scoped claims.', input: 'Source assessments', output: 'Draft claim versions', gate: 'Confidence does not exceed evidence.' },
   { id: 'claim_review', purpose: 'Run an independent evidence review.', input: 'Draft claim versions', output: 'Reviewed claim versions', gate: 'Only approved claims continue.' },
   { id: 'knowledge_commit', purpose: 'Version canonical knowledge.', input: 'Approved claim versions', output: 'Persisted ids and audit record', gate: 'Previous versions are preserved.' },

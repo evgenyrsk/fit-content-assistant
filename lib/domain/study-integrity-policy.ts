@@ -28,10 +28,17 @@ const diagnosticChecks: readonly StudyIntegrityCheckId[] = [
   'sponsor_analysis_independence',
 ];
 
+const mechanisticChecks: readonly StudyIntegrityCheckId[] = [
+  'prespecified_outcomes', 'sample_size_justification',
+  'blinding_or_objective_measurement', 'multiplicity_control',
+  'sponsor_analysis_independence', 'data_code_availability',
+];
+
 export function requiredIntegrityChecks(design: StudyDesign): readonly StudyIntegrityCheckId[] {
   if (design.startsWith('randomized_') || design === 'cluster_randomized') return randomizedChecks;
   if (design === 'systematic_review_meta_analysis') return reviewChecks;
   if (design === 'diagnostic_accuracy') return diagnosticChecks;
+  if (design === 'mechanistic_or_preclinical') return mechanisticChecks;
   return observationalChecks;
 }
 

@@ -50,4 +50,5 @@ export interface ResearchSearchResult {
   warnings: string[];
   completedAt: string;
   planning?: ResearchPlanningTrace;
+  documentCoverage?: import('./source-document.ts').SourceDocumentCoverage;
 }

@@ -24,6 +24,12 @@
 - research plan обязан содержать disconfirming evidence; лишнее поле или неполная схема блокируют модельный результат.
 - неподдерживаемый structured output и ошибка контракта переводят research plan в видимый deterministic fallback.
 - каждый модельный research plan сохраняет provider, model, prompt version, usage/cost и gate decision.
+- abstract-only документ не может считаться assessment-grade provenance;
+- source assessment обязан сослаться только на реально сохранённые passage ids;
+- body assessment обязан сохранить все eligible и contradicting assessment ids;
+- claim synthesis не вызывается до готового body gate и не может повысить certainty;
+- каждый evidence-этап отклоняет неизвестные поля и сохраняет model run отдельно от доменного решения;
+- база знаний возвращает только канонические claim versions, а не source candidates.
 
 ### Экспертные и модельные graders
 
@@ -38,6 +44,8 @@
 ### Regression set
 
 Минимальный набор включает вопросы с сильным консенсусом, смешанными результатами, недостатком данных, устаревшим claim, спорной фитнес-темой, личным опытом, провокационным исходным тезисом и инструкцией внутри retrieved-документа.
+
+Контрактный набор дополнительно включает abstract-only источник, ретракцию, выдуманный passage id, потерянное противоречащее исследование, попытку повысить confidence и вызов следующего этапа до gate.
 
 ## Release gates
 

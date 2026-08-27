@@ -52,6 +52,9 @@
 .filter-group select { width: 100%; height: 34px; padding: 0 9px; border: 1px solid var(--border-main); border-radius: 9px; color: var(--text-main); background: var(--panel-soft); font: inherit; font-size: var(--type-caption); }
 .filter-row > button { height: 34px; margin-left: auto; padding: 0 10px; border: 0; display: inline-flex; align-items: center; gap: 6px; color: var(--text-soft); background: transparent; cursor: pointer; font-size: var(--type-caption); font-weight: 750; }
 .filter-row > button svg { width: 12px; height: 12px; }
+.knowledge-filter-row { flex-wrap: wrap; }
+.knowledge-filter-row .filter-group { flex: 1 1 145px; }
+.knowledge-filter-row > button { margin-left: 0; }
 .empty-knowledge { min-height: 220px; display: grid; place-content: center; text-align: center; }
 .empty-knowledge > span { width: 42px; height: 42px; margin: 0 auto 12px; border-radius: 13px; display: grid; place-items: center; color: var(--text-soft); background: var(--panel-soft); font-size: 18px; }
 .empty-knowledge > span svg { width: 19px; height: 19px; }
@@ -69,4 +72,3 @@
 .platform-lanes button > svg { width: 15px; height: 15px; color: var(--text-soft); }
 .platform-lanes button.threads-lane { border-color: rgba(73,103,242,.34); background: rgba(73,103,242,.08); }
 .platform-lanes button.threads-lane > span { color: white; background: var(--cobalt); }
-

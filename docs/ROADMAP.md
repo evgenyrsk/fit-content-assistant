@@ -52,11 +52,17 @@
 - [x] Реализовать strict schema и prompt contract для первого этапа `research_plan`.
 - [x] Сохранять `model_runs` и `audit_events` для модельного research plan.
 - [ ] Реализовать строгие схемы остальных этапов LLM-конвейера.
+  - [x] `source_assessment`: все измерения, design-specific checks, finding и provenance.
+  - [x] `body_assessment`: пять GRADE-доменов, contradictions и certainty gate.
+  - [x] `claim_synthesis`: атомарный claim, scope, limitations, evidence ids и review date.
+  - [ ] Content brief, platform draft, voice edit и final fact review.
 - [x] Поиск PubMed/Crossref по одному вопросу с сохранением source candidates.
+- [x] Пакетная загрузка PubMed-аннотаций и сохранение секций как provenance chunks.
+- [x] Запретить abstract-only источникам открывать evidence gate.
 - [x] Подключить Google Trends/News proxy и PubMed Research Pulse с явной маркировкой типа сигнала.
 - [ ] Подключить прямые Threads/Instagram signals после получения разрешённых Meta tokens.
-- [ ] Структурированная оценка источников.
-- [ ] Сохранение claims с confidence и limitations.
+- [x] Реализовать provider-neutral structured source/body assessment с audit trail; реальный запуск ждёт LLM secret и full text.
+- [x] Реализовать versioned сохранение model-draft claims с confidence, limitations и evidence links; approval остаётся заблокированным.
 - [ ] Создание Reels на основе сохранённых claims.
 - [ ] Трассировка content → claims → sources.
 - [ ] Regression eval-набор и blocking release gates.
@@ -64,8 +70,8 @@
 
 ## Этап 3 — Рабочая база знаний
 
-- [ ] Поиск и фильтры по claims.
-- [ ] Версионирование и `superseded`.
+- [x] Поиск и комбинируемые фильтры по каноническим claims.
+- [x] Версионирование и `superseded` в persistence-контуре.
 - [ ] Раздельные индексы evidence chunks и approved claims.
 - [ ] Hybrid retrieval и reranking с измеримым recall.
 - [ ] Повторная проверка устаревших тезисов.
@@ -81,4 +87,4 @@
 
 ## Ближайший измеримый результат
 
-Утверждён протокол научной достоверности, после чего один реальный исследовательский вопрос проходит весь путь до сохранённого Reels-сценария с проверяемыми источниками.
+Подключены серверная LLM и разрешённый full-text источник; затем один реальный вопрос проходит source/body review до утверждённого claim и сохранённого Reels-сценария с проверяемой трассировкой.

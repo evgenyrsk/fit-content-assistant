@@ -13,7 +13,9 @@ Forme разделяет четыре самостоятельных этапа:
 
 ## Текущее состояние
 
-Работает интерактивный интерфейс MVP, реальный поиск source candidates в PubMed/Crossref, сохранение research runs в D1 и live Trend Scout на публичных proxy-сигналах и PubMed Research Pulse. Первый provider-neutral LLM-этап `research_plan` готов: strict schema, fail-closed fallback, model run и audit event. Без серверного ключа интерфейс честно показывает детерминированный режим. Найденные публикации не выдаются за проверенные claims; evidence/content этапы ещё не активированы.
+Работает интерактивный интерфейс MVP, реальный поиск PubMed/Crossref, пакетное сохранение секций PubMed-аннотаций в D1 и live Trend Scout на публичных proxy-сигналах и PubMed Research Pulse. Provider-neutral научный контур включает strict-schema этапы `research_plan`, `source_assessment`, `body_assessment` и `claim_synthesis`, модельные/audit записи и fail-closed gates. База знаний читает канонические версии claims и показывает честное пустое состояние вместо демо-выводов.
+
+Без серверного LLM-ключа исследование и сохранение аннотаций продолжают работать, а модельные этапы явно отвечают `awaiting_provider`. Аннотация никогда не считается полным текстом; ни один claim не утверждается автоматически до full-text проверки, человеческого review и калибровки методологии.
 
 ## Документы
 

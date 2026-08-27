@@ -8,7 +8,7 @@ Forme — модульный монолит с явными feature-границ
 
 `infrastructure → application ports → domain`
 
-API routes служат composition root, а не содержат бизнес-правила. Текущий вертикальный срез связывает provider-neutral research planning, PubMed/Crossref, fail-closed query fallback и D1 audit trail через `/api/research`; публичные live proxies, опциональный Threads adapter и историю trend signals — через `/api/trends`.
+API routes служат composition root, а не содержат бизнес-правила. Текущий вертикальный срез связывает provider-neutral research planning, PubMed/Crossref, пакетное сохранение PubMed-аннотаций, fail-closed evidence gates и D1 audit trail через `/api/research`; публичные live proxies, опциональный Threads adapter и историю trend signals — через `/api/trends`.
 
 ## Поток данных
 
@@ -30,8 +30,9 @@ LLM связывает этапы и управляет инструментам
 - формулирует PICO/PECO-вопрос там, где это уместно;
 - сначала ищет в собственной базе;
 - затем обращается к PubMed, Crossref и издательским страницам;
-- сохраняет метаданные и полный контекст поиска.
+- сохраняет метаданные, полный контекст поиска и доступные секции PubMed-аннотаций как неизменяемые chunks;
 - сохраняет версию prompt, модельный run и событие решения отдельно от найденных source candidates.
+- явно различает `metadata_only`, `abstract_only` и `full_text`; аннотация служит для triage и не открывает evidence gate.
 - Trend Scout отдельно собирает сигналы свежести и роста тем из доступных социальных источников, затем оценивает их научную проверяемость и отсутствие дублей в контент-архиве.
 - публичные Google Trends/News signals всегда маркируются как proxy; PubMed Research Pulse показывает свежесть научной повестки, но не социальную виральность; прямые Threads/Instagram signals требуют разрешённого API-доступа.
 
@@ -44,6 +45,8 @@ LLM связывает этапы и управляет инструментам
 - возвращает вывод и уровень уверенности, а не список ссылок.
 - разделяет reporting guidance, appraisal конкретного результата и certainty корпуса данных по исходу;
 - маршрутизирует инструмент по вопросу и study design, а deterministic hard stops выполняет до LLM-синтеза;
+- реализует отдельные strict-schema этапы `source_assessment`, `body_assessment` и `claim_synthesis` с проверкой passage ids;
+- не вызывает следующий модельный этап, пока предыдущий gate не готов;
 - до экспертной калибровки любой body assessment требует ручного подтверждения.
 
 ### Knowledge Base
@@ -68,6 +71,8 @@ LLM связывает этапы и управляет инструментам
 Изменённый вывод не перезаписывает историю: предыдущая версия получает статус `superseded`.
 
 Навигация по растущей базе строится в несколько уровней: тематические кластеры → фильтры по уверенности, статусу и свежести → полнотекстовый поиск → связи между claims.
+
+Рабочий интерфейс читает только канонические `claim_versions` и их evidence-связи. Search candidates и source assessments не отображаются как подтверждённые знания; при отсутствии approved claims показывается честное пустое состояние.
 
 ### Content Engine
 
@@ -96,3 +101,4 @@ LLM связывает этапы и управляет инструментам
 Границы модульного монолита зафиксированы в `docs/decisions/0003-modular-monolith-and-code-boundaries.md`.
 Разделение уровней научной оценки зафиксировано в `docs/decisions/0004-separate-study-appraisal-and-body-certainty.md`.
 Экономная provider-agnostic маршрутизация зафиксирована в `docs/decisions/0005-provider-agnostic-economy-routing.md`.
+Граница между abstract triage, full-text appraisal и claims зафиксирована в `docs/decisions/0006-abstract-ingestion-and-evidence-gates.md`.

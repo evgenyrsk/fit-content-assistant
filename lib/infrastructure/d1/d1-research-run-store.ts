@@ -3,6 +3,7 @@ import type { ResearchSearchResult, ScientificSourceCandidate } from '../../doma
 import type { ResearchRunStore } from '../../application/ports/research-run-store.ts';
 
 function fingerprint(source: ScientificSourceCandidate): string {
+  if (source.provider === 'pubmed' && source.pmid) return `pmid:${source.pmid}`;
   if (source.doi) return `doi:${source.doi.toLowerCase()}`;
   if (source.pmid) return `pmid:${source.pmid}`;
   return `url:${source.url}`;

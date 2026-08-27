@@ -10,7 +10,7 @@ export interface StageBudget {
 }
 
 const researchStages: PipelineStageId[] = [
-  'research_plan', 'source_assessment', 'claim_synthesis', 'claim_review', 'fact_review',
+  'research_plan', 'source_assessment', 'body_assessment', 'claim_synthesis', 'claim_review', 'fact_review',
 ];
 
 export function stageBudget(stage: PipelineStageId, profile: BudgetProfile): StageBudget {

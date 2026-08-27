@@ -44,6 +44,21 @@ export interface BodyGateResult {
   reasons: BodyGateReason[];
 }
 
+export interface BodyAssessmentRecord {
+  id: string;
+  researchRunId: string;
+  assessment: BodyOfEvidenceAssessment;
+  gate: BodyGateResult;
+  createdAt: string;
+}
+
+export interface BodyAssessmentResponse {
+  status: 'model_draft' | 'needs_review' | 'awaiting_provider';
+  reviewRequired: true;
+  body: BodyAssessmentRecord | null;
+  warning: string;
+}
+
 const requiredGradeDomains: readonly GradeDomain[] = [
   'risk_of_bias',
   'inconsistency',

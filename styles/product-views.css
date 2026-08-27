@@ -52,7 +52,7 @@
 .library-toolbar label > svg { width: 16px; height: 16px; flex: 0 0 auto; }
 .library-toolbar input { width: 100%; border: 0; outline: 0; color: var(--text-main); background: transparent; font: inherit; font-size: var(--type-meta); }
 .library-toolbar input::placeholder { color: color-mix(in srgb, var(--text-soft) 75%, transparent); }
-.knowledge-list > article { min-height: 115px; padding: 18px 2px; border-bottom: 1px solid var(--border-main); display: grid; grid-template-columns: auto minmax(0,1fr) auto auto; align-items: center; gap: 16px; }
+.knowledge-list > article { min-height: 115px; padding: 18px 2px; border-bottom: 1px solid var(--border-main); display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 16px; }
 .knowledge-list > article:last-child { border-bottom: 0; }
 .knowledge-main > div { display: flex; align-items: center; gap: 8px; }
 .knowledge-main > div span { color: var(--text-soft); font-size: var(--type-caption); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
@@ -118,5 +118,4 @@
 .history-state.attention { color: #ad7d22; }
 .history-feed h3 { margin: 8px 0 6px; font-size: var(--type-body); }
 .history-feed p { margin: 0; color: var(--text-soft); font-size: var(--type-caption); }
-
 
