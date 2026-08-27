@@ -46,6 +46,9 @@
 [data-theme='dark'] .ledger-note { border-color: var(--border-main); background: var(--panel-soft); }
 [data-theme='dark'] .ledger-note span { color: #aeb8b0; }
 [data-theme='dark'] .ledger-note p { color: #707b72; }
+[data-theme='dark'] .research-error { color: #ef9ba1; background: rgba(233,109,115,.1); }
+[data-theme='dark'] .review-pill { color: #e0b45e; background: rgba(240,184,75,.12); }
+[data-theme='dark'] .source-candidate-list small { color: #8db99a; }
 [data-theme='dark'] .content-launcher { border-color: var(--border-main); background: radial-gradient(circle at 7% 110%, rgba(221,244,91,.1), transparent 11rem), #121c16; }
 [data-theme='dark'] .launcher-index { border-color: var(--border-main); color: #9aac9e; background: #18231c; }
 [data-theme='dark'] .launcher-copy div > p:last-child { color: #7f8a82; }
@@ -78,5 +81,4 @@
 [data-theme='dark'] .state-готово { color: #8cc29a; background: rgba(98,168,117,.13); }
 [data-theme='dark'] .state-редактура { color: #d4ae5d; background: rgba(240,184,75,.13); }
 [data-theme='dark'] .history-filter button.active { background: var(--panel-soft); }
-
 

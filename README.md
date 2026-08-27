@@ -13,11 +13,12 @@ Forme разделяет четыре самостоятельных этапа:
 
 ## Текущее состояние
 
-Работает интерактивный интерфейс MVP с демонстрационным научным сценарием. Реальный автоматический поиск литературы, долговременная база и модельный контентный движок — следующие продуктовые этапы.
+Работает интерактивный интерфейс MVP, реальный поиск source candidates в PubMed/Crossref, сохранение research runs в D1 и live Trend Scout на публичных proxy-сигналах. Найденные публикации не выдаются за проверенные claims. OpenAI/OpenRouter adapters готовы к подключению секретов; модельный evidence/content pipeline ещё не активирован.
 
 ## Документы
 
 - [Исходный бриф](docs/ORIGINAL_BRIEF.md)
+- [Целевое состояние и автономный режим](docs/TARGET_STATE.md)
 - [Продукт и границы MVP](docs/PRODUCT.md)
 - [Архитектура](docs/ARCHITECTURE.md)
 - [Организация кода и SOLID](docs/CODE_ORGANIZATION.md)
@@ -25,6 +26,7 @@ Forme разделяет четыре самостоятельных этапа:
 - [LLM-провайдеры](docs/LLM_PROVIDERS.md)
 - [RAG и база знаний](docs/RAG_ARCHITECTURE.md)
 - [Методология научной достоверности](docs/EVIDENCE_RELIABILITY.md)
+- [Калибровка методологии](docs/EVIDENCE_CALIBRATION.md)
 - [Evals и контроль качества](docs/EVALUATION.md)
 - [Авторский профиль](docs/STYLE_PROFILE.md)
 - [Дизайн-система](docs/DESIGN_SYSTEM.md)

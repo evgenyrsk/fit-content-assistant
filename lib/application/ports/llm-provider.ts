@@ -14,6 +14,8 @@ export interface LlmExecutionRequest {
   schemaName: string;
   outputSchema: Record<string, unknown>;
   tools?: LlmToolDefinition[];
+  maxOutputTokens: number;
+  maxToolCalls?: number;
   metadata: {
     runId: string;
     stage: string;
@@ -28,6 +30,7 @@ export interface LlmExecutionResult<T> {
   routedProvider?: string;
   requestId: string;
   usage?: { inputTokens: number; outputTokens: number };
+  costUsd?: number;
 }
 
 export interface LlmProvider {

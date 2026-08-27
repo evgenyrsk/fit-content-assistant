@@ -8,6 +8,8 @@ Forme — модульный монолит с явными feature-границ
 
 `infrastructure → application ports → domain`
 
+API routes служат composition root, а не содержат бизнес-правила. Текущий вертикальный срез связывает PubMed/Crossref, deterministic query normalization и D1 через `/api/research`; публичные live proxies, опциональный Threads adapter и историю trend signals — через `/api/trends`.
+
 ## Поток данных
 
 `LLM Provider Adapter → LLM Orchestrator → Research Engine → Evidence Engine → Knowledge Base → Content Engine → Independent review`
@@ -29,6 +31,7 @@ LLM связывает этапы и управляет инструментам
 - затем обращается к PubMed, Crossref и издательским страницам;
 - сохраняет метаданные и полный контекст поиска.
 - Trend Scout отдельно собирает сигналы свежести и роста тем из доступных социальных источников, затем оценивает их научную проверяемость и отсутствие дублей в контент-архиве.
+- публичные Google Trends/News signals всегда маркируются как proxy; прямые Threads/Instagram signals требуют разрешённого API-доступа.
 
 ### Evidence Engine
 
@@ -48,10 +51,16 @@ LLM связывает этапы и управляет инструментам
 - `topics`
 - `claims`
 - `sources`
-- `claim_sources`
+- `source_chunks`
+- `source_assessments`
+- `claim_versions`
+- `claim_evidence`
 - `research_runs`
 - `content_items`
 - `content_claims`
+- `trend_signals`
+- `model_runs`
+- `audit_events`
 - `performance_snapshots`
 
 Изменённый вывод не перезаписывает историю: предыдущая версия получает статус `superseded`.
@@ -84,3 +93,4 @@ LLM связывает этапы и управляет инструментам
 Граница LLM-провайдеров зафиксирована в `docs/decisions/0002-provider-neutral-llm.md`.
 Границы модульного монолита зафиксированы в `docs/decisions/0003-modular-monolith-and-code-boundaries.md`.
 Разделение уровней научной оценки зафиксировано в `docs/decisions/0004-separate-study-appraisal-and-body-certainty.md`.
+Экономная provider-agnostic маршрутизация зафиксирована в `docs/decisions/0005-provider-agnostic-economy-routing.md`.

@@ -69,6 +69,8 @@
   .flow-strip > div > span { width: 29px; height: 29px; }
   .section-title { align-items: flex-start; flex-direction: column; }
   .insight-grid { display: block; }
+  .source-candidate-list { grid-template-columns: 1fr; }
+  .source-candidate-list article { border-right: 0; }
   .verdict-card, .evidence-card { border-radius: 19px; }
   .evidence-card { margin-top: 12px; padding: 19px; }
   .verdict-card { min-height: 475px; padding: 19px; }
@@ -121,4 +123,3 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
-

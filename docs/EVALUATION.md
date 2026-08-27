@@ -18,6 +18,9 @@
 - incomplete provenance, missing appraisal dimensions и unverified record status завершаются `needs_human_review`;
 - reporting checklist никогда не преобразуется в quality score;
 - неоткалиброванная методология не может автоматически утвердить claim.
+- публичный язык не может быть сильнее confidence и review status;
+- source adapters проходят fixture-based contract tests;
+- LLM adapters обязаны передавать strict schema и возвращать usage/cost metadata.
 
 ### Экспертные и модельные graders
 

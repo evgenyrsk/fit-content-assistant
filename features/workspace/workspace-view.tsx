@@ -5,6 +5,7 @@ import type { ContentFormat, Mode } from '@/features/shared';
 import { ContentComposer } from './content-composer';
 import { ResearchConsole } from './research-console';
 import { ResearchResult } from './research-result';
+import { useResearchSearch } from './use-research-search';
 
 interface WorkspaceViewProps {
   activeFormat: ContentFormat | null;
@@ -14,16 +15,15 @@ interface WorkspaceViewProps {
 export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewProps) {
   const [topic, setTopic] = useState('Нужно ли тренироваться до отказа для роста мышц?');
   const [mode, setMode] = useState<Mode>('Исследовать');
-  const [status, setStatus] = useState<'idle' | 'working' | 'ready'>('ready');
+  const { status, result, error, start } = useResearchSearch();
   const [showAllClaims, setShowAllClaims] = useState(false);
   const [trendOpen, setTrendOpen] = useState(false);
-  const [trendSource, setTrendSource] = useState('Instagram + Threads');
+  const [trendSource, setTrendSource] = useState<'all' | 'google_trends' | 'google_news' | 'threads' | 'instagram'>('all');
 
-  function startWork() {
+  async function startWork() {
     if (!topic.trim()) return;
-    setStatus('working');
     onFormatChange(null);
-    window.setTimeout(() => setStatus('ready'), 1100);
+    await start(topic);
   }
 
   function chooseTrend(nextTopic: string) {
@@ -36,7 +36,7 @@ export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewPro
   return (
     <>
       <ResearchConsole topic={topic} mode={mode} status={status} trendOpen={trendOpen} trendSource={trendSource} onTopicChange={setTopic} onModeChange={setMode} onStart={startWork} onTrendToggle={() => setTrendOpen((value) => !value)} onTrendSourceChange={setTrendSource} onTrendChoose={chooseTrend} />
-      <ResearchResult topic={topic} working={status === 'working'} showAllClaims={showAllClaims} onToggleClaims={() => setShowAllClaims((value) => !value)} />
+      <ResearchResult topic={topic} working={status === 'working'} result={result} error={error} showAllClaims={showAllClaims} onToggleClaims={() => setShowAllClaims((value) => !value)} />
       <ContentComposer activeFormat={activeFormat} onFormatChange={onFormatChange} />
     </>
   );

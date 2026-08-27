@@ -1,5 +1,5 @@
 import { ArrowUpRight, ChevronUp, Command, Sparkles } from 'lucide-react';
-import { modes, type Mode } from '@/features/shared';
+import { modes, type Mode, type TrendSourceChoice } from '@/features/shared';
 import { TrendScout } from './trend-scout';
 
 type WorkStatus = 'idle' | 'working' | 'ready';
@@ -9,12 +9,12 @@ interface ResearchConsoleProps {
   mode: Mode;
   status: WorkStatus;
   trendOpen: boolean;
-  trendSource: string;
+  trendSource: TrendSourceChoice;
   onTopicChange: (topic: string) => void;
   onModeChange: (mode: Mode) => void;
   onStart: () => void;
   onTrendToggle: () => void;
-  onTrendSourceChange: (source: string) => void;
+  onTrendSourceChange: (source: TrendSourceChoice) => void;
   onTrendChoose: (topic: string) => void;
 }
 

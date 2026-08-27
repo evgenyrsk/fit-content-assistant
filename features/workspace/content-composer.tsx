@@ -29,8 +29,8 @@ export function ContentComposer({ activeFormat, onFormatChange }: ContentCompose
             {selectedContent.body.map((paragraph, index) => <article key={paragraph}><span>{String(index + 1).padStart(2, '0')}</span><p>{paragraph}</p></article>)}
           </div>
           <aside className="factcheck">
-            <div><span><Check aria-hidden="true" /></span><p><strong>Фактчек пройден</strong><small>Использовано 2 ключевых claim · высокая / умеренная уверенность</small></p></div>
-            <p>Личный опыт не используется как доказательство. Категоричных утверждений сверх данных нет.</p>
+            <div><span><Check aria-hidden="true" /></span><p><strong>Демо проверки структуры</strong><small>Настоящий фактчек включится после утверждения claims</small></p></div>
+            <p>Это пример интерфейса, а не автоматически проверенный материал. До калибровки evidence gate публикация остаётся заблокированной.</p>
           </aside>
         </section>
       )}

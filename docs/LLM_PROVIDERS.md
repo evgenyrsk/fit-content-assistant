@@ -11,6 +11,8 @@ Forme не привязывает доменный конвейер к одно�
 
 Provider и model задаются на сервере отдельно для ролей `research` и `content`. Секреты не попадают в браузер. Для каждого run журнал хранит выбранный provider, model, фактический routed provider при наличии, prompt version, стоимость/usage, задержку, tool calls и итог review gate.
 
+Текущий режим — `economy`: сильная configured model используется только для research planning, appraisal, synthesis и final fact review; классификация и платформенная адаптация получают меньшие token/tool budgets. Конкретные model ids не прошиваются в коде.
+
 ## Граница независимости
 
 Совместимость endpoint не означает одинаковые возможности всех моделей. Structured output, tool calling, reasoning и streaming проверяются для конкретной связки model/provider; неподдержанная capability должна завершать этап как `needs_review`, а не включать тихий fallback.
@@ -24,6 +26,7 @@ OpenAI и OpenRouter проходят один и тот же фиксирова
 ## Конфигурация
 
 - `LLM_PROVIDER=openai|openrouter`
+- `LLM_BUDGET_PROFILE=economy|balanced`
 - `OPENAI_API_KEY`, `OPENAI_MODEL_RESEARCH`, `OPENAI_MODEL_CONTENT`
 - `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL`, `OPENROUTER_MODEL_RESEARCH`, `OPENROUTER_MODEL_CONTENT`
 
