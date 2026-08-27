@@ -13,6 +13,8 @@ Content Engine по умолчанию ищет только в `approved_claims
 
 Текущий ingestion сохраняет секции PubMed-аннотаций в `source_chunks` с locator и content hash. Они индексируются как `abstract_only` и пригодны для triage, но не переходят в assessment-grade evidence. Для прошедших intake записей PMC Open Access adapter добавляет разрешённые Methods/Results/Discussion passages с PMCID, license и offset. Смена уровня доступа не стирает предыдущую provenance.
 
+Ручные PDF проходят отдельный `manual-pdf-intake-v1`: исходный файл остаётся в приватном R2, постраничные chunks получают locator и content hash, а D1 хранит подтверждённое владельцем основание доступа. Полный файл не попадает в model prompt; retrieval передаёт только необходимые фрагменты. Если Methods и Results не определены, assessment-grade gate остаётся закрытым.
+
 ## Почему не «просто векторная база»
 
 Embedding показывает семантическую близость, но не качество исследования, актуальность, истинность или применимость к конкретной популяции. Без структурной базы невозможно надёжно хранить версии, противоречия, статусы, дедлайны обновления и трассировку контента.

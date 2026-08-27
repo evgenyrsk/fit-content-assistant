@@ -29,9 +29,9 @@ interface DocumentRow {
   source_provider: ScientificSourceProvider;
   content_level: SourceContentLevel;
   pmcid: string | null;
-  reuse_status: 'permitted' | 'unknown';
+  reuse_status: 'permitted' | 'user_attested' | 'unknown';
   license: string | null;
-  reuse_origin: 'pmc_open_access' | null;
+  reuse_origin: 'pmc_open_access' | 'user_authorized_upload' | null;
   fetched_at: string;
 }
 
@@ -63,10 +63,17 @@ function sourceInsert(database: D1Database, document: ScientificSourceDocument):
       last_checked_at = excluded.last_checked_at
   `).bind(
     document.sourceId, document.doi ?? null, document.pmid ?? null,
-    `https://pubmed.ncbi.nlm.nih.gov/${document.pmid ?? document.externalId}/`, document.title,
+    sourceUrl(document), document.title,
     document.publicationTypes.join(', ') || 'journal article', document.recordStatus,
     document.sourceId, JSON.stringify(document), document.fetchedAt, document.fetchedAt,
   );
+}
+
+function sourceUrl(document: ScientificSourceDocument): string {
+  if (document.provider === 'manual_pdf') {
+    return `/api/research/sources/pdf?sourceId=${encodeURIComponent(document.sourceId)}`;
+  }
+  return `https://pubmed.ncbi.nlm.nih.gov/${document.pmid ?? document.externalId}/`;
 }
 
 function documentInsert(database: D1Database, document: ScientificSourceDocument): D1PreparedStatement {
@@ -95,9 +102,9 @@ function documentInsert(database: D1Database, document: ScientificSourceDocument
 }
 
 function reuseRights(metadata: DocumentRow | null) {
-  if (!metadata || metadata.reuse_status !== 'permitted') return undefined;
+  if (!metadata || metadata.reuse_status === 'unknown') return undefined;
   if (!metadata.license || !metadata.reuse_origin) return undefined;
-  return { status: 'permitted' as const, license: metadata.license, origin: metadata.reuse_origin };
+  return { status: metadata.reuse_status, license: metadata.license, origin: metadata.reuse_origin };
 }
 
 function contentLevel(metadata: DocumentRow | null, chunks: SourceDocumentChunk[]): SourceContentLevel {

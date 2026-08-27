@@ -35,6 +35,9 @@
 - full-text adapter отклоняет неизвестные/ограничительные лицензии и тексты без Methods/Results;
 - повторный abstract import не понижает `full_text`, а PMC import не скрывает более строгий PubMed record status;
 - Source Inbox читает последние intake-решения и явно показывает срок revalidation.
+- ручной PDF проверяется по signature и лимитам, дедуплицируется по SHA-256 и при ошибке D1 удаляется из object storage;
+- пользовательское подтверждение прав сохраняется отдельно от Open Access license, а отсутствие Methods/Results не открывает assessment-grade gate;
+- приватный download route возвращает только объект, связанный с существующей D1-записью.
 
 ### Экспертные и модельные graders
 

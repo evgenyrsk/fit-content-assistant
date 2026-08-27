@@ -75,7 +75,12 @@
   .source-candidate-list article { border-right: 0; }
   .source-queue-panel { padding: 19px; border-radius: 19px; }
   .source-queue-panel > nav { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); }
-  .source-queue-panel > nav button:last-child { grid-column: 1 / -1; }
+  .source-pdf-toggle { width: 100%; justify-content: center; }
+  .source-pdf-import form { padding: 15px; }
+  .pdf-file-field { align-items: stretch; flex-direction: column; }
+  .pdf-file-field input { max-width: 100%; }
+  .pdf-metadata-grid { grid-template-columns: 1fr; }
+  .pdf-import-submit { width: 100%; }
   .source-queue-item { grid-template-columns: 34px minmax(0,1fr) 30px; gap: 10px; }
   .research-trace { margin-inline: 13px; grid-template-columns: auto minmax(0,1fr); }
   .research-trace > em { grid-column: 2; white-space: normal; }

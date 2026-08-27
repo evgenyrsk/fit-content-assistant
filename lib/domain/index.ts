@@ -6,6 +6,7 @@ export * from './evidence-methodology.ts';
 export * from './evidence-policy.ts';
 export * from './evidence-routing.ts';
 export * from './knowledge.ts';
+export * from './manual-source-import.ts';
 export * from './research.ts';
 export * from './source-document.ts';
 export * from './source-intake-policy.ts';

@@ -29,9 +29,9 @@ export interface ScientificSourceDocument {
 }
 
 export interface SourceReuseRights {
-  status: 'permitted' | 'unknown';
+  status: 'permitted' | 'user_attested' | 'unknown';
   license: string;
-  origin: 'pmc_open_access';
+  origin: 'pmc_open_access' | 'user_authorized_upload';
 }
 
 export interface SourceDocumentCoverage {
@@ -66,7 +66,10 @@ export type SourceIntakeReason =
   | 'record_identity_unverified'
   | 'abstract_missing'
   | 'abstract_too_short'
-  | 'non_research_publication';
+  | 'non_research_publication'
+  | 'manual_pdf_uploaded_requires_review'
+  | 'manual_pdf_sections_incomplete'
+  | 'manual_pdf_text_unavailable';
 
 export interface SourceIntakeDecision {
   sourceId: string;
@@ -81,5 +84,6 @@ export interface SourceIntakeDecision {
 }
 
 export function hasAssessmentGradeProvenance(document: ScientificSourceDocument): boolean {
-  return document.contentLevel === 'full_text' && document.chunks.length > 0;
+  const kinds = new Set(document.chunks.map((chunk) => chunk.kind));
+  return document.contentLevel === 'full_text' && kinds.has('methods') && kinds.has('results');
 }

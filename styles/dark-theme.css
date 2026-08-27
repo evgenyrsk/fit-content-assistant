@@ -55,8 +55,13 @@
 [data-theme='dark'] .source-intake-status[data-state='fulltext'] { color: #9ccfe7; background: rgba(66,124,151,.14); }
 [data-theme='dark'] .source-intake-status[data-state='rejected'] { color: #ee9a9a; background: rgba(190,74,74,.12); }
 [data-theme='dark'] .source-queue-icon[data-state='fulltext'] { color: #9ccfe7; background: rgba(66,124,151,.14); }
+[data-theme='dark'] .source-queue-icon[data-state='manual'] { color: #d8ef79; background: rgba(221,244,91,.1); }
 [data-theme='dark'] .source-queue-icon[data-state='rejected'] { color: #ee9a9a; background: rgba(190,74,74,.12); }
 [data-theme='dark'] .source-queue-item small { color: #8db99a; }
+[data-theme='dark'] .source-queue-item .source-queue-file-meta { color: #7f9986; }
+[data-theme='dark'] .pdf-file-field { border-color: #435247; }
+[data-theme='dark'] .pdf-import-message.success { color: #9ad5a7; background: rgba(91,157,105,.13); }
+[data-theme='dark'] .pdf-import-message.error { color: #ee9a9a; background: rgba(190,74,74,.12); }
 [data-theme='dark'] .source-queue-item em[data-overdue='true'] { color: #e39b7d; }
 [data-theme='dark'] .content-launcher { border-color: var(--border-main); background: radial-gradient(circle at 7% 110%, rgba(221,244,91,.1), transparent 11rem), #121c16; }
 [data-theme='dark'] .launcher-index { border-color: var(--border-main); color: #9aac9e; background: #18231c; }

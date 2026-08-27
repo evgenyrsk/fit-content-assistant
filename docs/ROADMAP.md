@@ -84,6 +84,7 @@
 - [x] Versioned intake-gate для PubMed sources без эвристики «престижности».
 - [x] PubMed Central Open Access full-text ingestion, license allowlist и section completeness gate.
 - [x] Постоянная Source Inbox с full-text/intake/revalidation фильтрами.
+- [x] Ручной импорт законно полученных PDF с rights attestation, private object storage и дедупликацией.
 - [ ] Ручной source review и аудируемый override.
 - [ ] Перепроверка corrections, expressions of concern и retractions.
 - [ ] Lexical search по source chunks и каноническим claims.

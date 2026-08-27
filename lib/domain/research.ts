@@ -1,4 +1,4 @@
-export type ScientificSourceProvider = 'pubmed' | 'crossref' | 'pmc';
+export type ScientificSourceProvider = 'pubmed' | 'crossref' | 'pmc' | 'manual_pdf';
 
 export interface ScientificSourceCandidate {
   id: string;

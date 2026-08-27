@@ -36,6 +36,8 @@ LLM связывает этапы и управляет инструментам
 - разделяет полную историю candidates и исследовательский архив: chunks сохраняются только после versioned deterministic intake, а причины допуска/отказа остаются в D1.
 - после intake пакетно проверяет официальный PMC Open Access corpus, сохраняет только allowlisted reuse licenses и повышает документ до `full_text` лишь при наличии Methods/Results;
 - хранит content level, PMCID, license и reuse origin отдельно от библиографической записи, не допуская downgrade при повторном импорте abstract.
+- принимает ручные PDF через отдельный application use case: bytes дедуплицируются и сохраняются в приватном R2, а D1 фиксирует источник, основание доступа, extraction status, chunks и audit event;
+- ручной PDF никогда не становится claim: нечитаемый текст и неполная структура остаются в Source Inbox, а assessment-grade gate по-прежнему требует Methods и Results.
 - Trend Scout отдельно собирает сигналы свежести и роста тем из доступных социальных источников, затем оценивает их научную проверяемость и отсутствие дублей в контент-архиве.
 - публичные Google Trends/News signals всегда маркируются как proxy; PubMed Research Pulse показывает свежесть научной повестки, но не социальную виральность; прямые Threads/Instagram signals требуют разрешённого API-доступа.
 
@@ -62,6 +64,7 @@ LLM связывает этапы и управляет инструментам
 - `source_chunks`
 - `source_documents`
 - `source_intake_decisions`
+- `manual_source_imports` + private R2 object
 - `source_assessments`
 - `claim_versions`
 - `claim_evidence`
@@ -109,3 +112,4 @@ LLM связывает этапы и управляет инструментам
 Граница между abstract triage, full-text appraisal и claims зафиксирована в `docs/decisions/0006-abstract-ingestion-and-evidence-gates.md`.
 Отбор источников в исследовательский архив зафиксирован в `docs/decisions/0007-deterministic-source-intake.md`.
 Rights-aware full-text ingestion зафиксирован в `docs/decisions/0008-rights-aware-full-text-ingestion.md`.
+Ручной импорт PDF зафиксирован в `docs/decisions/0009-user-authorized-pdf-import.md`.

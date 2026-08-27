@@ -9,6 +9,9 @@ const reasonLabels: Record<SourceIntakeReason, string> = {
   abstract_missing: 'нет аннотации',
   abstract_too_short: 'недостаточно данных в аннотации',
   non_research_publication: 'не исследовательский тип публикации',
+  manual_pdf_uploaded_requires_review: 'PDF добавлен владельцем — нужна ручная проверка',
+  manual_pdf_sections_incomplete: 'Methods/Results не распознаны полностью',
+  manual_pdf_text_unavailable: 'текст не извлечён — нужен OCR или другой PDF',
 };
 
 export function intakeReasonText(reasons: SourceIntakeReason[]): string {

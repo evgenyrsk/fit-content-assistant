@@ -1,4 +1,5 @@
 import type { EvidenceRecordStatus } from './evidence-methodology.ts';
+import type { ManualPdfProcessingStatus, ManualPdfRightsBasis } from './manual-source-import.ts';
 import type { SourceContentLevel, SourceIntakeDecisionType, SourceIntakeReason } from './source-document.ts';
 
 export interface SourceReviewQueueItem {
@@ -13,6 +14,14 @@ export interface SourceReviewQueueItem {
   recordStatus: EvidenceRecordStatus;
   contentLevel: SourceContentLevel;
   license?: string;
+  manualUpload?: {
+    fileName: string;
+    byteSize: number;
+    pageCount: number;
+    extractedCharacters: number;
+    rightsBasis: ManualPdfRightsBasis;
+    processingStatus: ManualPdfProcessingStatus;
+  };
   intakeDecision: SourceIntakeDecisionType;
   intakeReasons: SourceIntakeReason[];
   policyVersion: string;
