@@ -1,10 +1,5 @@
 export type LlmProviderId = 'openai' | 'openrouter';
-
-export type LlmCapability =
-  | 'structured_output'
-  | 'streaming'
-  | 'tool_calling'
-  | 'reasoning';
+export type LlmCapability = 'structured_output' | 'streaming' | 'tool_calling' | 'reasoning';
 
 export interface LlmToolDefinition {
   name: string;
@@ -32,16 +27,9 @@ export interface LlmExecutionResult<T> {
   model: string;
   routedProvider?: string;
   requestId: string;
-  usage?: {
-    inputTokens: number;
-    outputTokens: number;
-  };
+  usage?: { inputTokens: number; outputTokens: number };
 }
 
-/**
- * Provider-neutral boundary used by the domain pipeline. Retrieval, evidence
- * assessment and release gates stay in Forme and never depend on a vendor SDK.
- */
 export interface LlmProvider {
   readonly id: LlmProviderId;
   supports(capability: LlmCapability, model: string): boolean;

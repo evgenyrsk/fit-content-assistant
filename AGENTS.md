@@ -88,7 +88,12 @@ A change is complete only when it:
 ## Engineering
 
 - Use TypeScript for product logic and keep external-data boundaries typed and validated.
-- Prefer small composable modules and explicit domain names over generic utilities.
+- Use the modular-monolith dependency direction from `docs/CODE_ORGANIZATION.md`: `app → features → application → domain`; infrastructure implements application ports.
+- Prefer small composable modules and explicit domain names over generic utilities. Never create `utils.ts`, `helpers.ts`, or `common.ts` dumping grounds.
+- Keep source files at or below 250 lines and functions, components, and hooks at or below 120 lines. Split earlier around a single reason to change.
+- Export at most one class per file. Prefer functions and composition; when a class is justified, keep it focused on one responsibility.
+- Apply SOLID operationally: extend with ports/strategies, keep interfaces client-specific, require substitutable adapter contract tests, and inject concrete dependencies only at the composition root.
+- Import another feature only through its public `index.ts`. Do not reach into another feature's private files.
 - Keep server-only secrets and API calls out of client components.
 - New LLM behavior requires schema tests, representative fixtures, and eval coverage before it becomes publishable.
 - Do not add a dependency when the platform or existing stack already provides a clear solution.
@@ -99,5 +104,6 @@ A change is complete only when it:
 - `docs/ORIGINAL_BRIEF.md` is immutable.
 - Update `docs/ROADMAP.md` when a milestone changes.
 - Update `docs/ARCHITECTURE.md` and add an ADR under `docs/decisions/` for material architecture changes.
+- Start material decisions from `docs/decisions/0000-template.md`; accepted ADRs are immutable and superseded by a new ADR.
 - Update `docs/DESIGN_SYSTEM.md` when visual primitives or interaction rules change.
 - Update `docs/STYLE_PROFILE.md` only from user-approved examples or explicit user feedback.

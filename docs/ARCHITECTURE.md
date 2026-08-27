@@ -1,5 +1,13 @@
 # Архитектура
 
+## Подход к эволюции
+
+Forme — модульный монолит с явными feature-границами и направлением зависимостей в стиле Clean Architecture. Мы сохраняем один deployable продукт, пока нет измеримой причины для распределённой системы, но каждый доменный модуль имеет seam для замены adapter или будущего выделения. Правила и лимиты: `CODE_ORGANIZATION.md`; решение: ADR-0003.
+
+`app → feature UI → application use cases → domain`
+
+`infrastructure → application ports → domain`
+
 ## Поток данных
 
 `LLM Provider Adapter → LLM Orchestrator → Research Engine → Evidence Engine → Knowledge Base → Content Engine → Independent review`
@@ -71,3 +79,4 @@ LLM связывает этапы и управляет инструментам
 
 Архитектурное решение по retrieval зафиксировано в `docs/decisions/0001-claim-first-hybrid-rag.md`.
 Граница LLM-провайдеров зафиксирована в `docs/decisions/0002-provider-neutral-llm.md`.
+Границы модульного монолита зафиксированы в `docs/decisions/0003-modular-monolith-and-code-boundaries.md`.

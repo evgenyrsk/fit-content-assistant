@@ -1,0 +1,49 @@
+
+:root {
+  --forest-950: #0d1b14;
+  --forest-900: #11251a;
+  --forest-800: #173628;
+  --paper: #f4f5ef;
+  --surface: #ffffff;
+  --ink: #172019;
+  --muted: #6f786f;
+  --line: #dde1d8;
+  --acid: #ddf45b;
+  --cobalt: #4967f2;
+  --amber: #f0b84b;
+  --rose: #e96d73;
+  --space-1: 6px;
+  --space-2: 10px;
+  --space-3: 14px;
+  --space-4: 20px;
+  --space-5: 28px;
+  --space-6: 40px;
+  --page-bg: #f4f5ef;
+  --panel-bg: #ffffff;
+  --panel-soft: #f8faf7;
+  --panel-muted: #e9eee7;
+  --text-main: #172019;
+  --text-soft: #6f786f;
+  --border-main: #dde1d8;
+  --card-shadow: 0 12px 40px rgba(28,46,33,.045);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 72% 0%, rgba(221,244,91,.08), transparent 26rem),
+    var(--paper);
+  color: var(--ink);
+  font-family: var(--font-manrope), Arial, sans-serif;
+}
+button, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+svg { display: block; stroke-width: 1.8; }
+button:focus-visible, a:focus-visible, textarea:focus-visible {
+  outline: 3px solid rgba(73,103,242,.35);
+  outline-offset: 2px;
+}
+
+

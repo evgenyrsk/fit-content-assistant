@@ -1,0 +1,43 @@
+'use client';
+
+import { useState } from 'react';
+import type { ContentFormat, Mode } from '@/features/shared';
+import { ContentComposer } from './content-composer';
+import { ResearchConsole } from './research-console';
+import { ResearchResult } from './research-result';
+
+interface WorkspaceViewProps {
+  activeFormat: ContentFormat | null;
+  onFormatChange: (format: ContentFormat | null) => void;
+}
+
+export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewProps) {
+  const [topic, setTopic] = useState('Нужно ли тренироваться до отказа для роста мышц?');
+  const [mode, setMode] = useState<Mode>('Исследовать');
+  const [status, setStatus] = useState<'idle' | 'working' | 'ready'>('ready');
+  const [showAllClaims, setShowAllClaims] = useState(false);
+  const [trendOpen, setTrendOpen] = useState(false);
+  const [trendSource, setTrendSource] = useState('Instagram + Threads');
+
+  function startWork() {
+    if (!topic.trim()) return;
+    setStatus('working');
+    onFormatChange(null);
+    window.setTimeout(() => setStatus('ready'), 1100);
+  }
+
+  function chooseTrend(nextTopic: string) {
+    setTopic(nextTopic);
+    setMode('Исследовать');
+    setTrendOpen(false);
+    window.setTimeout(() => document.getElementById('topic')?.focus(), 0);
+  }
+
+  return (
+    <>
+      <ResearchConsole topic={topic} mode={mode} status={status} trendOpen={trendOpen} trendSource={trendSource} onTopicChange={setTopic} onModeChange={setMode} onStart={startWork} onTrendToggle={() => setTrendOpen((value) => !value)} onTrendSourceChange={setTrendSource} onTrendChoose={chooseTrend} />
+      <ResearchResult topic={topic} working={status === 'working'} showAllClaims={showAllClaims} onToggleClaims={() => setShowAllClaims((value) => !value)} />
+      <ContentComposer activeFormat={activeFormat} onFormatChange={onFormatChange} />
+    </>
+  );
+}

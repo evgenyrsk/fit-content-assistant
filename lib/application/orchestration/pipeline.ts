@@ -1,4 +1,15 @@
-import type { PipelineStageId } from './contracts';
+export type PipelineStageId =
+  | 'intent'
+  | 'research_plan'
+  | 'retrieval'
+  | 'source_assessment'
+  | 'claim_synthesis'
+  | 'claim_review'
+  | 'knowledge_commit'
+  | 'content_brief'
+  | 'platform_draft'
+  | 'voice_edit'
+  | 'fact_review';
 
 export interface PipelineStage {
   id: PipelineStageId;

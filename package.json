@@ -11,7 +11,8 @@
     "start": "vinext start",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "typecheck": "tsc --noEmit",
-    "check": "npm run lint && npm run typecheck && npm run build"
+    "architecture": "node scripts/check-architecture.mjs",
+    "check": "npm run architecture && npm run lint && npm run typecheck && npm run build"
   },
   "dependencies": {
     "lucide-react": "^1.34.0",

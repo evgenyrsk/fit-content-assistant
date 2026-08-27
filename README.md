@@ -20,6 +20,7 @@ Forme разделяет четыре самостоятельных этапа:
 - [Исходный бриф](docs/ORIGINAL_BRIEF.md)
 - [Продукт и границы MVP](docs/PRODUCT.md)
 - [Архитектура](docs/ARCHITECTURE.md)
+- [Организация кода и SOLID](docs/CODE_ORGANIZATION.md)
 - [LLM-система](docs/AI_SYSTEM.md)
 - [LLM-провайдеры](docs/LLM_PROVIDERS.md)
 - [RAG и база знаний](docs/RAG_ARCHITECTURE.md)
@@ -34,6 +35,7 @@ Forme разделяет четыре самостоятельных этапа:
 - Node.js: версия из `.nvmrc`.
 - Окружение: скопировать `.env.example` в `.env.local`; реальные ключи не коммитить.
 - Полная локальная проверка: `npm run check`.
+- Архитектурные границы отдельно: `npm run architecture`.
 - Правила репозитория: `AGENTS.md`; порядок работы: `CONTRIBUTING.md`.
 
 ## Правила работы
