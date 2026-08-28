@@ -70,7 +70,7 @@ function sourceNotices(
   if (!expected.includes('threads') || typeof settings.THREADS_ACCESS_TOKEN !== 'string') return {};
   if (settings.THREADS_APP_MODE === 'live') return {};
   return {
-    threads: 'Threads подключён в тестовом режиме Meta. Публичный поиск ограничен до перевода приложения в Live Mode и одобрения App Review.',
+    threads: 'Threads подключён в личном режиме Meta Development. Для аккаунта с ролью в приложении публичный App Review не требуется.',
   };
 }
 

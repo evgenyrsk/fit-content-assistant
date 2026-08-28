@@ -1,7 +1,9 @@
 import { ArrowUpRight, CircleCheck, CircleOff, LoaderCircle, Radio, TriangleAlert } from 'lucide-react';
 import type { TrendSourceChoice } from '@/features/shared';
 import type { TrendDiscoveryResult, TrendSource } from '@/lib/domain';
+import { ThreadsConnectionPanel } from './threads-connection-panel';
 import { useTrendSignals } from './use-trend-signals';
+import { useThreadsConnection } from './use-threads-connection';
 
 interface TrendScoutProps {
   source: TrendSourceChoice;
@@ -31,6 +33,16 @@ function emptyMessage(result: TrendDiscoveryResult | null, source: TrendSourceCh
   return `${notice ? `${notice} ` : ''}Свежих подходящих публикаций по фитнес-темам сейчас не найдено.`;
 }
 
+function ThreadsDiagnostics({ source }: { source: TrendSourceChoice }) {
+  const connection = useThreadsConnection(source === 'threads');
+  if (source !== 'threads') return null;
+  return <ThreadsConnectionPanel
+    status={connection.result}
+    loading={connection.loading}
+    onRefresh={connection.refresh}
+  />;
+}
+
 export function TrendScout({ source, onSourceChange, onChoose }: TrendScoutProps) {
   const { result, loading } = useTrendSignals(source);
 
@@ -48,6 +60,7 @@ export function TrendScout({ source, onSourceChange, onChoose }: TrendScoutProps
         <MetaSourceState result={result} source="threads" label="Threads" />
         <MetaSourceState result={result} source="instagram" label="Instagram" />
       </div>}
+      <ThreadsDiagnostics source={source} />
       <p className="trend-disclaimer">{loading ? 'Обновляю сигналы…' : result?.message ?? 'Live-источник временно недоступен.'}</p>
       <div className="trend-list">
         {loading && <div className="trend-empty"><LoaderCircle className="spin" aria-hidden="true" /><p>Ищу свежие темы и проверяю их соответствие фитнес-направлению.</p></div>}

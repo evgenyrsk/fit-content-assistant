@@ -1,6 +1,6 @@
 # Meta App Review runbook
 
-Статус: Tech Provider активирован, черновик App Review создан. Проверено в Meta Developer Dashboard 28 августа 2026 года.
+Статус: публичный App Review отложен как избыточный для личного режима. Черновик сохранён, но не отправляется. Решение принято 28 августа 2026 года.
 
 ## Текущее состояние
 
@@ -12,8 +12,18 @@
 - Contact email, category `Lifestyle`, App domain, Privacy Policy URL, User data deletion URL, web platform и review URL сохранены.
 - Квадратная иконка `public/meta-app-icon.png` загружена в Meta.
 - Reviewer instructions и описания использования двух Threads-разрешений сохранены в черновике.
-- Business Verification начата и ждёт фактических данных владельца; Access Verification откроется после неё.
+- Business Verification остановлена до появления публичного или многопользовательского сценария; Access Verification сейчас не требуется.
 - Meta требует по одному успешному API-вызову и OAuth-скринкасту для каждого Threads-разрешения. Trend Scout выполняет `threads_basic` profile preflight перед `threads_keyword_search`; учёт тестов может обновляться до 24 часов.
+- В текущем Development Mode подключённый app-role аккаунт работает без отправки App Review. Tech Provider остаётся активным, но не создаёт обязательства завершать verification сейчас.
+
+## Текущее операционное решение
+
+- не отправлять черновик App Review;
+- не нажимать Publish и не переводить приложение в Live Mode;
+- не продолжать Business / Access Verification;
+- использовать только server-only доступ владельца;
+- контролировать его через встроенную диагностику Threads;
+- вернуться к review-процессу перед подключением других пользователей.
 
 ## Запрашиваемый минимальный доступ
 
@@ -53,7 +63,7 @@ The server requests post id, text, timestamp and permalink. It stores a normaliz
 
 Эти маршруты находятся в приватном продукте. Они не считаются публичными URL для Meta, пока не создан отдельный публичный review-контур или не утверждена другая безопасная схема доступа.
 
-## Перед публичным действием
+## Перед будущим публичным действием
 
 В одном подтверждении владельца нужны:
 

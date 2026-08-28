@@ -18,6 +18,24 @@
 .meta-source-states > span { min-height: 28px; padding: 5px 8px; border: 1px solid #314137; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; color: #849188; background: rgba(255,255,255,.025); font-size: var(--type-caption); font-weight: 750; }
 .meta-source-states > span.active { border-color: rgba(221,244,91,.24); color: #cbd8ce; background: rgba(221,244,91,.06); }
 .meta-source-states svg { width: 13px; height: 13px; color: currentColor; }
+.threads-connection { margin-top: 10px; padding: 12px; border: 1px solid #314137; border-radius: 13px; display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: start; gap: 11px; background: rgba(255,255,255,.025); }
+.threads-connection[data-state='connected'] { border-color: rgba(221,244,91,.24); background: rgba(221,244,91,.055); }
+.threads-connection[data-state='attention_required'], .threads-connection[data-state='not_configured'] { border-color: rgba(240,184,75,.34); background: rgba(240,184,75,.055); }
+.threads-connection-icon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #9aaa9e; background: #203027; }
+.threads-connection[data-state='connected'] .threads-connection-icon { color: var(--forest-950); background: var(--acid); }
+.threads-connection[data-state='attention_required'] .threads-connection-icon, .threads-connection[data-state='not_configured'] .threads-connection-icon { color: #f3c96f; background: rgba(240,184,75,.12); }
+.threads-connection-icon svg { width: 17px; height: 17px; }
+.threads-connection-copy { min-width: 0; }
+.threads-connection-copy > div { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+.threads-connection-copy strong { color: #e4ebe5; font-size: var(--type-meta); }
+.threads-connection-copy > div > span { padding: 3px 6px; border-radius: 5px; color: #b4c0b7; background: rgba(255,255,255,.05); font-size: var(--type-caption); font-weight: 800; }
+.threads-connection-copy p { margin: 5px 0 0; color: #8e9b91; font-size: var(--type-meta); line-height: 1.45; }
+.threads-connection-copy small { display: block; margin-top: 6px; color: #b7c46d; font-size: var(--type-caption); line-height: 1.45; }
+.threads-connection-copy ul { margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 5px 12px; color: #68786d; font-size: var(--type-caption); list-style: none; }
+.threads-connection-copy li { min-width: 0; overflow-wrap: anywhere; }
+.threads-connection > button { min-height: 36px; padding: 0 10px; border: 1px solid #3a4b3f; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; color: #c6d0c8; background: #1c2c22; cursor: pointer; font-size: var(--type-caption); font-weight: 800; }
+.threads-connection > button:disabled { cursor: wait; opacity: .65; }
+.threads-connection > button svg { width: 14px; height: 14px; color: var(--acid); }
 .trend-disclaimer { margin: 13px 0 0; padding: 9px 11px; border-left: 2px solid #758344; color: #849188; background: rgba(221,244,91,.035); font-size: var(--type-caption); line-height: 1.5; }
 .trend-list { margin-top: 11px; display: grid; gap: 7px; }
 .trend-list article { padding: 12px; border: 1px solid #2b3b31; border-radius: 12px; display: grid; grid-template-columns: 24px minmax(0,1fr) auto; align-items: start; gap: 11px; background: #142119; }

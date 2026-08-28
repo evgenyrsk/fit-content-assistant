@@ -123,6 +123,8 @@
   .history-orbit { width: 120px; height: 120px; }
   .trend-header { align-items: flex-start; flex-direction: column; }
   .trend-header label, .trend-header select { width: 100%; }
+  .threads-connection { grid-template-columns: auto minmax(0,1fr); }
+  .threads-connection > button { grid-column: 2; width: 100%; min-height: 40px; }
   .trend-list article { grid-template-columns: 20px minmax(0,1fr); }
   .trend-list article > button { grid-column: 2; width: 100%; }
   .cluster-panel, .platform-lanes { padding: 19px; border-radius: 19px; }

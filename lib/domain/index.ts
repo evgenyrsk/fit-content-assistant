@@ -5,6 +5,7 @@ export * from './evidence.ts';
 export * from './evidence-methodology.ts';
 export * from './evidence-policy.ts';
 export * from './evidence-routing.ts';
+export * from './external-connection.ts';
 export * from './knowledge.ts';
 export * from './manual-source-import.ts';
 export * from './research.ts';

@@ -40,7 +40,7 @@ LLM связывает этапы и управляет инструментам
 - ручной PDF никогда не становится claim: нечитаемый текст и неполная структура остаются в Source Inbox, а assessment-grade gate по-прежнему требует Methods и Results.
 - Trend Scout отдельно собирает сигналы свежести и роста тем из доступных социальных источников, затем оценивает их научную проверяемость и отсутствие дублей в контент-архиве.
 - публичные Google Trends/News signals всегда маркируются как proxy; PubMed Research Pulse показывает свежесть научной повестки, но не социальную виральность; прямые Threads/Instagram signals работают через server-only Meta adapters и требуют разрешённых long-lived tokens.
-- Threads adapter запрашивает несколько узких фитнес-тем в 48-часовом окне, отбрасывает stale-публикации и не подменяет пустую live-выдачу старыми постами. Development Mode Meta отображается как подключённый, но ограниченный источник; публичная выдача считается доступной только после Live Mode/App Review.
+- Threads adapter запрашивает несколько узких фитнес-тем в 48-часовом окне, отбрасывает stale-публикации и не подменяет пустую live-выдачу старыми постами. В личном Meta Development Mode источник работает для аккаунта с ролью в приложении без публичного App Review. Отдельная server-side диагностика проверяет профильный доступ, классифицирует credential/permission/temporary failures и никогда не возвращает токен или raw Meta error в браузер.
 
 ### Evidence Engine
 
@@ -118,3 +118,4 @@ LLM связывает этапы и управляет инструментам
 Rights-aware full-text ingestion зафиксирован в `docs/decisions/0008-rights-aware-full-text-ingestion.md`.
 Ручной импорт PDF зафиксирован в `docs/decisions/0009-user-authorized-pdf-import.md`.
 Прямые Meta trend adapters и граница хранения токенов зафиксированы в `docs/decisions/0010-direct-meta-trend-adapters.md`.
+Личный Meta Development Mode и отложенный публичный review зафиксированы в `docs/decisions/0011-personal-meta-development-mode.md`.

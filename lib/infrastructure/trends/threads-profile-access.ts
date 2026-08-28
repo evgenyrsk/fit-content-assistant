@@ -1,3 +1,5 @@
+import { createThreadsApiError } from './threads-api-error.ts';
+
 type Fetcher = typeof fetch;
 
 interface ThreadsProfileAccessOptions {
@@ -39,7 +41,7 @@ export class ThreadsProfileAccess {
     });
     const url = `https://graph.threads.net/${this.options.apiVersion}/me?${parameters}`;
     const response = await this.fetcher(url);
-    if (!response.ok) throw new Error(`Threads profile access failed: ${response.status}`);
+    if (!response.ok) throw await createThreadsApiError(response, 'Threads profile access');
     return parseProfile(await response.json());
   }
 }

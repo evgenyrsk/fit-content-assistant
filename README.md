@@ -13,7 +13,7 @@ Forme разделяет четыре самостоятельных этапа:
 
 ## Текущее состояние
 
-Работает интерактивный интерфейс MVP, реальный поиск PubMed/Crossref, пакетное сохранение секций PubMed-аннотаций в D1 и live Trend Scout на публичных proxy-сигналах и PubMed Research Pulse. Provider-neutral научный контур включает strict-schema этапы `research_plan`, `source_assessment`, `body_assessment` и `claim_synthesis`, модельные/audit записи и fail-closed gates. База знаний читает канонические версии claims и показывает честное пустое состояние вместо демо-выводов.
+Работает интерактивный интерфейс MVP, реальный поиск PubMed/Crossref, пакетное сохранение секций PubMed-аннотаций в D1 и live Trend Scout на публичных proxy-сигналах, PubMed Research Pulse и личном Threads Development Mode. Встроенная диагностика проверяет доступ владельца, не раскрывая серверный токен. Provider-neutral научный контур включает strict-schema этапы `research_plan`, `source_assessment`, `body_assessment` и `claim_synthesis`, модельные/audit записи и fail-closed gates. База знаний читает канонические версии claims и показывает честное пустое состояние вместо демо-выводов.
 
 Все найденные candidates остаются в воспроизводимой истории поиска, но chunks сохраняются только после детерминированного `source-intake-v1`. Ретракции, expressions of concern, не исследовательские форматы и недостаточные аннотации отсеиваются с явной причиной; правила описаны в [SOURCE_INTAKE_POLICY.md](docs/SOURCE_INTAKE_POLICY.md).
 

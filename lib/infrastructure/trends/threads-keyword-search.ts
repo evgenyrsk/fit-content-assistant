@@ -1,6 +1,7 @@
 import type { TrendCandidate } from '../../domain/index.ts';
 import type { TrendDiscoveryRequest, TrendProvider } from '../../application/ports/trend-provider.ts';
 import { scoreAudienceFit, scoreResearchability } from './trend-scoring.ts';
+import { createThreadsApiError } from './threads-api-error.ts';
 import { ThreadsProfileAccess, type ThreadsProfile } from './threads-profile-access.ts';
 
 type Fetcher = typeof fetch;
@@ -91,7 +92,7 @@ export class ThreadsKeywordSearch implements TrendProvider {
     });
     const base = `https://graph.threads.net/${this.options.apiVersion}/keyword_search`;
     const response = await this.fetcher(`${base}?${parameters}`, { signal: request.signal });
-    if (!response.ok) throw new Error(`Threads keyword search failed: ${response.status}`);
+    if (!response.ok) throw await createThreadsApiError(response, 'Threads keyword search');
     return parseThreadsPosts(await response.json(), now);
   }
 
