@@ -1,15 +1,15 @@
 # Meta App Review runbook
 
-Статус: подготовка, не отправлено. Проверено в Meta Developer Dashboard 28 августа 2026 года.
+Статус: публичный review-контур готов, App Review не создан. Проверено в Meta Developer Dashboard 28 августа 2026 года.
 
 ## Текущее состояние
 
 - Meta App ID: `2104673313480628`; Threads App ID: `1749989439454425`.
 - Приложение находится в Development / Unpublished.
 - `threads_basic` и `threads_keyword_search` добавлены и имеют статус `Ready for testing`.
-- Для `threads_keyword_search` доступно действие `Add to App Review`, но оно не нажато.
-- Go Live заблокирован отсутствующим Privacy Policy URL.
-- В App Settings также нужно проверить/заполнить contact email, category и User data deletion URL.
+- Для обоих разрешений доступно действие `Add to App Review`. Оно открывает обязательный переход в Tech Provider; Meta отмечает переход как необратимый. `Continue` не нажато.
+- Все required app settings завершены, кнопка Publish доступна, но не нажата.
+- Contact email, category `Lifestyle`, App domain, Privacy Policy URL и User data deletion URL сохранены.
 - Квадратная иконка подготовлена локально: `public/meta-app-icon.png`; в Meta она ещё не загружена.
 - Dashboard отдельно предлагает Become a Tech Provider для App Review и доступа к данным других пользователей/бизнесов. Этот шаг ещё не начат.
 
@@ -47,16 +47,17 @@ The server requests post id, text, timestamp and permalink. It stores a normaliz
 - `/legal/data-deletion` — инструкция отзыва доступа и удаления данных;
 - `/meta-review` — краткая англоязычная инструкция ревьюеру.
 
+Публичный изолированный портал: `https://forme-meta-review.evgenyrsk7.chatgpt.site`. Он не имеет D1/R2, токенов, загрузок и приватных API основного Forme.
+
 Эти маршруты находятся в приватном продукте. Они не считаются публичными URL для Meta, пока не создан отдельный публичный review-контур или не утверждена другая безопасная схема доступа.
 
 ## Перед публичным действием
 
 В одном подтверждении владельца нужны:
 
-1. публичный контактный email;
-2. срок ответа на запрос удаления данных;
-3. согласие на создание публичного review-контура без доступа к приватной базе Forme;
-4. финальное согласие на добавление `threads_basic` и `threads_keyword_search` в App Review;
-5. подтверждение перед Publish / Live Mode после одобрения Meta.
+1. явное согласие на необратимую идентификацию как Tech Provider;
+2. готовность пройти Business Verification и Access Verification;
+3. подтверждение перед финальной отправкой App Review;
+4. подтверждение перед Publish / Live Mode после одобрения Meta.
 
 Не записывать tester credentials, токены, app secret или приватные документы в этот файл, скринкаст и review notes.
