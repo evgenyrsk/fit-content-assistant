@@ -65,7 +65,7 @@ export class D1ClaimDraftStore implements ClaimDraftStore {
       INSERT INTO claim_evidence (
         claim_version_id, source_chunk_id, source_assessment_id, direction, weight
       ) VALUES (?, ?, ?, ?, ?)
-    `).bind(record.id, item.sourceChunkId, item.sourceAssessmentId, item.direction, item.weight)));
+    `).bind(record.id, item.sourceChunkId, item.sourceAssessmentId ?? null, item.direction, item.weight)));
     await this.database.batch(statements);
     return { claimId, versionId: record.id, version };
   }

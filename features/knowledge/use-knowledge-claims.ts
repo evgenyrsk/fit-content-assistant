@@ -1,9 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { KnowledgeClaimResult } from '@/lib/domain';
 
 export function useKnowledgeClaims() {
   const [result, setResult] = useState<KnowledgeClaimResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [revision, setRevision] = useState(0);
+
+  const reload = useCallback(() => {
+    setError(null);
+    setRevision((value) => value + 1);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -20,7 +26,10 @@ export function useKnowledgeClaims() {
     }
     void load();
     return () => controller.abort();
-  }, []);
+  }, [revision]);
 
-  return { claims: result?.claims ?? [], generatedAt: result?.generatedAt ?? '', loading: !result && !error, error };
+  return {
+    claims: result?.claims ?? [], generatedAt: result?.generatedAt ?? '',
+    loading: !result && !error, error, reload,
+  };
 }

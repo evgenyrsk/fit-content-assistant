@@ -1,4 +1,4 @@
-import { Database, RotateCcw, Search, ShieldCheck } from 'lucide-react';
+import { ClipboardCheck, Database, RotateCcw, Search, ShieldCheck } from 'lucide-react';
 import type { KnowledgeClaimRecord } from '@/lib/domain';
 import type { useKnowledgeFilters } from './use-knowledge-filters';
 import { confidenceLabels, confidenceMarker, confidenceTone, evidenceLabel, statusLabels } from './knowledge-presentation';
@@ -8,6 +8,7 @@ interface KnowledgeLibraryProps {
   filters: ReturnType<typeof useKnowledgeFilters>;
   loading: boolean;
   error: string | null;
+  onReview: (claim: KnowledgeClaimRecord) => void;
 }
 
 function EmptyLibrary({ pristine, loading, error }: { pristine: boolean; loading: boolean; error: string | null }) {
@@ -18,7 +19,7 @@ function EmptyLibrary({ pristine, loading, error }: { pristine: boolean; loading
     : <div className="empty-knowledge"><span><Search aria-hidden="true" /></span><h3>По этим фильтрам ничего нет</h3><p>Измените запрос или сбросьте часть фильтров.</p></div>;
 }
 
-export function KnowledgeLibrary({ claims, filters, loading, error }: KnowledgeLibraryProps) {
+export function KnowledgeLibrary({ claims, filters, loading, error, onReview }: KnowledgeLibraryProps) {
   return (
     <div className="library-panel">
       <div className="library-toolbar">
@@ -45,6 +46,8 @@ export function KnowledgeLibrary({ claims, filters, loading, error }: KnowledgeL
                 <p>{evidenceLabel(claim)}{claim.limitations[0] ? ` · Ограничение: ${claim.limitations[0]}` : ''}</p>
               </div>
               <span className={`knowledge-confidence ${tone}`}>{confidenceLabels[claim.confidence]}</span>
+              {claim.status === 'needs_review' && <button type="button" onClick={() => onReview(claim)}
+                aria-label={`Проверить claim: ${claim.statement}`}><ClipboardCheck aria-hidden="true" /></button>}
             </article>
           );
         })}

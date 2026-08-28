@@ -86,6 +86,8 @@ LLM связывает этапы и управляет инструментам
 
 `source_review_decisions` хранит добавочные, неизменяемые решения человека. Ручной include/exclude не переписывает intake-gate: новое решение указывает причину, автора, время и признак override. Проверка record integrity повторно загружает PubMed-запись, сохраняет новый статус через существующий document store и создаёт отдельное audit event.
 
+Ручной claim workflow использует только `full_text` источники с разрешённым reuse status, активной библиографической записью и последним человеческим решением `included`. Draft требует Methods и Results/Discussion provenance и сохраняется как `needs_review`. Eligibility всех passages повторно проверяется во время approval. Отдельная запись `claim_manual_reviews` фиксирует финальное решение владельца, обоснование, работу с противоречиями и три явных подтверждения; модель не участвует и не может одобрить claim автоматически.
+
 ### Content Engine
 
 - читает только свежие канонические `approved` claim versions; пустая выборка является штатным блокирующим результатом;
@@ -93,6 +95,7 @@ LLM связывает этапы и управляет инструментам
 - использует provider-neutral content runtime для первых трёх этапов и отдельный research runtime для независимого фактчека;
 - до утверждения style profile применяет явно помеченный нейтральный fallback, не выдавая его за голос автора;
 - сохраняет `content_items`, фрагменты, `content_claims`, model runs и audit event в D1;
+- реальный архив читает агрегаты напрямую из D1 и не смешивает их с демонстрационными шаблонами;
 - никогда не публикует автоматически: успешный gate создаёт только `ready_for_human_review`.
 
 ## Технический курс
@@ -122,3 +125,4 @@ Rights-aware full-text ingestion зафиксирован в `docs/decisions/000
 Прямые Meta trend adapters и граница хранения токенов зафиксированы в `docs/decisions/0010-direct-meta-trend-adapters.md`.
 Личный Meta Development Mode и отложенный публичный review зафиксированы в `docs/decisions/0011-personal-meta-development-mode.md`.
 Трассируемый контентный конвейер зафиксирован в `docs/decisions/0012-traceable-content-pipeline.md`.
+Ручной owner-reviewed claim workflow зафиксирован в `docs/decisions/0013-manual-claim-review.md`.

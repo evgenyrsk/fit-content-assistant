@@ -37,6 +37,7 @@
   .flow-strip p { display: none; }
   .view-hero { align-items: flex-start; flex-direction: column; }
   .view-metric { min-width: 0; width: min(280px, 100%); }
+  .knowledge-hero-actions { width: min(280px, 100%); }
   .stats-row { grid-template-columns: 1fr; }
   .library-toolbar { align-items: flex-start; flex-direction: column; }
   .library-toolbar label { width: 100%; }
@@ -100,6 +101,13 @@
   .content-gate-panel { grid-template-columns: 40px minmax(0,1fr); }
   .content-gate-panel button { grid-column: 2; width: fit-content; }
   .factcheck { align-items: flex-start; flex-direction: column; }
+  .manual-claim-workbench, .claim-review-panel { padding: 19px; border-radius: 19px; }
+  .manual-claim-workbench > header { flex-direction: column; }
+  .manual-claim-workbench > header > button { width: 100%; justify-content: center; }
+  .manual-claim-grid, .manual-claim-grid.primary { grid-template-columns: 1fr; }
+  .manual-evidence-options { grid-template-columns: 1fr; }
+  .claim-review-actions { align-items: stretch; flex-direction: column; }
+  .claim-review-actions > label, .claim-review-actions button { width: 100%; }
   footer { align-items: flex-start; flex-direction: column; }
   footer p { text-align: left; }
   .view-hero { min-height: 360px; padding: 28px 22px; border-radius: 22px; }

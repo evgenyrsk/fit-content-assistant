@@ -8,6 +8,8 @@ export * from './evidence-routing.ts';
 export * from './external-connection.ts';
 export * from './knowledge.ts';
 export * from './manual-source-import.ts';
+export * from './manual-claim.ts';
+export * from './content-archive.ts';
 export * from './research.ts';
 export * from './source-document.ts';
 export * from './source-intake-policy.ts';

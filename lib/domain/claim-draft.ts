@@ -1,7 +1,7 @@
 import type { Confidence, EvidenceDirection } from './evidence.ts';
 
 export interface ClaimDraftEvidence {
-  sourceAssessmentId: string;
+  sourceAssessmentId?: string;
   sourceChunkId: string;
   direction: EvidenceDirection;
   weight: 'primary' | 'secondary' | 'context';

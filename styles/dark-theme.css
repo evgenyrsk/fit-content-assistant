@@ -97,6 +97,12 @@
 [data-theme='dark'] .history-filter,
 [data-theme='dark'] .history-feed { border-color: var(--border-main); background: var(--panel-bg); box-shadow: var(--card-shadow); }
 [data-theme='dark'] .knowledge-main > div em { color: #879289; background: var(--panel-soft); }
+[data-theme='dark'] .manual-claim-warning { color: #d7b86d; background: rgba(240,184,75,.08); }
+[data-theme='dark'] .manual-evidence-options small,
+[data-theme='dark'] .claim-review-evidence small { color: #8db99a; }
+[data-theme='dark'] .manual-claim-error { color: #ee9a9a; background: rgba(190,74,74,.12); }
+[data-theme='dark'] .state-ready_for_human_review { color: #8cc29a; background: rgba(98,168,117,.13); }
+[data-theme='dark'] .state-needs_review { color: #d4ae5d; background: rgba(240,184,75,.13); }
 [data-theme='dark'] .format-badge,
 [data-theme='dark'] .item-state { background: var(--panel-soft); }
 [data-theme='dark'] .state-готово { color: #8cc29a; background: rgba(98,168,117,.13); }

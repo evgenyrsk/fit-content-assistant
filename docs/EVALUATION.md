@@ -44,6 +44,12 @@
 - final fact review покрывает каждый фрагмент и не может одобрить draft с unsupported fragment;
 - каждый контентный этап имеет отдельный model run, а невалидный результат прекращает конвейер до следующего вызова;
 - статус `ready_for_human_review` не означает `publishable`: ручной просмотр обязателен.
+- ручной claim draft принимает только chunks из active full-text источников с разрешённым reuse и последним source review `included`;
+- ручной draft требует Methods и Results/Discussion, уникальные chunk ids, ограничения и будущую дату пересмотра;
+- высокая уверенность в ручном claim требует минимум два различных источника;
+- approval невозможен без отдельного human review, supporting evidence и подтверждений provenance, scope и поиска противоречий;
+- eligibility каждого связанного источника повторно проверяется в момент approval; ретракция или снятый human include блокируют решение;
+- контентный архив возвращает только реальные `content_items` из D1 и не использует fixtures или demo data.
 
 ### Экспертные и модельные graders
 

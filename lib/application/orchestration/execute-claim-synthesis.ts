@@ -39,11 +39,12 @@ function confidenceAllowed(claim: Confidence, body: BodyCertainty): boolean {
 }
 
 function evidenceReferencesAreValid(
-  evidence: Array<{ sourceAssessmentId: string; sourceChunkId: string }>,
+  evidence: Array<{ sourceAssessmentId?: string; sourceChunkId: string }>,
   summaries: SourceAssessmentSummary[],
 ): boolean {
   const byAssessment = new Map(summaries.map((summary) => [summary.id, new Set(summary.finding.provenanceIds)]));
-  return evidence.every((item) => byAssessment.get(item.sourceAssessmentId)?.has(item.sourceChunkId) === true);
+  return evidence.every((item) => Boolean(item.sourceAssessmentId)
+    && byAssessment.get(item.sourceAssessmentId as string)?.has(item.sourceChunkId) === true);
 }
 
 async function stableKey(statement: string, scope: Record<string, unknown>): Promise<string> {
