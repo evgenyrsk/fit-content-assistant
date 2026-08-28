@@ -6,6 +6,7 @@ import type { TrendProvider } from '@/lib/application/ports/trend-provider';
 import { GoogleTrendsRss } from '@/lib/infrastructure/trends/google-trends-rss';
 import { GoogleNewsFeed } from '@/lib/infrastructure/trends/google-news-feed';
 import { ThreadsKeywordSearch } from '@/lib/infrastructure/trends/threads-keyword-search';
+import { InstagramHashtagSearch } from '@/lib/infrastructure/trends/instagram-hashtag-search';
 import { D1TrendSignalStore } from '@/lib/infrastructure/d1/d1-trend-signal-store';
 import { ensureTrendSchema } from '@/lib/infrastructure/d1/ensure-trend-schema';
 import { PubmedResearchPulse } from '@/lib/infrastructure/trends/pubmed-research-pulse';
@@ -23,6 +24,27 @@ function requestedSources(value: string | null): TrendSource[] {
   return ['google_trends', 'google_news', 'pubmed_pulse', 'threads', 'instagram'];
 }
 
+function threadsProvider(settings: Record<string, string | D1Database | undefined>): TrendProvider | undefined {
+  const token = settings.THREADS_ACCESS_TOKEN;
+  const version = settings.THREADS_API_VERSION;
+  if (typeof token !== 'string' || typeof version !== 'string') return undefined;
+  return new ThreadsKeywordSearch({ accessToken: token, apiVersion: version });
+}
+
+function instagramProvider(settings: Record<string, string | D1Database | undefined>): TrendProvider | undefined {
+  const token = settings.INSTAGRAM_ACCESS_TOKEN;
+  const userId = settings.INSTAGRAM_USER_ID;
+  const version = settings.META_GRAPH_API_VERSION;
+  if (typeof token !== 'string' || typeof userId !== 'string' || typeof version !== 'string') return undefined;
+  return new InstagramHashtagSearch({ accessToken: token, userId, apiVersion: version });
+}
+
+function addOptionalProvider(
+  providers: TrendProvider[], expected: TrendSource[], source: TrendSource, provider?: TrendProvider,
+): void {
+  if (expected.includes(source) && provider) providers.push(provider);
+}
+
 function configuredProviders(expected: TrendSource[], settings: Record<string, string | D1Database | undefined>): TrendProvider[] {
   const providers: TrendProvider[] = [];
   if (expected.includes('google_trends')) providers.push(new GoogleTrendsRss());
@@ -33,11 +55,8 @@ function configuredProviders(expected: TrendSource[], settings: Record<string, s
       email: typeof settings.NCBI_EMAIL === 'string' ? settings.NCBI_EMAIL : undefined,
     }));
   }
-  const token = settings.THREADS_ACCESS_TOKEN;
-  const version = settings.THREADS_API_VERSION;
-  if (expected.includes('threads') && typeof token === 'string' && typeof version === 'string') {
-    providers.push(new ThreadsKeywordSearch({ accessToken: token, apiVersion: version }));
-  }
+  addOptionalProvider(providers, expected, 'threads', threadsProvider(settings));
+  addOptionalProvider(providers, expected, 'instagram', instagramProvider(settings));
   return providers;
 }
 

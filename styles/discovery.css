@@ -14,6 +14,10 @@
 .trend-header h2 { margin: 5px 0 0; font-size: 16px; letter-spacing: -.03em; }
 .trend-header label { color: #76877b; font-size: var(--type-caption); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 .trend-header select { display: block; min-width: 145px; height: 31px; margin-top: 5px; padding: 0 9px; border: 1px solid #314339; border-radius: 8px; color: #b6c2b9; background: #18271e; font: inherit; font-size: var(--type-caption); }
+.meta-source-states { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 7px; }
+.meta-source-states > span { min-height: 28px; padding: 5px 8px; border: 1px solid #314137; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; color: #849188; background: rgba(255,255,255,.025); font-size: var(--type-caption); font-weight: 750; }
+.meta-source-states > span.active { border-color: rgba(221,244,91,.24); color: #cbd8ce; background: rgba(221,244,91,.06); }
+.meta-source-states svg { width: 13px; height: 13px; color: currentColor; }
 .trend-disclaimer { margin: 13px 0 0; padding: 9px 11px; border-left: 2px solid #758344; color: #849188; background: rgba(221,244,91,.035); font-size: var(--type-caption); line-height: 1.5; }
 .trend-list { margin-top: 11px; display: grid; gap: 7px; }
 .trend-list article { padding: 12px; border: 1px solid #2b3b31; border-radius: 12px; display: grid; grid-template-columns: 24px minmax(0,1fr) auto; align-items: start; gap: 11px; background: #142119; }

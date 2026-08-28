@@ -1,11 +1,22 @@
-import { ArrowUpRight, LoaderCircle, Radio, TriangleAlert } from 'lucide-react';
+import { ArrowUpRight, CircleCheck, CircleOff, LoaderCircle, Radio, TriangleAlert } from 'lucide-react';
 import type { TrendSourceChoice } from '@/features/shared';
+import type { TrendDiscoveryResult, TrendSource } from '@/lib/domain';
 import { useTrendSignals } from './use-trend-signals';
 
 interface TrendScoutProps {
   source: TrendSourceChoice;
   onSourceChange: (source: TrendSourceChoice) => void;
   onChoose: (topic: string) => void;
+}
+
+function MetaSourceState({ result, source, label }: { result: TrendDiscoveryResult | null; source: TrendSource; label: string }) {
+  const active = result?.activeSources.includes(source) ?? false;
+  return (
+    <span className={active ? 'active' : undefined}>
+      {active ? <CircleCheck aria-hidden="true" /> : <CircleOff aria-hidden="true" />}
+      {label} · {active ? 'доступен' : 'не подключён'}
+    </span>
+  );
 }
 
 export function TrendScout({ source, onSourceChange, onChoose }: TrendScoutProps) {
@@ -21,6 +32,10 @@ export function TrendScout({ source, onSourceChange, onChoose }: TrendScoutProps
           </select>
         </label>
       </div>
+      {!loading && <div className="meta-source-states" aria-label="Статус прямых источников">
+        <MetaSourceState result={result} source="threads" label="Threads" />
+        <MetaSourceState result={result} source="instagram" label="Instagram" />
+      </div>}
       <p className="trend-disclaimer">{loading ? 'Обновляю сигналы…' : result?.message ?? 'Live-источник временно недоступен.'}</p>
       <div className="trend-list">
         {loading && <div className="trend-empty"><LoaderCircle className="spin" aria-hidden="true" /><p>Ищу свежие темы и проверяю их соответствие фитнес-направлению.</p></div>}

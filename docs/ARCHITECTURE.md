@@ -39,7 +39,7 @@ LLM связывает этапы и управляет инструментам
 - принимает ручные PDF через отдельный application use case: bytes дедуплицируются и сохраняются в приватном R2, а D1 фиксирует источник, основание доступа, extraction status, chunks и audit event;
 - ручной PDF никогда не становится claim: нечитаемый текст и неполная структура остаются в Source Inbox, а assessment-grade gate по-прежнему требует Methods и Results.
 - Trend Scout отдельно собирает сигналы свежести и роста тем из доступных социальных источников, затем оценивает их научную проверяемость и отсутствие дублей в контент-архиве.
-- публичные Google Trends/News signals всегда маркируются как proxy; PubMed Research Pulse показывает свежесть научной повестки, но не социальную виральность; прямые Threads/Instagram signals требуют разрешённого API-доступа.
+- публичные Google Trends/News signals всегда маркируются как proxy; PubMed Research Pulse показывает свежесть научной повестки, но не социальную виральность; прямые Threads/Instagram signals работают через server-only Meta adapters и требуют разрешённых long-lived tokens.
 
 ### Evidence Engine
 
@@ -113,3 +113,4 @@ LLM связывает этапы и управляет инструментам
 Отбор источников в исследовательский архив зафиксирован в `docs/decisions/0007-deterministic-source-intake.md`.
 Rights-aware full-text ingestion зафиксирован в `docs/decisions/0008-rights-aware-full-text-ingestion.md`.
 Ручной импорт PDF зафиксирован в `docs/decisions/0009-user-authorized-pdf-import.md`.
+Прямые Meta trend adapters и граница хранения токенов зафиксированы в `docs/decisions/0010-direct-meta-trend-adapters.md`.
