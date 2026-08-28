@@ -10,6 +10,7 @@ import { ensureContentSchema } from '@/lib/infrastructure/d1/ensure-content-sche
 import { ensureEvidenceSchema } from '@/lib/infrastructure/d1/ensure-evidence-schema';
 import { ensureKnowledgeSchema } from '@/lib/infrastructure/d1/ensure-knowledge-schema';
 import { ensurePipelineSchema } from '@/lib/infrastructure/d1/ensure-pipeline-schema';
+import { ensureOperationsSchema } from '@/lib/infrastructure/d1/ensure-operations-schema';
 import { ensureResearchSchema } from '@/lib/infrastructure/d1/ensure-research-schema';
 import { createLlmRuntime } from '@/lib/infrastructure/llm/create-llm-runtime';
 import type { ContentPipelineExecution } from '@/lib/application/orchestration/execute-content-pipeline';
@@ -46,6 +47,7 @@ async function ensureSchemas(database: D1Database): Promise<void> {
   await ensureEvidenceSchema(database);
   await ensureKnowledgeSchema(database);
   await ensureContentSchema(database);
+  await ensureOperationsSchema(database);
   await ensurePipelineSchema(database);
 }
 

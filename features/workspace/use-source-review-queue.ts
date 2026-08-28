@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { SourceReviewQueueResult } from '@/lib/domain';
+import { readJsonBody } from '@/features/shared';
 
 export function useSourceReviewQueue(refreshKey: string) {
   const [result, setResult] = useState<SourceReviewQueueResult | null>(null);
@@ -10,7 +11,7 @@ export function useSourceReviewQueue(refreshKey: string) {
     async function load(): Promise<void> {
       try {
         const response = await fetch('/api/research/sources', { signal: controller.signal });
-        const payload = await response.json() as SourceReviewQueueResult | { error?: string };
+        const payload = await readJsonBody<SourceReviewQueueResult>(response);
         if (!response.ok || !('sources' in payload)) throw new Error('error' in payload ? payload.error : undefined);
         setResult(payload);
         setError(null);

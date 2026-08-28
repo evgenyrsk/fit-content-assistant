@@ -20,6 +20,8 @@ Forme проводит один вопрос через воспроизводи
 
 До подключения ключей разрабатываются и проверяются общие контракты, адаптеры, fixtures и deterministic gates. При появлении ключа меняется composition root, а не доменная логика.
 
+Уже без ключа доступны: раздельный lexical search по claims/passages, maintenance queue, session-based PubMed revalidation, ручной traceable content workflow, version history, fact-check, календарь, банк тем, личные `narrative_only` заметки, архив публикаций и CSV-метрики.
+
 ## Критерии готовности
 
 ### Research
@@ -43,6 +45,8 @@ Forme проводит один вопрос через воспроизводи
 - каждый фактический fragment связан с claim version;
 - voice edit не может повысить уверенность или удалить обязательную оговорку;
 - unsupported factual claim rate на blocking eval равен нулю.
+- ручной материал не может перейти в календарь без свежей claim-трассировки и human fact-check;
+- публикация сохраняет URL, а performance snapshots не меняют научную уверенность.
 
 ### Trends
 

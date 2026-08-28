@@ -13,7 +13,13 @@ export class D1ContentItemStore implements ContentItemStore {
     `).bind(
       record.id, record.draft.format, record.draft.title, record.status,
       record.brief.styleProfileVersion, record.createdAt, record.createdAt,
-    )];
+    ), this.database.prepare(`INSERT INTO content_operations
+      (content_item_id, editorial_status, updated_at) VALUES (?, ?, ?)`)
+      .bind(record.id, record.status === 'ready_for_human_review' ? 'ready' : 'fact_check', record.createdAt),
+    this.database.prepare(`INSERT INTO content_item_versions
+      (id, content_item_id, version, title, fragments_json, change_note, created_at)
+      VALUES (?, ?, 1, ?, ?, 'Версия контентного конвейера', ?)`)
+      .bind(crypto.randomUUID(), record.id, record.draft.title, JSON.stringify(record.draft.fragments), record.createdAt)];
     record.draft.fragments.forEach((fragment, position) => {
       const storedFragmentId = `${record.id}:${fragment.id}`;
       statements.push(this.database.prepare(`

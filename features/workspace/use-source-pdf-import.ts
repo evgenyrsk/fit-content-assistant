@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ManualPdfImportReceipt, ManualPdfRightsBasis } from '@/lib/domain';
+import { readJsonBody } from '@/features/shared';
 
 interface PdfImportFields {
   file: File;
@@ -26,7 +27,7 @@ export function useSourcePdfImport(onImported: () => void) {
     form.set('rightsAttested', 'true');
     try {
       const response = await fetch('/api/research/sources/import', { method: 'POST', body: form });
-      const payload = await response.json() as ManualPdfImportReceipt | { error?: string };
+      const payload = await readJsonBody<ManualPdfImportReceipt>(response);
       if (!response.ok || !('sourceId' in payload)) {
         throw new Error('error' in payload ? payload.error : 'Не удалось импортировать PDF.');
       }

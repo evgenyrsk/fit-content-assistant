@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { HumanSourceReview, HumanSourceReviewDecision } from '@/lib/domain';
+import { readJsonBody } from '@/features/shared';
 
 interface ReviewPayload {
   sourceId: string;
@@ -19,8 +20,8 @@ export function useSourceReviewAction(onSaved: () => void) {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const result = await response.json() as { review?: HumanSourceReview; error?: string };
-      if (!response.ok || !result.review) throw new Error(result.error || 'Не удалось сохранить решение.');
+      const result = await readJsonBody<{ review?: HumanSourceReview; error?: string }>(response);
+      if (!response.ok || !('review' in result) || !result.review) throw new Error(result.error || 'Не удалось сохранить решение.');
       onSaved();
       return result.review;
     } catch (cause) {

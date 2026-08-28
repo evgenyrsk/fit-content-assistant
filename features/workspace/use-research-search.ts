@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ResearchSearchResult } from '@/lib/domain';
+import { readJsonBody } from '@/features/shared';
 
 type WorkStatus = 'idle' | 'working' | 'ready';
 
@@ -17,7 +18,7 @@ export function useResearchSearch() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),
       });
-      const payload = await response.json() as ResearchSearchResult | { error?: string };
+      const payload = await readJsonBody<ResearchSearchResult>(response);
       if (!response.ok) throw new Error('error' in payload ? payload.error : undefined);
       if ('error' in payload) throw new Error(payload.error);
       setResult(payload as ResearchSearchResult);

@@ -50,6 +50,12 @@
 - approval невозможен без отдельного human review, supporting evidence и подтверждений provenance, scope и поиска противоречий;
 - eligibility каждого связанного источника повторно проверяется в момент approval; ретракция или снятый human include блокируют решение;
 - контентный архив возвращает только реальные `content_items` из D1 и не использует fixtures или demo data.
+- lexical search возвращает claims и source passages отдельными типами; passage без полного eligibility остаётся исследовательским контекстом.
+- factual manual content не сохраняется без свежего latest approved claim, а narrative не может неявно получить claim-связь.
+- human content approval требует проверок trace, caveats и platform fit; календарь закрыт до этого gate.
+- переходы editorial workflow валидируются доменом, а `published` требует URL.
+- CSV metrics import проверяет обязательные колонки, неизвестные content ids, отрицательные числа и лимит размера batch.
+- локальный evidence regression set блокирует изменения, если сильный, пограничный, противоречивый или отозванный fixture меняет ожидаемый gate.
 
 ### Экспертные и модельные graders
 

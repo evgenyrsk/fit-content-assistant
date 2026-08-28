@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { SourceRevalidationResult } from '@/lib/domain';
+import { readJsonBody } from '@/features/shared';
 
 export function useSourceRevalidation(onCompleted: () => void) {
   const [loading, setLoading] = useState(false);
@@ -10,7 +11,7 @@ export function useSourceRevalidation(onCompleted: () => void) {
     setMessage(null);
     try {
       const response = await fetch('/api/research/sources/revalidate', { method: 'POST' });
-      const result = await response.json() as SourceRevalidationResult | { error?: string };
+      const result = await readJsonBody<SourceRevalidationResult>(response);
       if (!response.ok || !('checked' in result)) throw new Error('error' in result ? result.error : undefined);
       setMessage(result.checked === 0
         ? 'Просроченных записей PubMed нет.'

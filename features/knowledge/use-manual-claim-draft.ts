@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import type { ManualEvidenceOption } from '@/lib/domain';
+import { readJsonBody } from '@/features/shared';
 
 interface EvidenceResult { options: ManualEvidenceOption[]; }
 
@@ -37,7 +38,7 @@ export function useManualClaimDraft(onSaved: () => void, open: boolean, setOpen:
     const controller = new AbortController();
     fetch('/api/knowledge/evidence-options', { signal: controller.signal })
       .then(async (response) => {
-        const payload = await response.json() as EvidenceResult | { error?: string };
+        const payload = await readJsonBody<EvidenceResult>(response);
         if (!response.ok || !('options' in payload)) throw new Error('error' in payload ? payload.error : undefined);
         setOptions(payload.options); setError(null);
       })
@@ -55,7 +56,7 @@ export function useManualClaimDraft(onSaved: () => void, open: boolean, setOpen:
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody(new FormData(event.currentTarget))),
       });
-      const payload = await response.json() as { error?: string };
+      const payload = await readJsonBody<{ error?: string }>(response);
       if (!response.ok) throw new Error(payload.error || 'Не удалось сохранить claim.');
       event.currentTarget.reset(); setOpen(false); onSaved();
     } catch (cause) {

@@ -76,7 +76,12 @@ LLM связывает этапы и управляет инструментам
 - `trend_signals`
 - `model_runs`
 - `audit_events`
-- `performance_snapshots`
+- `content_operations`
+- `content_item_versions`
+- `content_human_reviews`
+- `topic_ideas`
+- `user_notes`
+- `publication_metrics`
 
 Изменённый вывод не перезаписывает историю: предыдущая версия получает статус `superseded`.
 
@@ -88,6 +93,8 @@ LLM связывает этапы и управляет инструментам
 
 Ручной claim workflow использует только `full_text` источники с разрешённым reuse status, активной библиографической записью и последним человеческим решением `included`. Draft требует Methods и Results/Discussion provenance и сохраняется как `needs_review`. Eligibility всех passages повторно проверяется во время approval. Отдельная запись `claim_manual_reviews` фиксирует финальное решение владельца, обоснование, работу с противоречиями и три явных подтверждения; модель не участвует и не может одобрить claim автоматически.
 
+Лексический operations-поиск сознательно состоит из двух запросов и двух типов результата: latest claim versions и source chunks. Даже eligible full-text passage не становится claim. Просроченные claims исключаются из генерации и попадают в maintenance queue; PubMed record status перепроверяется один раз за открытую сессию или вручную.
+
 ### Content Engine
 
 - читает только свежие канонические `approved` claim versions; пустая выборка является штатным блокирующим результатом;
@@ -97,6 +104,8 @@ LLM связывает этапы и управляет инструментам
 - сохраняет `content_items`, фрагменты, `content_claims`, model runs и audit event в D1;
 - реальный архив читает агрегаты напрямую из D1 и не смешивает их с демонстрационными шаблонами;
 - никогда не публикует автоматически: успешный gate создаёт только `ready_for_human_review`.
+
+Ручной контент использует тот же canonical archive. Каждая редакция создаёт immutable snapshot, сбрасывает human gate и редакционный статус в `draft`. `content_operations` хранит только editorial lifecycle; научное состояние остаётся в `content_items.status`. Планирование и публикация невозможны до подтверждённого fact-check. Банк тем, `narrative_only` заметки и performance snapshots не участвуют в расчёте evidence confidence.
 
 ## Технический курс
 
@@ -126,3 +135,4 @@ Rights-aware full-text ingestion зафиксирован в `docs/decisions/000
 Личный Meta Development Mode и отложенный публичный review зафиксированы в `docs/decisions/0011-personal-meta-development-mode.md`.
 Трассируемый контентный конвейер зафиксирован в `docs/decisions/0012-traceable-content-pipeline.md`.
 Ручной owner-reviewed claim workflow зафиксирован в `docs/decisions/0013-manual-claim-review.md`.
+Автономный operations-слой без LLM зафиксирован в `docs/decisions/0014-autonomous-operations-layer.md`.

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { KnowledgeClaimResult } from '@/lib/domain';
+import { readJsonBody } from '@/features/shared';
 
 export function useKnowledgeClaims() {
   const [result, setResult] = useState<KnowledgeClaimResult | null>(null);
@@ -16,7 +17,7 @@ export function useKnowledgeClaims() {
     async function load(): Promise<void> {
       try {
         const response = await fetch('/api/knowledge/claims', { signal: controller.signal });
-        const payload = await response.json() as KnowledgeClaimResult | { error?: string };
+        const payload = await readJsonBody<KnowledgeClaimResult>(response);
         if (!response.ok || !('claims' in payload)) throw new Error('error' in payload ? payload.error : undefined);
         setResult(payload);
       } catch (cause) {

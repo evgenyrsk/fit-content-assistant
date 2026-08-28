@@ -6,6 +6,7 @@ import { ensureContentSchema } from '@/lib/infrastructure/d1/ensure-content-sche
 import { ensureEvidenceSchema } from '@/lib/infrastructure/d1/ensure-evidence-schema';
 import { ensureKnowledgeSchema } from '@/lib/infrastructure/d1/ensure-knowledge-schema';
 import { ensureResearchSchema } from '@/lib/infrastructure/d1/ensure-research-schema';
+import { ensureOperationsSchema } from '@/lib/infrastructure/d1/ensure-operations-schema';
 
 function databaseBinding(): D1Database | null {
   const runtime = env as unknown as Record<string, string | D1Database | undefined>;
@@ -20,6 +21,7 @@ export async function GET(): Promise<Response> {
     await ensureEvidenceSchema(database);
     await ensureKnowledgeSchema(database);
     await ensureContentSchema(database);
+    await ensureOperationsSchema(database);
     const result: ContentArchiveResult = {
       items: await new D1ContentArchiveReader(database).listLatest(100),
       canonical: true, generatedAt: new Date().toISOString(),

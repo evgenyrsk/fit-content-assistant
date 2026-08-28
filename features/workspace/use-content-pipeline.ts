@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ContentFormat as DomainContentFormat, ContentPipelineResponse } from '@/lib/domain';
-import type { ContentFormat } from '@/features/shared';
+import { readJsonBody, type ContentFormat } from '@/features/shared';
 
 const formatIds: Record<ContentFormat, DomainContentFormat> = {
   Reels: 'reels', Telegram: 'telegram', Threads: 'threads', Карусель: 'carousel',
@@ -27,7 +27,7 @@ export function useContentPipeline() {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ format: formatIds[format] }),
       });
-      const payload = await response.json() as ContentPipelineResponse | { error?: string };
+      const payload = await readJsonBody<ContentPipelineResponse>(response);
       if (!response.ok || isErrorPayload(payload)) throw new Error(
         isErrorPayload(payload) && payload.error ? payload.error : 'Контентный конвейер недоступен.',
       );

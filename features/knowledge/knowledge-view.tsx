@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { EvidenceMethodologyCard } from './evidence-methodology-card';
 import { KnowledgeClusters } from './knowledge-clusters';
 import { KnowledgeLibrary } from './knowledge-library';
+import { KnowledgeOperationsPanel } from './knowledge-operations-panel';
 import { KnowledgeSummary } from './knowledge-summary';
 import { ManualClaimComposer } from './manual-claim-composer';
 import { ManualClaimReviewPanel } from './manual-claim-review-panel';
@@ -28,6 +29,7 @@ export function KnowledgeView() {
         onCreate={openComposer} />
       <ManualClaimComposer onSaved={knowledge.reload} open={composerOpen} onOpenChange={setComposerOpen} />
       <EvidenceMethodologyCard />
+      <KnowledgeOperationsPanel />
       <KnowledgeClusters claims={knowledge.claims} topics={filters.topics} active={filters.topic} onChange={filters.setTopic} />
       <KnowledgeLibrary claims={knowledge.claims} filters={filters} loading={knowledge.loading}
         error={knowledge.error} onReview={review.open} />

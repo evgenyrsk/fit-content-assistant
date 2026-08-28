@@ -71,18 +71,24 @@
 - [x] Реализовать versioned сохранение model-draft claims с confidence, limitations и evidence links; approval остаётся заблокированным.
 - [x] Создание review-required Reels, Telegram, Threads и каруселей на основе свежих approved claims.
 - [x] Трассировка content fragment → claim version; переход к source обеспечивается канонической claim evidence-связью.
-- [ ] Regression eval-набор и blocking release gates.
+- [ ] Полный regression eval-набор и blocking release gates.
+  - [x] Локальный deterministic blocking-набор: сильный, пограничный, противоречивый и отозванный сценарии.
+  - [x] Blocking tests для ручного контента, fact-check, календаря и CSV-метрик.
+  - [ ] Модельные и экспертно размеченные graders после подключения LLM и калибровки.
 - [ ] Провести голосовое или текстовое challenge-интервью и утвердить style profile v1.
 
 ## Этап 3 — Рабочая база знаний
 
 - [x] Поиск и комбинируемые фильтры по каноническим claims.
 - [x] Версионирование и `superseded` в persistence-контуре.
-- [ ] Раздельные индексы evidence chunks и approved claims.
+- [ ] Раздельные retrieval-индексы evidence chunks и approved claims.
+  - [x] Раздельные lexical query paths и типизированная выдача без смешивания сущностей.
+  - [ ] Физические FTS/vector namespaces и измеримый recall.
 - [ ] Hybrid retrieval и reranking с измеримым recall.
-- [ ] Повторная проверка устаревших тезисов.
+- [ ] Полный workflow повторного исследования устаревших тезисов.
+  - [x] Автоматическое обнаружение, уведомление и блокировка просроченных claims.
 - [ ] Telegram, Threads, карусели и Stories.
-- [ ] Импорт пользовательских заметок и личного опыта с явной маркировкой.
+- [x] Импорт пользовательских заметок и личного опыта с маркировкой `narrative_only`.
 
 ## Автономный трек без LLM
 
@@ -93,21 +99,22 @@
 - [x] Ручной source review и аудируемый override.
 - [ ] Перепроверка corrections, expressions of concern и retractions.
   - [x] Пакетная перепроверка просроченных PubMed-записей по запросу пользователя с audit trail.
-  - [ ] Автоматическое расписание и уведомления об изменении record status.
-- [ ] Lexical search по source chunks и каноническим claims.
+  - [x] Автопроверка просроченных PubMed-записей один раз за открытую сессию и in-app уведомления.
+  - [ ] Внешний фоновый scheduler для проверки при закрытом приложении.
+- [x] Lexical search по source chunks и каноническим claims с раздельной выдачей.
 - [x] Ручное создание/утверждение claims с full-text evidence-трассировкой и отдельным human gate.
 - [ ] Реальный D1-архив контента, статусы и календарь.
   - [x] Сохранение traceable content items, fragments, claim links, model runs и audit events.
   - [x] Рабочий интерфейс канонического архива без demo data.
-  - [ ] Ручные статусы, календарь и планирование публикаций.
+  - [x] Ручные статусы, version history, human fact-check, календарь и планирование публикаций.
 
 ## Этап 4 — Content intelligence
 
-- [ ] Банк тем на основе пробелов и противоречий в базе.
-- [ ] Архив публикаций.
-- [ ] Метрики просмотров, удержания, сохранений и репостов.
+- [x] Банк тем на основе пробелов, противоречий и честно маркированных trend signals.
+- [x] Архив публикаций со ссылкой и неизменяемыми version snapshots.
+- [x] Ручные метрики просмотров, сохранений, репостов и CSV-импорт snapshots.
 - [ ] Анализ того, какие способы объяснения лучше работают у конкретного автора.
 
 ## Ближайший измеримый результат
 
-Подключены серверная LLM и разрешённый full-text источник; затем один реальный вопрос проходит source/body review до утверждённого claim и сохранённого Reels-сценария с проверяемой трассировкой.
+Автономный operations-контур готов без LLM. Следующий внешний шаг: подключить серверную LLM и провести один реальный вопрос через source/body review до утверждённого claim и отдельного платформенного материала.
