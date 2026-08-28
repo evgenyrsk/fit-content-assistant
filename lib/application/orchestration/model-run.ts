@@ -4,6 +4,7 @@ import type { PipelineStageId } from './pipeline';
 export interface ModelRunRecord {
   runId: string;
   researchRunId?: string;
+  contentItemId?: string;
   stage: PipelineStageId;
   provider: LlmProviderId;
   model: string;

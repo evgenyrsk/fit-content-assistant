@@ -96,6 +96,9 @@
   .format-buttons button > svg { flex: 0 0 auto; }
   .content-studio { padding: 20px; border-radius: 19px; }
   .studio-header h2 { font-size: 20px; }
+  .content-pipeline-stages { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .content-gate-panel { grid-template-columns: 40px minmax(0,1fr); }
+  .content-gate-panel button { grid-column: 2; width: fit-content; }
   .factcheck { align-items: flex-start; flex-direction: column; }
   footer { align-items: flex-start; flex-direction: column; }
   footer p { text-align: left; }

@@ -55,7 +55,7 @@
   - [x] `source_assessment`: все измерения, design-specific checks, finding и provenance.
   - [x] `body_assessment`: пять GRADE-доменов, contradictions и certainty gate.
   - [x] `claim_synthesis`: атомарный claim, scope, limitations, evidence ids и review date.
-  - [ ] Content brief, platform draft, voice edit и final fact review.
+  - [x] Content brief, platform draft, voice edit и final fact review.
 - [x] Поиск PubMed/Crossref по одному вопросу с сохранением source candidates.
 - [x] Пакетная загрузка PubMed-аннотаций и сохранение секций как provenance chunks.
 - [x] Разделить search history и исследовательский архив; добавить deterministic source intake с причинами отказа.
@@ -69,8 +69,8 @@
 - [ ] Активировать прямые Instagram signals после выдачи разрешений и сохранения Meta token.
 - [x] Реализовать provider-neutral structured source/body assessment с audit trail; реальный запуск ждёт LLM secret и full text.
 - [x] Реализовать versioned сохранение model-draft claims с confidence, limitations и evidence links; approval остаётся заблокированным.
-- [ ] Создание Reels на основе сохранённых claims.
-- [ ] Трассировка content → claims → sources.
+- [x] Создание review-required Reels, Telegram, Threads и каруселей на основе свежих approved claims.
+- [x] Трассировка content fragment → claim version; переход к source обеспечивается канонической claim evidence-связью.
 - [ ] Regression eval-набор и blocking release gates.
 - [ ] Провести голосовое или текстовое challenge-интервью и утвердить style profile v1.
 
@@ -97,6 +97,8 @@
 - [ ] Lexical search по source chunks и каноническим claims.
 - [ ] Ручное создание/утверждение claims с полной evidence-трассировкой.
 - [ ] Реальный D1-архив контента, статусы и календарь.
+  - [x] Сохранение traceable content items, fragments, claim links, model runs и audit events.
+  - [ ] Рабочий интерфейс архива, ручные статусы и календарь.
 
 ## Этап 4 — Content intelligence
 

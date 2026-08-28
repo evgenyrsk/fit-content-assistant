@@ -1,5 +1,5 @@
 import type { LlmProvider, LlmProviderId } from '../../application/ports/llm-provider.ts';
-import type { BudgetProfile } from '../../application/orchestration/pipeline-budget.ts';
+import type { BudgetProfile, ModelRole } from '../../application/orchestration/pipeline-budget.ts';
 import { OpenAiProvider } from './openai-provider.ts';
 import { OpenRouterProvider } from './openrouter-provider.ts';
 
@@ -15,9 +15,11 @@ function budgetProfile(value: unknown): BudgetProfile {
   return value === 'balanced' ? 'balanced' : 'economy';
 }
 
-function configuredModel(bindings: RuntimeBindings, provider: LlmProviderId): string {
-  const providerModel = provider === 'openrouter' ? bindings.OPENROUTER_MODEL_RESEARCH : bindings.OPENAI_MODEL_RESEARCH;
-  const configuredModel = bindings.LLM_RESEARCH_MODEL ?? providerModel;
+function configuredModel(bindings: RuntimeBindings, provider: LlmProviderId, role: ModelRole): string {
+  const providerModel = provider === 'openrouter'
+    ? bindings[role === 'content' ? 'OPENROUTER_MODEL_CONTENT' : 'OPENROUTER_MODEL_RESEARCH']
+    : bindings[role === 'content' ? 'OPENAI_MODEL_CONTENT' : 'OPENAI_MODEL_RESEARCH'];
+  const configuredModel = bindings[role === 'content' ? 'LLM_CONTENT_MODEL' : 'LLM_RESEARCH_MODEL'] ?? providerModel;
   return typeof configuredModel === 'string' ? configuredModel.trim() : '';
 }
 
@@ -41,10 +43,10 @@ function openRouterRuntime(bindings: RuntimeBindings, model: string): LlmRuntime
   };
 }
 
-export function createLlmRuntime(bindings: RuntimeBindings): LlmRuntime | null {
+export function createLlmRuntime(bindings: RuntimeBindings, role: ModelRole = 'research'): LlmRuntime | null {
   const provider = bindings.LLM_PROVIDER;
   if (provider !== 'openai' && provider !== 'openrouter') return null;
-  const model = configuredModel(bindings, provider);
+  const model = configuredModel(bindings, provider, role);
   if (!model) return null;
   return provider === 'openai' ? openAiRuntime(bindings, model) : openRouterRuntime(bindings, model);
 }

@@ -21,6 +21,15 @@ test('creates an economical OpenRouter runtime from the same boundary', () => {
   assert.equal(runtime?.budgetProfile, 'balanced');
 });
 
+test('selects the content model without changing the provider boundary', () => {
+  const runtime = createLlmRuntime({
+    LLM_PROVIDER: 'openrouter', OPENROUTER_API_KEY: 'test-only',
+    OPENROUTER_MODEL_RESEARCH: 'route/research', OPENROUTER_MODEL_CONTENT: 'route/content',
+  }, 'content');
+  assert.equal(runtime?.provider.id, 'openrouter');
+  assert.equal(runtime?.model, 'route/content');
+});
+
 test('keeps the model stage disabled when configuration is incomplete', () => {
   assert.equal(createLlmRuntime({ LLM_PROVIDER: 'openai', OPENAI_MODEL_RESEARCH: 'research-model' }), null);
 });

@@ -88,10 +88,12 @@ LLM связывает этапы и управляет инструментам
 
 ### Content Engine
 
-- выбирает угол подачи только после утверждения claims;
-- адаптирует материал под формат;
-- добавляет отдельный непубликуемый фактчек;
-- хранит связь каждого фрагмента контента с использованными claims.
+- читает только свежие канонические `approved` claim versions; пустая выборка является штатным блокирующим результатом;
+- выполняет четыре изолированных strict-schema этапа: `content_brief → platform_draft → voice_edit → fact_review`;
+- использует provider-neutral content runtime для первых трёх этапов и отдельный research runtime для независимого фактчека;
+- до утверждения style profile применяет явно помеченный нейтральный fallback, не выдавая его за голос автора;
+- сохраняет `content_items`, фрагменты, `content_claims`, model runs и audit event в D1;
+- никогда не публикует автоматически: успешный gate создаёт только `ready_for_human_review`.
 
 ## Технический курс
 
@@ -119,3 +121,4 @@ Rights-aware full-text ingestion зафиксирован в `docs/decisions/000
 Ручной импорт PDF зафиксирован в `docs/decisions/0009-user-authorized-pdf-import.md`.
 Прямые Meta trend adapters и граница хранения токенов зафиксированы в `docs/decisions/0010-direct-meta-trend-adapters.md`.
 Личный Meta Development Mode и отложенный публичный review зафиксированы в `docs/decisions/0011-personal-meta-development-mode.md`.
+Трассируемый контентный конвейер зафиксирован в `docs/decisions/0012-traceable-content-pipeline.md`.

@@ -37,6 +37,28 @@ function stringList(value: string): string[] {
   }
 }
 
+function mapClaim(row: ClaimRow): KnowledgeClaimRecord {
+  return {
+    id: row.id, claimId: row.claim_id, version: row.version, statement: row.statement,
+    topic: row.topic, scope: stringRecord(row.scope_json), confidence: row.confidence,
+    limitations: stringList(row.limitations_json), status: row.status,
+    evidenceCount: Number(row.evidence_count),
+    sourceTypes: row.source_types?.split(',').filter(Boolean) ?? [],
+    reviewDueAt: row.review_due_at, createdAt: row.created_at,
+  };
+}
+
+const claimProjection = `
+  SELECT cv.id, cv.claim_id, cv.version, cv.statement, COALESCE(t.name, 'Без темы') AS topic,
+    cv.scope_json, cv.confidence, cv.limitations_json, cv.status, cv.review_due_at, cv.created_at,
+    (SELECT COUNT(*) FROM claim_evidence ce WHERE ce.claim_version_id = cv.id) AS evidence_count,
+    (SELECT GROUP_CONCAT(DISTINCT s.source_type) FROM claim_evidence ce
+      JOIN source_chunks sc ON sc.id = ce.source_chunk_id JOIN sources s ON s.id = sc.source_id
+      WHERE ce.claim_version_id = cv.id) AS source_types
+  FROM latest l JOIN claim_versions cv ON cv.claim_id = l.claim_id AND cv.version = l.version
+  JOIN claims c ON c.id = cv.claim_id LEFT JOIN topics t ON t.id = c.topic_id
+`;
+
 export class D1KnowledgeClaimReader implements KnowledgeClaimReader {
   private readonly database: D1Database;
 
@@ -49,23 +71,21 @@ export class D1KnowledgeClaimReader implements KnowledgeClaimReader {
       WITH latest AS (
         SELECT claim_id, MAX(version) AS version FROM claim_versions GROUP BY claim_id
       )
-      SELECT cv.id, cv.claim_id, cv.version, cv.statement, COALESCE(t.name, 'Без темы') AS topic,
-        cv.scope_json, cv.confidence, cv.limitations_json, cv.status, cv.review_due_at, cv.created_at,
-        (SELECT COUNT(*) FROM claim_evidence ce WHERE ce.claim_version_id = cv.id) AS evidence_count,
-        (SELECT GROUP_CONCAT(DISTINCT s.source_type) FROM claim_evidence ce
-          JOIN source_chunks sc ON sc.id = ce.source_chunk_id JOIN sources s ON s.id = sc.source_id
-          WHERE ce.claim_version_id = cv.id) AS source_types
-      FROM latest l JOIN claim_versions cv ON cv.claim_id = l.claim_id AND cv.version = l.version
-      JOIN claims c ON c.id = cv.claim_id LEFT JOIN topics t ON t.id = c.topic_id
+      ${claimProjection}
       ORDER BY cv.created_at DESC LIMIT ?
     `).bind(Math.min(Math.max(limit, 1), 100)).all<ClaimRow>();
-    return result.results.map((row) => ({
-      id: row.id, claimId: row.claim_id, version: row.version, statement: row.statement,
-      topic: row.topic, scope: stringRecord(row.scope_json), confidence: row.confidence,
-      limitations: stringList(row.limitations_json), status: row.status,
-      evidenceCount: Number(row.evidence_count),
-      sourceTypes: row.source_types?.split(',').filter(Boolean) ?? [],
-      reviewDueAt: row.review_due_at, createdAt: row.created_at,
-    }));
+    return result.results.map(mapClaim);
+  }
+
+  async listApproved(limit: number, checkedAt: string): Promise<KnowledgeClaimRecord[]> {
+    const result = await this.database.prepare(`
+      WITH latest AS (
+        SELECT claim_id, MAX(version) AS version FROM claim_versions GROUP BY claim_id
+      )
+      ${claimProjection}
+      WHERE cv.status = 'approved' AND cv.review_due_at > ?
+      ORDER BY cv.created_at DESC LIMIT ?
+    `).bind(checkedAt, Math.min(Math.max(limit, 1), 20)).all<ClaimRow>();
+    return result.results.map(mapClaim);
   }
 }

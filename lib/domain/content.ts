@@ -28,3 +28,37 @@ export interface ContentDraft {
   reviewDecision: ReviewDecision;
   reviewNotes: string[];
 }
+
+export type ContentPipelineStage = 'content_brief' | 'platform_draft' | 'voice_edit' | 'fact_review';
+
+export interface ContentStageState {
+  stage: ContentPipelineStage;
+  status: 'complete' | 'blocked' | 'waiting';
+  message: string;
+}
+
+export interface ContentFactReview {
+  decision: ReviewDecision;
+  unsupportedFragmentIds: string[];
+  preservedCaveats: string[];
+  notes: string[];
+}
+
+export interface ContentItemRecord {
+  id: string;
+  brief: ContentBrief;
+  draft: ContentDraft;
+  factReview: ContentFactReview;
+  status: 'ready_for_human_review' | 'needs_review';
+  styleProfileFallback: boolean;
+  createdAt: string;
+}
+
+export interface ContentPipelineResponse {
+  status: 'awaiting_claims' | 'awaiting_provider' | 'needs_review' | 'ready_for_human_review';
+  message: string;
+  stages: ContentStageState[];
+  contentItem: ContentItemRecord | null;
+  publishable: false;
+  reviewRequired: true;
+}
