@@ -18,6 +18,14 @@ interface ThreadsPost {
   permalink?: string;
 }
 
+const russianQueries = ['мышцы', 'тренировка', 'похудение', 'сон', 'креатин', 'протеин'];
+const englishQueries = ['muscle', 'workout', 'weight loss', 'sleep', 'creatine', 'protein'];
+const liveWindowMinutes = 2_880;
+
+function defaultQueries(region: string): string[] {
+  return region.toUpperCase() === 'RU' ? russianQueries : englishQueries;
+}
+
 function objectValue(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' ? value as Record<string, unknown> : {};
 }
@@ -40,7 +48,7 @@ export function parseThreadsPosts(payload: unknown, now: Date): TrendCandidate[]
       url: post.permalink,
       observedAt,
       freshnessMinutes,
-      growthSignal: 'Верхний результат поиска Threads',
+      growthSignal: 'TOP Threads · последние 48 часов',
       audienceFit: scoreAudienceFit(title),
       scientificResearchability: scoreResearchability(title),
       saturationRisk: freshnessMinutes > 1440 ? 0.7 : 0.4,
@@ -62,20 +70,39 @@ export class ThreadsKeywordSearch implements TrendProvider {
     this.now = options.now ?? (() => new Date());
   }
 
-  async discover(request: TrendDiscoveryRequest): Promise<TrendCandidate[]> {
-    const query = request.query?.trim() || 'фитнес тренировки питание';
+  private async search(query: string, request: TrendDiscoveryRequest, now: Date): Promise<TrendCandidate[]> {
+    const windowStart = new Date(now.valueOf() - liveWindowMinutes * 60_000);
     const parameters = new URLSearchParams({
       q: query,
       search_type: 'TOP',
-      fields: 'id,text,timestamp,permalink',
-      limit: String(request.limit),
+      fields: 'id,text,timestamp,permalink,username',
+      limit: String(Math.min(50, Math.max(18, request.limit * 3))),
+      since: windowStart.toISOString(),
+      until: now.toISOString(),
       access_token: this.options.accessToken,
     });
     const base = `https://graph.threads.net/${this.options.apiVersion}/keyword_search`;
     const response = await this.fetcher(`${base}?${parameters}`, { signal: request.signal });
     if (!response.ok) throw new Error(`Threads keyword search failed: ${response.status}`);
-    return parseThreadsPosts(await response.json(), this.now())
-      .filter((candidate) => candidate.audienceFit >= 0.5)
+    return parseThreadsPosts(await response.json(), now);
+  }
+
+  async discover(request: TrendDiscoveryRequest): Promise<TrendCandidate[]> {
+    const explicitQuery = request.query?.trim();
+    const queries = explicitQuery ? [explicitQuery] : defaultQueries(request.region);
+    const now = this.now();
+    const settled = await Promise.allSettled(queries.map((query) => this.search(query, request, now)));
+    const successful = settled.flatMap((outcome) => outcome.status === 'fulfilled' ? outcome.value : []);
+    if (settled.every((outcome) => outcome.status === 'rejected')) {
+      const first = settled[0];
+      throw first.status === 'rejected' && first.reason instanceof Error
+        ? first.reason
+        : new Error('Threads keyword search failed');
+    }
+    const unique = new Map(successful.map((candidate) => [candidate.id, candidate]));
+    return [...unique.values()]
+      .filter((candidate) => candidate.status === 'live' && candidate.audienceFit >= 0.5)
+      .sort((left, right) => right.observedAt.localeCompare(left.observedAt))
       .slice(0, request.limit);
   }
 }

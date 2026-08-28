@@ -11,12 +11,24 @@ interface TrendScoutProps {
 
 function MetaSourceState({ result, source, label }: { result: TrendDiscoveryResult | null; source: TrendSource; label: string }) {
   const active = result?.activeSources.includes(source) ?? false;
+  const limited = active && Boolean(result?.sourceNotices[source]);
   return (
     <span className={active ? 'active' : undefined}>
       {active ? <CircleCheck aria-hidden="true" /> : <CircleOff aria-hidden="true" />}
-      {label} · {active ? 'доступен' : 'не подключён'}
+      {label} · {limited ? 'тестовый режим' : active ? 'доступен' : 'недоступен'}
     </span>
   );
+}
+
+function emptyMessage(result: TrendDiscoveryResult | null, source: TrendSourceChoice): string {
+  if (!result) return 'Live-источник временно недоступен.';
+  const active = source === 'all' ? result.activeSources.length > 0 : result.activeSources.includes(source);
+  if (!active) return 'Выбранный источник сейчас недоступен. Проверьте подключение и разрешения.';
+  const notices = source === 'all'
+    ? Object.values(result.sourceNotices)
+    : source in result.sourceNotices ? [result.sourceNotices[source as TrendSource]] : [];
+  const notice = notices.filter(Boolean).join(' ');
+  return `${notice ? `${notice} ` : ''}Свежих подходящих публикаций по фитнес-темам сейчас не найдено.`;
 }
 
 export function TrendScout({ source, onSourceChange, onChoose }: TrendScoutProps) {
@@ -39,7 +51,7 @@ export function TrendScout({ source, onSourceChange, onChoose }: TrendScoutProps
       <p className="trend-disclaimer">{loading ? 'Обновляю сигналы…' : result?.message ?? 'Live-источник временно недоступен.'}</p>
       <div className="trend-list">
         {loading && <div className="trend-empty"><LoaderCircle className="spin" aria-hidden="true" /><p>Ищу свежие темы и проверяю их соответствие фитнес-направлению.</p></div>}
-        {!loading && !result?.candidates.length && <div className="trend-empty"><TriangleAlert aria-hidden="true" /><p>Подходящих сигналов сейчас нет. Для Threads и Instagram потребуется разрешённое подключение профессионального аккаунта.</p></div>}
+        {!loading && !result?.candidates.length && <div className="trend-empty"><TriangleAlert aria-hidden="true" /><p>{emptyMessage(result, source)}</p></div>}
         {result?.candidates.map((trend, index) => (
           <article key={trend.title}>
             <span className="trend-rank">0{index + 1}</span>

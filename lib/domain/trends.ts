@@ -21,7 +21,8 @@ export interface TrendDiscoveryResult {
   activeSources: TrendSource[];
   unavailableSources: TrendSource[];
   sourceErrors: Partial<Record<TrendSource, string>>;
-  status: 'live' | 'unavailable';
+  sourceNotices: Partial<Record<TrendSource, string>>;
+  status: 'live' | 'empty' | 'unavailable';
   message: string;
   refreshedAt: string;
 }

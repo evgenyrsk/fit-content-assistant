@@ -5,6 +5,7 @@ import type { TrendSignalStore } from '../ports/trend-signal-store';
 interface TrendDependencies {
   providers: TrendProvider[];
   expectedSources?: TrendSource[];
+  sourceNotices?: Partial<Record<TrendSource, string>>;
   store?: TrendSignalStore;
   now?: () => Date;
 }
@@ -12,6 +13,17 @@ interface TrendDependencies {
 function rank(candidate: TrendCandidate): number {
   const freshness = Math.max(0, 1 - candidate.freshnessMinutes / 1440);
   return candidate.audienceFit * 0.4 + candidate.scientificResearchability * 0.35 + freshness * 0.2 - candidate.saturationRisk * 0.05;
+}
+
+function resultStatus(candidateCount: number, activeSourceCount: number): TrendDiscoveryResult['status'] {
+  if (candidateCount > 0) return 'live';
+  return activeSourceCount > 0 ? 'empty' : 'unavailable';
+}
+
+function resultMessage(status: TrendDiscoveryResult['status']): string {
+  if (status === 'live') return 'Сигналы актуальности получены в реальном времени; научная достоверность ещё не оценена.';
+  if (status === 'empty') return 'Источник подключён, но свежих подходящих сигналов сейчас не найдено.';
+  return 'Live-источник недоступен или требует подключения.';
 }
 
 export async function discoverTrends(
@@ -39,15 +51,15 @@ export async function discoverTrends(
   const ranked = candidates.sort((left, right) => rank(right) - rank(left)).slice(0, request.limit);
   const refreshedAt = (dependencies.now ?? (() => new Date()))().toISOString();
   await dependencies.store?.save(ranked, refreshedAt);
+  const status = resultStatus(ranked.length, activeSources.length);
   return {
     candidates: ranked,
     activeSources,
     unavailableSources,
     sourceErrors,
-    status: ranked.length > 0 ? 'live' : 'unavailable',
-    message: ranked.length > 0
-      ? 'Сигналы актуальности получены в реальном времени; научная достоверность ещё не оценена.'
-      : 'Подходящих live-сигналов сейчас нет или источникам требуется подключение.',
+    sourceNotices: dependencies.sourceNotices ?? {},
+    status,
+    message: resultMessage(status),
     refreshedAt,
   };
 }

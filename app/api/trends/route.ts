@@ -64,6 +64,16 @@ function configuredDatabase(settings: Record<string, string | D1Database | undef
   return settings.DB && typeof settings.DB !== 'string' ? settings.DB : undefined;
 }
 
+function sourceNotices(
+  expected: TrendSource[], settings: Record<string, string | D1Database | undefined>,
+): Partial<Record<TrendSource, string>> {
+  if (!expected.includes('threads') || typeof settings.THREADS_ACCESS_TOKEN !== 'string') return {};
+  if (settings.THREADS_APP_MODE === 'live') return {};
+  return {
+    threads: 'Threads подключён в тестовом режиме Meta. Публичный поиск ограничен до перевода приложения в Live Mode и одобрения App Review.',
+  };
+}
+
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const expectedSources = requestedSources(url.searchParams.get('source'));
@@ -75,6 +85,11 @@ export async function GET(request: Request): Promise<Response> {
     query: url.searchParams.get('q') ?? undefined,
     region: typeof settings.TREND_REGION === 'string' ? settings.TREND_REGION : 'RU',
     limit: 6,
-  }, { providers, expectedSources, store: database ? new D1TrendSignalStore(database) : undefined });
+  }, {
+    providers,
+    expectedSources,
+    sourceNotices: sourceNotices(expectedSources, settings),
+    store: database ? new D1TrendSignalStore(database) : undefined,
+  });
   return Response.json(result, { headers: { 'Cache-Control': 'public, max-age=300' } });
 }
