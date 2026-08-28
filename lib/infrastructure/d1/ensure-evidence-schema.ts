@@ -36,6 +36,14 @@ const evidenceSchema = [
   )`,
   `CREATE INDEX IF NOT EXISTS idx_source_intake_decisions_decision
   ON source_intake_decisions(research_run_id, decision)`,
+  `CREATE TABLE IF NOT EXISTS source_review_decisions (
+    id TEXT PRIMARY KEY, source_id TEXT NOT NULL REFERENCES sources(id),
+    decision TEXT NOT NULL CHECK (decision IN ('included', 'excluded', 'needs_follow_up')),
+    reason TEXT NOT NULL, reviewer_id TEXT NOT NULL, overrides_intake INTEGER NOT NULL,
+    created_at TEXT NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_source_review_decisions_source_created
+  ON source_review_decisions(source_id, created_at DESC)`,
   `CREATE TABLE IF NOT EXISTS source_assessments (
     id TEXT PRIMARY KEY, source_id TEXT NOT NULL REFERENCES sources(id), result_id TEXT NOT NULL,
     question_type TEXT NOT NULL, study_design TEXT NOT NULL, instrument TEXT NOT NULL,

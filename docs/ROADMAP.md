@@ -86,8 +86,10 @@
 - [x] PubMed Central Open Access full-text ingestion, license allowlist и section completeness gate.
 - [x] Постоянная Source Inbox с full-text/intake/revalidation фильтрами.
 - [x] Ручной импорт законно полученных PDF с rights attestation, private object storage и дедупликацией.
-- [ ] Ручной source review и аудируемый override.
+- [x] Ручной source review и аудируемый override.
 - [ ] Перепроверка corrections, expressions of concern и retractions.
+  - [x] Пакетная перепроверка просроченных PubMed-записей по запросу пользователя с audit trail.
+  - [ ] Автоматическое расписание и уведомления об изменении record status.
 - [ ] Lexical search по source chunks и каноническим claims.
 - [ ] Ручное создание/утверждение claims с полной evidence-трассировкой.
 - [ ] Реальный D1-архив контента, статусы и календарь.

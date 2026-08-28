@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title description">
+  <title id="title">Forme app icon</title>
+  <desc id="description">A strict geometric F mark in acid green on a deep forest background.</desc>
+  <defs>
+    <linearGradient id="surface" x1="120" y1="60" x2="904" y2="964" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#132a1d"/>
+      <stop offset="1" stop-color="#06140c"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(512 474) rotate(90) scale(368)">
+      <stop stop-color="#ddf45b" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#ddf45b" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="frame"><rect x="32" y="32" width="960" height="960" rx="224"/></clipPath>
+  </defs>
+  <g clip-path="url(#frame)">
+    <rect x="32" y="32" width="960" height="960" rx="224" fill="url(#surface)"/>
+    <path d="M32 320H992M32 512H992M32 704H992M320 32V992M512 32V992M704 32V992" stroke="#8aa54b" stroke-opacity=".07" stroke-width="2"/>
+    <circle cx="512" cy="512" r="368" fill="url(#glow)"/>
+    <circle cx="512" cy="512" r="296" fill="none" stroke="#ddf45b" stroke-opacity=".18" stroke-width="3"/>
+    <path d="M374 302H701V420H512V493H676V607H512V742H374V302Z" fill="#ddf45b"/>
+    <circle cx="760" cy="278" r="23" fill="#ddf45b"/>
+  </g>
+</svg>

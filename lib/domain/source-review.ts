@@ -2,6 +2,37 @@ import type { EvidenceRecordStatus } from './evidence-methodology.ts';
 import type { ManualPdfProcessingStatus, ManualPdfRightsBasis } from './manual-source-import.ts';
 import type { SourceContentLevel, SourceIntakeDecisionType, SourceIntakeReason } from './source-document.ts';
 
+export type HumanSourceReviewDecision = 'included' | 'excluded' | 'needs_follow_up';
+
+export interface HumanSourceReview {
+  id: string;
+  decision: HumanSourceReviewDecision;
+  reason: string;
+  reviewerId: string;
+  createdAt: string;
+  overridesIntake: boolean;
+}
+
+export interface SourceReviewSubmission {
+  sourceId: string;
+  decision: HumanSourceReviewDecision;
+  reason: string;
+  reviewerId: string;
+}
+
+export interface SourceRevalidationCandidate {
+  sourceId: string;
+  pmid: string;
+  previousRecordStatus: EvidenceRecordStatus;
+}
+
+export interface SourceRevalidationResult {
+  checked: number;
+  changed: number;
+  unavailable: number;
+  completedAt: string;
+}
+
 export interface SourceReviewQueueItem {
   sourceId: string;
   researchRunId: string;
@@ -25,6 +56,7 @@ export interface SourceReviewQueueItem {
   intakeDecision: SourceIntakeDecisionType;
   intakeReasons: SourceIntakeReason[];
   policyVersion: string;
+  humanReview?: HumanSourceReview;
   lastCheckedAt: string;
   revalidationDueAt: string;
 }

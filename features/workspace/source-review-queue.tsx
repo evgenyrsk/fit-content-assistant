@@ -3,7 +3,9 @@ import { useMemo, useState } from 'react';
 import type { SourceReviewQueueItem } from '@/lib/domain';
 import { intakeReasonText } from './source-intake-presentation';
 import { SourcePdfImport } from './source-pdf-import';
+import { SourceReviewControls } from './source-review-controls';
 import { useSourceReviewQueue } from './use-source-review-queue';
+import { useSourceRevalidation } from './use-source-revalidation';
 
 type QueueFilter = 'all' | 'manual' | 'full_text' | 'triage' | 'rejected' | 'due';
 
@@ -61,7 +63,7 @@ function revalidationText(item: SourceReviewQueueItem, overdue: boolean): string
   return `Перепроверка до ${new Date(item.revalidationDueAt).toLocaleDateString('ru-RU')}`;
 }
 
-function QueueItem({ item, now }: { item: SourceReviewQueueItem; now: string }) {
+function QueueItem({ item, now, onReviewed }: { item: SourceReviewQueueItem; now: string; onReviewed: () => void }) {
   const overdue = Date.parse(item.revalidationDueAt) <= Date.parse(now);
   const state = itemState(item);
   return (
@@ -75,20 +77,15 @@ function QueueItem({ item, now }: { item: SourceReviewQueueItem; now: string }) 
         <p>{contentLabel(item)} · {intakeReasonText(item.intakeReasons)}</p>
         <SourceFileMeta item={item} />
         <em data-overdue={overdue}>{revalidationText(item, overdue)}</em>
+        <SourceReviewControls item={item} onSaved={onReviewed} />
       </div>
       <a href={item.url} target="_blank" rel="noreferrer" aria-label={`Открыть источник: ${item.title}`}><ArrowUpRight aria-hidden="true" /></a>
     </article>
   );
 }
 
-export function SourceReviewQueue({ refreshKey }: { refreshKey: string }) {
-  const [importVersion, setImportVersion] = useState(0);
-  const { result, error, loading } = useSourceReviewQueue(`${refreshKey}:${importVersion}`);
-  const [filter, setFilter] = useState<QueueFilter>('all');
-  const now = result?.generatedAt ?? new Date().toISOString();
-  const sources = useMemo(() => result?.sources ?? [], [result]);
-  const filtered = useMemo(() => sources.filter((item) => matches(item, filter, now)), [sources, filter, now]);
-  const filters: Array<[QueueFilter, string]> = [
+function filterOptions(sources: SourceReviewQueueItem[], now: string): Array<[QueueFilter, string]> {
+  return [
     ['all', `Все ${sources.length}`],
     ['manual', `PDF ${sources.filter((item) => item.manualUpload).length}`],
     ['full_text', `Full text ${sources.filter((item) => item.contentLevel === 'full_text').length}`],
@@ -96,16 +93,44 @@ export function SourceReviewQueue({ refreshKey }: { refreshKey: string }) {
     ['rejected', `Отсеяно ${sources.filter((item) => item.intakeDecision === 'rejected').length}`],
     ['due', `Перепроверить ${sources.filter((item) => Date.parse(item.revalidationDueAt) <= Date.parse(now)).length}`],
   ];
+}
+
+function QueueList({ sources, now, loading, error, onReviewed }: {
+  sources: SourceReviewQueueItem[];
+  now: string;
+  loading: boolean;
+  error: string | null;
+  onReviewed: () => void;
+}) {
+  if (loading) return <p className="source-queue-empty">Загружаю сохранённые решения…</p>;
+  if (error) return <p className="source-queue-empty">{error}</p>;
+  if (sources.length === 0) return <p className="source-queue-empty">В этой категории пока нет источников.</p>;
+  return <>{sources.map((item) => <QueueItem key={item.sourceId} item={item} now={now} onReviewed={onReviewed} />)}</>;
+}
+
+function revalidationLabel(loading: boolean, dueCount: number): string {
+  if (loading) return 'Проверяю…';
+  return dueCount > 0 ? `Перепроверить · ${dueCount}` : 'Перепроверить';
+}
+
+export function SourceReviewQueue({ refreshKey }: { refreshKey: string }) {
+  const [queueVersion, setQueueVersion] = useState(0);
+  const refreshQueue = () => setQueueVersion((value) => value + 1);
+  const { result, error, loading } = useSourceReviewQueue(`${refreshKey}:${queueVersion}`);
+  const revalidation = useSourceRevalidation(refreshQueue);
+  const [filter, setFilter] = useState<QueueFilter>('all');
+  const now = result?.generatedAt ?? new Date().toISOString();
+  const sources = useMemo(() => result?.sources ?? [], [result]);
+  const filtered = useMemo(() => sources.filter((item) => matches(item, filter, now)), [sources, filter, now]);
+  const dueCount = sources.filter((item) => Date.parse(item.revalidationDueAt) <= Date.parse(now)).length;
+  const filters = filterOptions(sources, now);
   return (
     <section className="source-queue-panel">
-      <header><div><p className="overline">SOURCE INBOX</p><h2>Очередь источников</h2><p>Отдельно от базы claims. Решения и лицензии остаются проверяемыми.</p></div><RefreshCcw aria-hidden="true" /></header>
-      <SourcePdfImport onImported={() => setImportVersion((value) => value + 1)} />
+      <header><div><p className="overline">SOURCE INBOX</p><h2>Очередь источников</h2><p>Отдельно от базы claims. Решения и лицензии остаются проверяемыми.</p></div><div className="source-queue-header-actions"><button disabled={revalidation.loading} onClick={() => void revalidation.run()}><RefreshCcw aria-hidden="true" />{revalidationLabel(revalidation.loading, dueCount)}</button>{revalidation.message && <small>{revalidation.message}</small>}</div></header>
+      <SourcePdfImport onImported={refreshQueue} />
       <nav aria-label="Фильтр очереди источников">{filters.map(([value, label]) => <button className={filter === value ? 'active' : ''} key={value} onClick={() => setFilter(value)}>{label}</button>)}</nav>
       <div className="source-queue-list">
-        {filtered.map((item) => <QueueItem key={item.sourceId} item={item} now={now} />)}
-        {!loading && !error && filtered.length === 0 && <p className="source-queue-empty">В этой категории пока нет источников.</p>}
-        {loading && <p className="source-queue-empty">Загружаю сохранённые решения…</p>}
-        {error && <p className="source-queue-empty">{error}</p>}
+        <QueueList sources={filtered} now={now} loading={loading} error={error} onReviewed={refreshQueue} />
       </div>
     </section>
   );

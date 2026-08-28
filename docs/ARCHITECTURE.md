@@ -65,6 +65,7 @@ LLM связывает этапы и управляет инструментам
 - `source_chunks`
 - `source_documents`
 - `source_intake_decisions`
+- `source_review_decisions`
 - `manual_source_imports` + private R2 object
 - `source_assessments`
 - `claim_versions`
@@ -82,6 +83,8 @@ LLM связывает этапы и управляет инструментам
 Навигация по растущей базе строится в несколько уровней: тематические кластеры → фильтры по уверенности, статусу и свежести → полнотекстовый поиск → связи между claims.
 
 Рабочий интерфейс читает только канонические `claim_versions` и их evidence-связи. Search candidates и source assessments не отображаются как подтверждённые знания; при отсутствии approved claims показывается честное пустое состояние.
+
+`source_review_decisions` хранит добавочные, неизменяемые решения человека. Ручной include/exclude не переписывает intake-gate: новое решение указывает причину, автора, время и признак override. Проверка record integrity повторно загружает PubMed-запись, сохраняет новый статус через существующий document store и создаёт отдельное audit event.
 
 ### Content Engine
 

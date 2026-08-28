@@ -1,0 +1,36 @@
+.source-queue-header-actions { max-width: 250px; display: grid; justify-items: end; gap: 6px; text-align: right; }
+.source-queue-header-actions button { min-height: 38px; padding: 0 12px; border: 1px solid var(--border-main); border-radius: 10px; display: inline-flex; align-items: center; gap: 7px; color: var(--text-main); background: var(--panel-soft); cursor: pointer; font-size: var(--type-caption); font-weight: 850; }
+.source-queue-header-actions button:disabled { cursor: wait; opacity: .55; }
+.source-queue-header-actions svg { width: 14px; height: 14px; }
+.source-queue-header-actions small { color: var(--text-soft); font-size: 11px; line-height: 1.4; }
+.source-human-review { margin-top: 10px; }
+.source-review-current { width: fit-content; max-width: 100%; margin-bottom: 8px; padding: 8px 10px; border: 1px solid var(--border-main); border-radius: 10px; display: flex; align-items: flex-start; gap: 8px; color: #7b5e27; background: rgba(212,164,66,.08); }
+.source-review-current[data-decision='included'] { color: #367049; background: rgba(91,157,105,.1); }
+.source-review-current[data-decision='excluded'] { color: #9a4545; background: rgba(190,74,74,.09); }
+.source-review-current > svg { width: 15px; height: 15px; margin-top: 1px; flex: 0 0 auto; }
+.source-review-current span, .source-review-current strong, .source-review-current small { display: block; }
+.source-review-current strong { font-size: var(--type-caption); }
+.source-review-current small { margin-top: 3px; color: var(--text-soft); font-size: 11px; line-height: 1.45; }
+.source-review-toggle { min-height: 34px; padding: 0 10px; border: 1px solid var(--border-main); border-radius: 9px; display: inline-flex; align-items: center; gap: 6px; color: var(--text-soft); background: var(--panel-soft); cursor: pointer; font-size: var(--type-caption); font-weight: 800; }
+.source-review-toggle svg { width: 14px; height: 14px; }
+.source-human-review form { max-width: 650px; margin-top: 10px; padding: 14px; border: 1px solid var(--border-main); border-radius: 14px; background: var(--panel-soft); }
+.source-human-review fieldset { margin: 0; padding: 0; border: 0; }
+.source-human-review legend, .source-review-reason > span { margin-bottom: 7px; display: block; color: var(--text-main); font-size: var(--type-caption); font-weight: 850; }
+.source-human-review fieldset > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.source-human-review fieldset label { min-height: 36px; padding: 0 10px; border: 1px solid var(--border-main); border-radius: 9px; display: inline-flex; align-items: center; gap: 6px; color: var(--text-soft); background: var(--panel-bg); cursor: pointer; font-size: var(--type-caption); font-weight: 750; }
+.source-human-review fieldset label[data-active='true'] { color: var(--forest-950); border-color: var(--acid); background: var(--acid); }
+.source-human-review fieldset input { position: absolute; opacity: 0; pointer-events: none; }
+.source-human-review fieldset svg { width: 14px; height: 14px; }
+.source-review-reason { margin-top: 12px; display: block; }
+.source-review-reason textarea { width: 100%; min-height: 88px; padding: 10px 11px; resize: vertical; border: 1px solid var(--border-main); border-radius: 10px; color: var(--text-main); background: var(--panel-bg); font: inherit; font-size: var(--type-meta); line-height: 1.5; }
+.source-review-error { margin: 8px 0 0 !important; color: #9a4545 !important; }
+.source-review-submit { min-height: 38px; margin-top: 10px; padding: 0 12px; border: 0; border-radius: 10px; color: var(--forest-950); background: var(--acid); cursor: pointer; font-size: var(--type-caption); font-weight: 900; }
+.source-review-submit:disabled { cursor: not-allowed; filter: grayscale(.5); opacity: .48; }
+
+@media (max-width: 570px) {
+  .source-queue-panel > header { align-items: stretch; flex-direction: column; }
+  .source-queue-header-actions { max-width: none; justify-items: stretch; text-align: left; }
+  .source-queue-header-actions button { justify-content: center; }
+  .source-human-review fieldset > div { display: grid; grid-template-columns: 1fr; }
+  .source-human-review fieldset label { width: 100%; }
+}

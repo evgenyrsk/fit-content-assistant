@@ -40,8 +40,8 @@ PubMed-запись допускается в исследовательский
 
 1. ~~Подключить разрешённые полные тексты PubMed Central Open Access и проверку полноты секций.~~
 2. ~~Сделать постоянную очередь source review с фильтрами full text, triage, rejected и revalidation.~~
-3. Добавить ручной include/exclude с обязательной причиной override.
-4. Добавить периодическую перепроверку corrections, expressions of concern и retractions.
+3. ~~Добавить ручной include/exclude с обязательной причиной override.~~
+4. Добавить периодическую перепроверку corrections, expressions of concern и retractions. Ручной пакетный запуск для просроченных PubMed-записей реализован; автоматическое расписание ещё не подключено.
 5. Реализовать lexical search по source metadata/chunks и каноническим claims до подключения embeddings.
 6. Добавить ручное создание и утверждение claim с полной трассировкой.
 7. Перевести архив контента, статусы и календарь из демонстрационных данных в D1.
