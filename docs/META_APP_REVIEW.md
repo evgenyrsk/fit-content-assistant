@@ -1,17 +1,19 @@
 # Meta App Review runbook
 
-Статус: публичный review-контур готов, App Review не создан. Проверено в Meta Developer Dashboard 28 августа 2026 года.
+Статус: Tech Provider активирован, черновик App Review создан. Проверено в Meta Developer Dashboard 28 августа 2026 года.
 
 ## Текущее состояние
 
 - Meta App ID: `2104673313480628`; Threads App ID: `1749989439454425`.
 - Приложение находится в Development / Unpublished.
-- `threads_basic` и `threads_keyword_search` добавлены и имеют статус `Ready for testing`.
-- Для обоих разрешений доступно действие `Add to App Review`. Оно открывает обязательный переход в Tech Provider; Meta отмечает переход как необратимый. `Continue` не нажато.
+- `threads_basic` и `threads_keyword_search` добавлены в черновик App Review.
+- Необратимый переход в Tech Provider подтверждён владельцем и применён.
 - Все required app settings завершены, кнопка Publish доступна, но не нажата.
-- Contact email, category `Lifestyle`, App domain, Privacy Policy URL и User data deletion URL сохранены.
-- Квадратная иконка подготовлена локально: `public/meta-app-icon.png`; в Meta она ещё не загружена.
-- Dashboard отдельно предлагает Become a Tech Provider для App Review и доступа к данным других пользователей/бизнесов. Этот шаг ещё не начат.
+- Contact email, category `Lifestyle`, App domain, Privacy Policy URL, User data deletion URL, web platform и review URL сохранены.
+- Квадратная иконка `public/meta-app-icon.png` загружена в Meta.
+- Reviewer instructions и описания использования двух Threads-разрешений сохранены в черновике.
+- Business Verification начата и ждёт фактических данных владельца; Access Verification откроется после неё.
+- Meta требует по одному успешному API-вызову и OAuth-скринкасту для каждого Threads-разрешения. Trend Scout выполняет `threads_basic` profile preflight перед `threads_keyword_search`; учёт тестов может обновляться до 24 часов.
 
 ## Запрашиваемый минимальный доступ
 

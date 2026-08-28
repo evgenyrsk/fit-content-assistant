@@ -1,6 +1,7 @@
 import type { TrendCandidate } from '../../domain/index.ts';
 import type { TrendDiscoveryRequest, TrendProvider } from '../../application/ports/trend-provider.ts';
 import { scoreAudienceFit, scoreResearchability } from './trend-scoring.ts';
+import { ThreadsProfileAccess, type ThreadsProfile } from './threads-profile-access.ts';
 
 type Fetcher = typeof fetch;
 
@@ -9,6 +10,7 @@ interface ThreadsOptions {
   apiVersion: string;
   fetcher?: Fetcher;
   now?: () => Date;
+  profileAccess?: { fetchProfile(): Promise<ThreadsProfile> };
 }
 
 interface ThreadsPost {
@@ -63,11 +65,17 @@ export class ThreadsKeywordSearch implements TrendProvider {
   private readonly fetcher: Fetcher;
   private readonly now: () => Date;
   private readonly options: ThreadsOptions;
+  private readonly profileAccess: { fetchProfile(): Promise<ThreadsProfile> };
 
   constructor(options: ThreadsOptions) {
     this.options = options;
     this.fetcher = options.fetcher ?? fetch;
     this.now = options.now ?? (() => new Date());
+    this.profileAccess = options.profileAccess ?? new ThreadsProfileAccess({
+      accessToken: options.accessToken,
+      apiVersion: options.apiVersion,
+      fetcher: this.fetcher,
+    });
   }
 
   private async search(query: string, request: TrendDiscoveryRequest, now: Date): Promise<TrendCandidate[]> {
@@ -88,6 +96,7 @@ export class ThreadsKeywordSearch implements TrendProvider {
   }
 
   async discover(request: TrendDiscoveryRequest): Promise<TrendCandidate[]> {
+    await this.profileAccess.fetchProfile();
     const explicitQuery = request.query?.trim();
     const queries = explicitQuery ? [explicitQuery] : defaultQueries(request.region);
     const now = this.now();

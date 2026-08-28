@@ -21,6 +21,7 @@ test('searches focused default topics, deduplicates posts and keeps only live fi
     accessToken: 'secret',
     apiVersion: 'v1.0',
     now: () => now,
+    profileAccess: { fetchProfile: async () => ({ id: 'user' }) },
     fetcher: async (input) => {
       const url = new URL(String(input));
       urls.push(url);
@@ -46,6 +47,7 @@ test('uses one request for an explicit query and surfaces a total provider failu
     accessToken: 'secret',
     apiVersion: 'v1.0',
     now: () => now,
+    profileAccess: { fetchProfile: async () => ({ id: 'user' }) },
     fetcher: async () => {
       calls += 1;
       return new Response(null, { status: 503 });
@@ -57,4 +59,27 @@ test('uses one request for an explicit query and surfaces a total provider failu
     /Threads keyword search failed: 503/,
   );
   assert.equal(calls, 1);
+});
+
+test('verifies the connected profile before running keyword search', async () => {
+  const calls: string[] = [];
+  const provider = new ThreadsKeywordSearch({
+    accessToken: 'secret',
+    apiVersion: 'v1.0',
+    now: () => now,
+    profileAccess: {
+      fetchProfile: async () => {
+        calls.push('profile');
+        return { id: 'user' };
+      },
+    },
+    fetcher: async () => {
+      calls.push('search');
+      return Response.json({ data: [] });
+    },
+  });
+
+  await provider.discover({ query: 'сон', region: 'RU', limit: 6 });
+
+  assert.deepEqual(calls, ['profile', 'search']);
 });

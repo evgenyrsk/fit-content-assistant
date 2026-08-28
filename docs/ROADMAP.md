@@ -63,6 +63,7 @@
 - [x] Подключить Google Trends/News proxy и PubMed Research Pulse с явной маркировкой типа сигнала.
 - [x] Реализовать прямые Threads/Instagram adapters и явные состояния подключения.
 - [x] Опубликовать изолированный Meta review-контур с privacy и data deletion URL.
+- [x] Активировать Tech Provider, создать черновик Meta App Review и подготовить review-настройки для Threads.
 - [ ] Активировать прямые Threads/Instagram signals после выдачи разрешений и сохранения Meta tokens.
 - [x] Реализовать provider-neutral structured source/body assessment с audit trail; реальный запуск ждёт LLM secret и full text.
 - [x] Реализовать versioned сохранение model-draft claims с confidence, limitations и evidence links; approval остаётся заблокированным.
