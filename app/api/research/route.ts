@@ -126,21 +126,27 @@ export async function POST(request: Request): Promise<Response> {
     new PubmedSearch({ apiKey: runtime.PUBMED_API_KEY as string, email: runtime.NCBI_EMAIL as string }),
     new CrossrefSearch({ mailto: runtime.CROSSREF_MAILTO as string }),
   ];
+  let failureStage = 'schema';
   try {
     await ensureResearchSchema(runtime.DB);
     await ensureEvidenceSchema(runtime.DB);
     await ensurePipelineSchema(runtime.DB);
+    failureStage = 'planning';
     const runId = crypto.randomUUID();
     const planning = await planResearch(query, runId, createLlmRuntime(runtime));
+    failureStage = 'search';
     const result = await searchScientificSources(query, 10, {
       searches,
       retrievalQuery: planning.trace.searchQuery,
       createId: () => runId,
     });
     const discovered = { ...result, planning: planning.trace };
+    failureStage = 'research_persistence';
     await new D1ResearchRunStore(runtime.DB).saveSearch(discovered);
+    failureStage = 'document_ingestion';
     const documentCoverage = await capturePubmedDocuments(result.candidates, runtime.DB, runtime);
     await new D1SourceIntakeDecisionStore(runtime.DB).saveAll(runId, documentCoverage.decisions);
+    failureStage = 'full_text_ingestion';
     const fullTextCoverage = await capturePmcFullText(documentCoverage, runtime.DB);
     const completed = {
       ...discovered,
@@ -154,7 +160,9 @@ export async function POST(request: Request): Promise<Response> {
           : []),
       ],
     };
+    failureStage = 'model_run_persistence';
     if (planning.modelRun) await new D1ModelRunStore(runtime.DB).save(planning.modelRun);
+    failureStage = 'audit_persistence';
     await new D1AuditEventStore(runtime.DB).save({
       id: crypto.randomUUID(), aggregateType: 'research_run', aggregateId: runId,
       eventType: 'research_planning_completed',
@@ -171,6 +179,9 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json(completed);
   } catch (error) {
     reportResearchFailure(error);
-    return Response.json({ error: 'Не удалось сохранить исследовательский запуск. Попробуйте ещё раз.' }, { status: 503 });
+    return Response.json({
+      error: 'Не удалось сохранить исследовательский запуск. Попробуйте ещё раз.',
+      failureStage,
+    }, { status: 503 });
   }
 }
