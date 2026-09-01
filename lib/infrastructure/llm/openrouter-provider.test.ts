@@ -17,10 +17,11 @@ test('OpenRouter adapter enforces supported parameters and economical routing', 
     outputSchema: { type: 'object' }, maxOutputTokens: 100,
     metadata: { runId: 'run-1', stage: 'platform_draft', promptVersion: '1' },
   });
-  const routing = requestBody.provider as { sort: string; require_parameters: boolean; data_collection: string };
+  const routing = requestBody.provider as { sort: string; require_parameters: boolean; data_collection: string; zdr: boolean };
   assert.deepEqual(result.output, { title: 'Draft' });
   assert.equal(routing.sort, 'price');
   assert.equal(routing.require_parameters, true);
   assert.equal(routing.data_collection, 'deny');
+  assert.equal(routing.zdr, true);
   assert.equal(result.costUsd, 0.001);
 });

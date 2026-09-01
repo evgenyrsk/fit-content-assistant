@@ -59,6 +59,7 @@ export class OpenRouterProvider implements LlmProvider {
     if (!this.supports('structured_output', request.model)) throw new Error('Configured OpenRouter route lacks structured output capability.');
     const response = await this.fetcher(`${this.options.baseUrl.replace(/\/$/, '')}/chat/completions`, {
       method: 'POST',
+      signal: AbortSignal.timeout(45_000),
       headers: {
         Authorization: `Bearer ${this.options.apiKey}`,
         'Content-Type': 'application/json',
@@ -69,7 +70,10 @@ export class OpenRouterProvider implements LlmProvider {
         messages: [{ role: 'system', content: request.system }, { role: 'user', content: request.input }],
         max_tokens: request.maxOutputTokens,
         response_format: { type: 'json_schema', json_schema: { name: request.schemaName, strict: true, schema: request.outputSchema } },
-        provider: { sort: 'price', require_parameters: true, allow_fallbacks: true, data_collection: 'deny' },
+        provider: {
+          sort: 'price', require_parameters: true, allow_fallbacks: true,
+          data_collection: 'deny', zdr: true,
+        },
         tools: request.tools?.map((tool) => ({ type: 'function', function: { name: tool.name, description: tool.description, parameters: tool.inputSchema, strict: true } })),
       }),
     });

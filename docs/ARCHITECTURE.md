@@ -24,6 +24,8 @@ LLM связывает этапы и управляет инструментам
 - capabilities проверяются явно, а фактический маршрут записывается в audit log;
 - отсутствие ключа или невалидный structured output не маскируются: поиск продолжает безопасный deterministic route с видимым статусом;
 - retrieval и научная проверка остаются собственными слоями Forme, поэтому смена провайдера не меняет каноническую базу.
+- server-side диагностика показывает только безопасные имена маршрутов и состояние подключения; live probe проверяет research/content отдельно строгой схемой и не пишет диагностический текст в каноническую базу.
+- OpenRouter-маршрут требует zero data retention, запрещает data collection и исключает endpoints без поддержки переданных параметров.
 
 ### Research Engine
 
@@ -118,6 +120,10 @@ LLM связывает этапы и управляет инструментам
 - Научные источники: PubMed/NCBI, Crossref, DOI и открытые издательские метаданные.
 - Модель: структурированные ответы по строгой схеме; каждый этап получает только нужный контекст.
 
+### Российский portability target
+
+Timeweb фиксируется как целевой управляемый контур на случай миграции: App Platform для приложения, PostgreSQL + `pgvector` для канонических записей и retrieval-индексов, приватный S3 для PDF. Текущий D1/R2 production остаётся активным до готовности проверяемого export/restore и PostgreSQL/S3 adapter contracts. Домен и application use cases не знают о выбранной инфраструктуре.
+
 ## Ключевое ограничение
 
 Модель не имеет права повышать уровень уверенности сверх того, что следует из evidence-записей. Контентный слой не редактирует научный вывод — только способ объяснения.
@@ -136,3 +142,4 @@ Rights-aware full-text ingestion зафиксирован в `docs/decisions/000
 Трассируемый контентный конвейер зафиксирован в `docs/decisions/0012-traceable-content-pipeline.md`.
 Ручной owner-reviewed claim workflow зафиксирован в `docs/decisions/0013-manual-claim-review.md`.
 Автономный operations-слой без LLM зафиксирован в `docs/decisions/0014-autonomous-operations-layer.md`.
+Российский portability target зафиксирован в `docs/decisions/0015-timeweb-portability-target.md`.

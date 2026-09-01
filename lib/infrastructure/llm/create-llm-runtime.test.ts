@@ -32,4 +32,7 @@ test('selects the content model without changing the provider boundary', () => {
 
 test('keeps the model stage disabled when configuration is incomplete', () => {
   assert.equal(createLlmRuntime({ LLM_PROVIDER: 'openai', OPENAI_MODEL_RESEARCH: 'research-model' }), null);
+  assert.equal(createLlmRuntime({
+    LLM_PROVIDER: 'openrouter', OPENROUTER_API_KEY: '   ', OPENROUTER_MODEL_RESEARCH: 'research-model',
+  }), null);
 });

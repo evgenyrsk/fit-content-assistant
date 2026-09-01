@@ -23,22 +23,30 @@ function configuredModel(bindings: RuntimeBindings, provider: LlmProviderId, rol
   return typeof configuredModel === 'string' ? configuredModel.trim() : '';
 }
 
+function configuredSecret(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const secret = value.trim();
+  return secret.length > 0 ? secret : null;
+}
+
 function openAiRuntime(bindings: RuntimeBindings, model: string): LlmRuntime | null {
-  if (typeof bindings.OPENAI_API_KEY !== 'string') return null;
+  const apiKey = configuredSecret(bindings.OPENAI_API_KEY);
+  if (!apiKey) return null;
   const capabilities = { [model]: ['structured_output' as const] };
   return {
-    provider: new OpenAiProvider({ apiKey: bindings.OPENAI_API_KEY, capabilities }),
+    provider: new OpenAiProvider({ apiKey, capabilities }),
     model, budgetProfile: budgetProfile(bindings.LLM_BUDGET_PROFILE),
   };
 }
 
 function openRouterRuntime(bindings: RuntimeBindings, model: string): LlmRuntime | null {
-  if (typeof bindings.OPENROUTER_API_KEY !== 'string') return null;
+  const apiKey = configuredSecret(bindings.OPENROUTER_API_KEY);
+  if (!apiKey) return null;
   const capabilities = { [model]: ['structured_output' as const] };
-  const baseUrl = typeof bindings.OPENROUTER_BASE_URL === 'string'
-    ? bindings.OPENROUTER_BASE_URL : 'https://openrouter.ai/api/v1';
+  const baseUrl = typeof bindings.OPENROUTER_BASE_URL === 'string' && bindings.OPENROUTER_BASE_URL.trim()
+    ? bindings.OPENROUTER_BASE_URL.trim() : 'https://openrouter.ai/api/v1';
   return {
-    provider: new OpenRouterProvider({ apiKey: bindings.OPENROUTER_API_KEY, baseUrl, capabilities }),
+    provider: new OpenRouterProvider({ apiKey, baseUrl, capabilities }),
     model, budgetProfile: budgetProfile(bindings.LLM_BUDGET_PROFILE),
   };
 }

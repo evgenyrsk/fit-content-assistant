@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import type { ContentFormat, Mode } from '@/features/shared';
 import { ContentComposer } from './content-composer';
+import { LlmConnectionPanel } from './llm-connection-panel';
 import { ResearchConsole } from './research-console';
 import { ResearchResult } from './research-result';
 import { SourceReviewQueue } from './source-review-queue';
 import { useResearchSearch } from './use-research-search';
+import { useLlmConnection } from './use-llm-connection';
 
 interface WorkspaceViewProps {
   activeFormat: ContentFormat | null;
@@ -17,6 +19,7 @@ export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewPro
   const [topic, setTopic] = useState('Нужно ли тренироваться до отказа для роста мышц?');
   const [mode, setMode] = useState<Mode>('Исследовать');
   const { status, result, error, start } = useResearchSearch();
+  const llm = useLlmConnection();
   const [showAllClaims, setShowAllClaims] = useState(false);
   const [trendOpen, setTrendOpen] = useState(false);
   const [trendSource, setTrendSource] = useState<'all' | 'google_trends' | 'google_news' | 'pubmed_pulse' | 'threads' | 'instagram'>('all');
@@ -37,6 +40,7 @@ export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewPro
   return (
     <>
       <ResearchConsole topic={topic} mode={mode} status={status} trendOpen={trendOpen} trendSource={trendSource} onTopicChange={setTopic} onModeChange={setMode} onStart={startWork} onTrendToggle={() => setTrendOpen((value) => !value)} onTrendSourceChange={setTrendSource} onTrendChoose={chooseTrend} />
+      <LlmConnectionPanel status={llm.result} loading={llm.loading} onProbe={llm.probe} />
       <ResearchResult topic={topic} working={status === 'working'} result={result} error={error} showAllClaims={showAllClaims} onToggleClaims={() => setShowAllClaims((value) => !value)} />
       <SourceReviewQueue refreshKey={result?.runId ?? ''} />
       <ContentComposer activeFormat={activeFormat} onFormatChange={onFormatChange} />

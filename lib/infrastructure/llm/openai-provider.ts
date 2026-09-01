@@ -42,6 +42,7 @@ export class OpenAiProvider implements LlmProvider {
     if (!this.supports('structured_output', request.model)) throw new Error('Configured OpenAI model lacks structured output capability.');
     const response = await this.fetcher('https://api.openai.com/v1/responses', {
       method: 'POST',
+      signal: AbortSignal.timeout(45_000),
       headers: { Authorization: `Bearer ${this.options.apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: request.model,
