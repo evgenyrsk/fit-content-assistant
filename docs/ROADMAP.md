@@ -74,6 +74,7 @@
 - [x] Активировать прямые Threads signals для владельца и добавить безопасную диагностику доступа.
 - [ ] Активировать прямые Instagram signals после выдачи разрешений и сохранения Meta token.
 - [x] Реализовать provider-neutral structured source/body assessment с audit trail; реальный запуск ждёт LLM secret и full text.
+- [x] Добавить рабочий UI для live source assessments и body synthesis с блокировкой claim до human review.
 - [x] Реализовать versioned сохранение model-draft claims с confidence, limitations и evidence links; approval остаётся заблокированным.
 - [x] Создание review-required Reels, Telegram, Threads и каруселей на основе свежих approved claims.
 - [x] Трассировка content fragment → claim version; переход к source обеспечивается канонической claim evidence-связью.

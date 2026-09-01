@@ -5,6 +5,7 @@ import type { ContentFormat, Mode } from '@/features/shared';
 import { ContentComposer } from './content-composer';
 import { EvidenceFlowDemo } from './evidence-flow-demo';
 import { LlmConnectionPanel } from './llm-connection-panel';
+import { LiveEvidenceWorkbench } from './live-evidence-workbench';
 import { ResearchConsole } from './research-console';
 import { ResearchResult } from './research-result';
 import { ReviewerDemo } from './reviewer-demo';
@@ -43,12 +44,18 @@ export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewPro
     window.setTimeout(() => document.getElementById('topic')?.focus(), 0);
   }
 
+  function openLiveResearch() {
+    setMode('Исследовать');
+    window.setTimeout(() => document.getElementById('topic')?.focus(), 0);
+  }
+
   return (
     <>
       <ResearchConsole topic={topic} mode={mode} status={status} trendOpen={trendOpen} trendSource={trendSource} onTopicChange={setTopic} onModeChange={setMode} onStart={startWork} onTrendToggle={() => setTrendOpen((value) => !value)} onTrendSourceChange={setTrendSource} onTrendChoose={chooseTrend} />
       <LlmConnectionPanel status={llm.result} loading={llm.loading} onProbe={llm.probe} />
-      {mode === 'Проверить' ? <><EvidenceFlowDemo /><ReviewerDemo /></> : <>
+      {mode === 'Проверить' ? <><EvidenceFlowDemo onLiveRun={openLiveResearch} /><ReviewerDemo /></> : <>
         <ResearchResult topic={topic} working={status === 'working'} result={result} error={error} showAllClaims={showAllClaims} onToggleClaims={() => setShowAllClaims((value) => !value)} />
+        {result && <LiveEvidenceWorkbench key={result.runId} result={result} question={topic} />}
         <SourceReviewQueue refreshKey={result?.runId ?? ''} />
         <ContentComposer activeFormat={activeFormat} onFormatChange={onFormatChange} />
       </>}
