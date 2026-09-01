@@ -14,7 +14,7 @@ Provider и model задаются на сервере отдельно для �
 
 Текущий режим — `economy`: сильная configured model используется только для research planning, appraisal, synthesis и final fact review; классификация и платформенная адаптация получают меньшие token/tool budgets. Конкретные model ids не прошиваются в коде.
 
-Текущий production-кандидат — RouterAI: `openai/gpt-5-mini` для research/fact review и `google/gemini-2.5-flash-lite` для content stages. Это стартовая экономная конфигурация, а не вечный выбор: маршруты меняются только через environment и после общего eval. Каждый запрос требует strict structured output. RouterAI по умолчанию не хранит содержимое API-запросов в собственной инфраструктуре, но этот режим не маркируется как ZDR и не отменяет отдельную политику нижестоящего model provider.
+Текущий production-кандидат — RouterAI: `openai/gpt-5-mini` для research/fact review и `deepseek/deepseek-v3.2` для content stages. GPT-5 Mini получает задачи, где цена ошибки выше цены токенов; DeepSeek V3.2 — массовую текстовую генерацию и адаптацию. Обе модели заявляют strict structured output и tool calling. Gemini Flash Lite остаётся мультимодальным кандидатом, но не включается в базовый текстовый маршрут без сравнительного eval. Маршруты меняются только через environment и после общего eval. RouterAI по умолчанию не хранит содержимое API-запросов в собственной инфраструктуре, но этот режим не маркируется как ZDR и не отменяет отдельную политику нижестоящего model provider.
 
 ## Граница независимости
 

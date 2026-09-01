@@ -12,7 +12,8 @@ Forme нужен доступный в России LLM-шлюз с оплато
 
 - Добавить RouterAI отдельным адаптером внутреннего `LlmProvider`, не подменяя им OpenRouter.
 - Использовать серверный `ROUTERAI_API_KEY` и `https://routerai.ru/api/v1`.
-- Начать с `openai/gpt-5-mini` для research и `google/gemini-2.5-flash-lite` для content в экономном профиле.
+- Начать с `openai/gpt-5-mini` для research и `deepseek/deepseek-v3.2` для content в экономном профиле.
+- Оставить Gemini Flash Lite кандидатом для будущих мультимодальных задач, а не оплачивать его более дорогой вывод в базовом текстовом маршруте.
 - Требовать строгий `json_schema` и проверять оба маршрута коротким live probe до запуска конвейера.
 - Не приравнивать политику RouterAI об отсутствии хранения содержимого API-запросов к техническому ZDR-флагу OpenRouter.
 - Не сохранять стоимость RouterAI в поле `costUsd`: рублёвый учёт будет добавлен отдельной currency-aware моделью.
