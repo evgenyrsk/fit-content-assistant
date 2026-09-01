@@ -42,6 +42,14 @@ function reportResearchFailure(error: unknown): void {
     : { name: 'UnknownError' });
 }
 
+function safeFailureDetail(error: unknown): string {
+  if (!(error instanceof Error)) return 'unknown_error';
+  return error.message
+    .replace(/'[^']*'/g, "'<redacted>'")
+    .replace(/\b\d{4,}\b/g, '<number>')
+    .slice(0, 240);
+}
+
 type PlanningOutcome = {
   trace: ResearchPlanningTrace;
   modelRun?: Awaited<ReturnType<typeof executeResearchPlan>>['modelRun'];
@@ -182,6 +190,7 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({
       error: 'Не удалось сохранить исследовательский запуск. Попробуйте ещё раз.',
       failureStage,
+      failureDetail: safeFailureDetail(error),
     }, { status: 503 });
   }
 }
