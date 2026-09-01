@@ -3,6 +3,7 @@ import type { ModelRunRecord } from './model-run.ts';
 import { stageBudget, type BudgetProfile } from './pipeline-budget.ts';
 import { sourceAssessmentSchema, validateSourceAssessmentDraft } from './source-assessment-contract.ts';
 import { sourceAssessmentPrompt } from './source-assessment-prompt.ts';
+import { selectAssessmentPassages } from './select-assessment-passages.ts';
 import { evaluateStudyGate, methodologyRelease } from '../../domain/evidence-policy.ts';
 import { routeAppraisal } from '../../domain/evidence-routing.ts';
 import { hasAssessmentGradeProvenance, type ScientificSourceDocument, type SourceAssessmentRecord } from '../../domain/index.ts';
@@ -54,27 +55,28 @@ export async function executeSourceAssessment(
 ): Promise<SourceAssessmentExecution> {
   const clock = options.now ?? (() => new Date());
   const startedAt = clock().toISOString();
-  const modelRun = baseRecord(options, document, startedAt);
-  if (!options.provider.supports('structured_output', options.model) || document.chunks.length === 0) {
+  const assessmentDocument = selectAssessmentPassages(document);
+  const modelRun = baseRecord(options, assessmentDocument, startedAt);
+  if (!options.provider.supports('structured_output', options.model) || assessmentDocument.chunks.length === 0) {
     return { status: 'needs_review', assessment: null, modelRun };
   }
   try {
     const budget = stageBudget('source_assessment', options.budgetProfile);
     const result = await options.provider.generateStructured<unknown>({
       model: options.model, system: sourceAssessmentPrompt.system,
-      input: inputText(question, document), schemaName: 'forme_source_assessment',
+      input: inputText(question, assessmentDocument), schemaName: 'forme_source_assessment',
       outputSchema: sourceAssessmentSchema, maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,
       metadata: { runId: options.researchRunId, stage: 'source_assessment', promptVersion: sourceAssessmentPrompt.version },
     });
     const draft = validateSourceAssessmentDraft(result.output);
     const provenanceIds = [draft.finding, ...draft.dimensions, ...draft.integrityChecks].map((item) => item.provenanceIds);
-    if (!provenanceIsValid(document, provenanceIds)) throw new Error('Assessment cited an unknown passage.');
+    if (!provenanceIsValid(assessmentDocument, provenanceIds)) throw new Error('Assessment cited an unknown passage.');
     const input = {
       ...draft,
       sourceId: document.sourceId,
       recordStatus: document.recordStatus,
       hasStableIdentifier: Boolean(document.pmid || document.doi),
-      provenanceComplete: hasAssessmentGradeProvenance(document),
+      provenanceComplete: hasAssessmentGradeProvenance(assessmentDocument),
       dimensions: draft.dimensions.map((item) => ({ ...item, assessor: 'model_draft' as const })),
       integrityChecks: draft.integrityChecks.map((item) => ({ ...item, assessor: 'model_draft' as const })),
     };
