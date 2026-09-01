@@ -37,7 +37,7 @@ function AssessmentItem({ result, sourceId, index, running, response }: {
 
 function assessButtonLabel(running: boolean, complete: number, total: number): string {
   if (running) return `Оцениваю ${Math.min(complete + 1, total)} из ${total}`;
-  return complete ? 'Повторить оценки' : `Оценить ${total} документа`;
+  return complete ? 'Повторить оценки' : `Оценить ${total} ${total === 1 ? 'документ' : 'документа'}`;
 }
 
 export function LiveEvidenceWorkbench({ result, question }: { result: ResearchSearchResult; question: string }) {

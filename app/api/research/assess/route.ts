@@ -38,6 +38,19 @@ function awaitingResponse(contentLevel: SourceAssessmentResponse['contentLevel']
   };
 }
 
+function assessmentWarning(
+  contentLevel: SourceAssessmentResponse['contentLevel'],
+  execution: Awaited<ReturnType<typeof executeSourceAssessment>>,
+): string {
+  if (execution.assessment && contentLevel === 'full_text') {
+    return 'Это модельный черновик. До калибровки требуется подтверждение человека.';
+  }
+  if (contentLevel !== 'full_text') return 'Доступна только аннотация. Она недостаточна для утверждения claim.';
+  if (execution.failure === 'invalid_provenance') return 'Модель сослалась на неизвестный фрагмент. Оценка отклонена, evidence gate закрыт.';
+  if (execution.failure === 'invalid_model_output') return 'Ответ модели не прошёл строгий JSON-контракт. Оценка отклонена, evidence gate закрыт.';
+  return 'Модель не завершила проверяемую оценку. Evidence gate остаётся закрытым.';
+}
+
 async function performAssessment(
   body: { researchRunId: string; sourceId: string; question: string },
   database: D1Database,
@@ -71,9 +84,7 @@ async function performAssessment(
   const response: SourceAssessmentResponse = {
     status: execution.status, reviewRequired: true, contentLevel: document.contentLevel,
     assessment: execution.assessment,
-    warning: document.contentLevel === 'full_text'
-      ? 'Это модельный черновик. До калибровки требуется подтверждение человека.'
-      : 'Доступна только аннотация. Она недостаточна для утверждения claim.',
+    warning: assessmentWarning(document.contentLevel, execution),
   };
   return Response.json(response);
 }

@@ -44,6 +44,7 @@ test('rejects a citation to a passage that was not supplied', async () => {
   });
   assert.equal(result.status, 'needs_review');
   assert.equal(result.assessment, null);
+  assert.equal(result.failure, 'invalid_provenance');
 });
 
 test('does not call the model when no passages are available', async () => {

@@ -21,6 +21,14 @@ export interface SourceAssessmentExecution {
   status: 'model_draft' | 'needs_review';
   assessment: SourceAssessmentRecord | null;
   modelRun: ModelRunRecord;
+  failure?: 'input_unavailable' | 'provider_error' | 'invalid_model_output' | 'invalid_provenance';
+}
+
+function failureCode(error: unknown): NonNullable<SourceAssessmentExecution['failure']> {
+  if (!(error instanceof Error)) return 'provider_error';
+  if (error.message === 'Assessment cited an unknown passage.') return 'invalid_provenance';
+  if (/structured output|runtime contract/i.test(error.message)) return 'invalid_model_output';
+  return 'provider_error';
 }
 
 function inputText(question: string, document: ScientificSourceDocument): string {
@@ -58,7 +66,7 @@ export async function executeSourceAssessment(
   const assessmentDocument = selectAssessmentPassages(document);
   const modelRun = baseRecord(options, assessmentDocument, startedAt);
   if (!options.provider.supports('structured_output', options.model) || assessmentDocument.chunks.length === 0) {
-    return { status: 'needs_review', assessment: null, modelRun };
+    return { status: 'needs_review', assessment: null, modelRun, failure: 'input_unavailable' };
   }
   try {
     const budget = stageBudget('source_assessment', options.budgetProfile);
@@ -95,7 +103,10 @@ export async function executeSourceAssessment(
         costUsd: result.costUsd,
       },
     };
-  } catch {
-    return { status: 'needs_review', assessment: null, modelRun: { ...modelRun, completedAt: clock().toISOString() } };
+  } catch (error) {
+    return {
+      status: 'needs_review', assessment: null, failure: failureCode(error),
+      modelRun: { ...modelRun, completedAt: clock().toISOString() },
+    };
   }
 }

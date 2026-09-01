@@ -68,6 +68,7 @@
 - [x] Нормализовать идентичность PubMed/DOI без дублей и сохранить совместимость с ранними записями.
 - [x] В live evidence review приоритизировать разрешённый full text над abstract-only контекстом.
 - [x] Ограничить пакет Methods/Results для source assessment и не тратить LLM-бюджет UI на abstract-only контекст.
+- [x] Выделить достаточный token budget для строгих assessment-контрактов и показывать безопасную причину fail-closed отказа.
 - [x] Запретить abstract-only источникам открывать evidence gate.
 - [x] Подключить Google Trends/News proxy и PubMed Research Pulse с явной маркировкой типа сигнала.
 - [x] Реализовать прямые Threads/Instagram adapters и явные состояния подключения.

@@ -13,12 +13,19 @@ const researchStages: PipelineStageId[] = [
   'research_plan', 'source_assessment', 'body_assessment', 'claim_synthesis', 'claim_review',
 ];
 
+function outputBudget(profile: BudgetProfile, role: ModelRole, structuredAssessment: boolean): number {
+  if (structuredAssessment) return profile === 'economy' ? 3200 : 4200;
+  if (profile === 'economy') return role === 'content' ? 900 : 1800;
+  return role === 'content' ? 1600 : 3200;
+}
+
 export function stageBudget(stage: PipelineStageId, profile: BudgetProfile): StageBudget {
   const role: ModelRole = stage === 'fact_review' ? 'review'
     : researchStages.includes(stage) ? 'research' : 'content';
   const researchGrade = role !== 'content';
-  if (profile === 'economy') {
-    return { role, maxOutputTokens: researchGrade ? 1800 : 900, maxToolCalls: researchGrade ? 4 : 1 };
-  }
-  return { role, maxOutputTokens: researchGrade ? 3200 : 1600, maxToolCalls: researchGrade ? 8 : 2 };
+  const structuredAssessment = stage === 'source_assessment' || stage === 'body_assessment';
+  return {
+    role, maxOutputTokens: outputBudget(profile, role, structuredAssessment),
+    maxToolCalls: profile === 'economy' ? (researchGrade ? 4 : 1) : (researchGrade ? 8 : 2),
+  };
 }
