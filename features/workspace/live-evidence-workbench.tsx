@@ -8,6 +8,11 @@ function sourceTitle(result: ResearchSearchResult, sourceId: string): string {
   return result.candidates.find((item) => item.pmid === pmid)?.title ?? sourceId;
 }
 
+function sourceLevel(result: ResearchSearchResult, sourceId: string): string {
+  const fullText = result.fullTextCoverage?.documents.some((item) => item.sourceId === sourceId);
+  return fullText ? 'полный текст · приоритет' : 'аннотация · только контекст';
+}
+
 function AssessmentResult({ response }: { response: SourceAssessmentResponse }) {
   if (!response.assessment) return <div className="live-assessment-warning"><CircleAlert aria-hidden="true" /><p>{response.warning}</p></div>;
   const { assessment } = response;
@@ -32,7 +37,7 @@ function AssessmentItem({ result, sourceId, index, running, response }: {
 }) {
   const state = running ? 'running' : response ? 'complete' : 'waiting';
   const status = running ? 'модель анализирует' : response ? 'черновик оценки готов' : 'ожидает запуска';
-  return <article data-state={state}><div className="live-assessment-title"><span>{response ? <Check aria-hidden="true" /> : String(index + 1).padStart(2, '0')}</span><div><small>{sourceId} · {status}</small><h3>{sourceTitle(result, sourceId)}</h3></div></div>{response && <AssessmentResult response={response} />}</article>;
+  return <article data-state={state}><div className="live-assessment-title"><span>{response ? <Check aria-hidden="true" /> : String(index + 1).padStart(2, '0')}</span><div><small>{sourceId} · {sourceLevel(result, sourceId)} · {status}</small><h3>{sourceTitle(result, sourceId)}</h3></div></div>{response && <AssessmentResult response={response} />}</article>;
 }
 
 function assessButtonLabel(running: boolean, complete: number, total: number): string {
@@ -45,7 +50,7 @@ export function LiveEvidenceWorkbench({ result, question }: { result: ResearchSe
   if (flow.targets.length === 0) return null;
   const complete = Object.keys(flow.assessments).length;
   return <section className="live-evidence-workbench">
-    <header><div><p className="overline">LIVE EVIDENCE REVIEW</p><h2>Оценить найденные документы</h2><p>До трёх последовательных LLM-оценок с сохранением model run, provenance и audit trail.</p></div><span><FlaskConical aria-hidden="true" />Реальный запуск</span></header>
+    <header><div><p className="overline">LIVE EVIDENCE REVIEW</p><h2>Оценить найденные документы</h2><p>Сначала полный текст. Аннотации остаются контекстом и не открывают evidence gate.</p></div><span><FlaskConical aria-hidden="true" />Реальный запуск</span></header>
     <div className="live-assessment-list">{flow.targets.map((sourceId, index) => <AssessmentItem key={sourceId} result={result} sourceId={sourceId} index={index} running={flow.runningSourceId === sourceId} response={flow.assessments[sourceId]} />)}</div>
     {flow.error && <p className="live-evidence-error"><CircleAlert aria-hidden="true" />{flow.error}</p>}
     <div className="live-evidence-actions"><button type="button" onClick={() => void flow.assess()} disabled={Boolean(flow.runningSourceId) || flow.synthesizing}><Play aria-hidden="true" />{assessButtonLabel(Boolean(flow.runningSourceId), complete, flow.targets.length)}</button>

@@ -15,9 +15,13 @@ async function postJson<T extends object>(url: string, body: Record<string, stri
 }
 
 export function useLiveEvidenceWorkbench(result: ResearchSearchResult, question: string) {
-  const targets = useMemo(() => result.documentCoverage?.decisions
-    .filter((item) => item.decision === 'admitted_to_triage' && item.sourceId.startsWith('pmid:'))
-    .slice(0, 3).map((item) => item.sourceId) ?? [], [result]);
+  const targets = useMemo(() => {
+    const fullTextIds = new Set(result.fullTextCoverage?.documents.map((item) => item.sourceId) ?? []);
+    return result.documentCoverage?.decisions
+      .filter((item) => item.decision === 'admitted_to_triage' && item.sourceId.startsWith('pmid:'))
+      .toSorted((left, right) => Number(fullTextIds.has(right.sourceId)) - Number(fullTextIds.has(left.sourceId)))
+      .slice(0, 3).map((item) => item.sourceId) ?? [];
+  }, [result]);
   const [assessments, setAssessments] = useState<AssessmentMap>({});
   const [body, setBody] = useState<BodyAssessmentResponse | null>(null);
   const [runningSourceId, setRunningSourceId] = useState<string | null>(null);
