@@ -10,13 +10,13 @@ export function validSourceAssessmentDraft(): SourceAssessmentDraft {
     finding: {
       direction: 'supporting', effectEstimate: 'Increase reported in abstract.',
       statisticalUncertainty: 'Insufficient detail in abstract.',
-      practicalSignificance: 'Cannot be established from abstract.', provenanceIds: ['chunk-1'],
+      practicalSignificance: 'Cannot be established from abstract.', provenanceIds: ['p1'],
     },
     dimensions: requiredStudyDimensions.map((dimension) => ({
-      dimension, judgement: 'unclear', rationale: 'Abstract is insufficient.', provenanceIds: ['chunk-1'],
+      dimension, judgement: 'unclear', rationale: 'Abstract is insufficient.', provenanceIds: ['p1'],
     })),
     integrityChecks: requiredIntegrityChecks('randomized_parallel').map((check) => ({
-      check, state: 'unclear', rationale: 'Abstract is insufficient.', provenanceIds: ['chunk-1'],
+      check, state: 'unclear', rationale: 'Abstract is insufficient.', provenanceIds: ['p1'],
     })),
   };
 }

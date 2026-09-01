@@ -33,12 +33,13 @@ test('abstract-only evidence always remains in human review', async () => {
   assert.equal(result.status, 'model_draft');
   assert.equal(result.assessment?.gate.decision, 'needs_human_review');
   assert.ok(result.assessment?.gate.reasons.includes('incomplete_provenance'));
+  assert.deepEqual(result.assessment?.finding.provenanceIds, ['chunk-1']);
   assert.equal(result.modelRun.decision, 'needs_review');
 });
 
 test('rejects a citation to a passage that was not supplied', async () => {
   const draft = validSourceAssessmentDraft();
-  draft.dimensions[0].provenanceIds = ['invented-chunk'];
+  draft.dimensions[0].provenanceIds = ['invented-alias'];
   const result = await executeSourceAssessment('Does creatine improve strength?', document('full_text'), {
     provider: provider(draft), model: 'research', budgetProfile: 'economy', researchRunId: 'research-1',
   });

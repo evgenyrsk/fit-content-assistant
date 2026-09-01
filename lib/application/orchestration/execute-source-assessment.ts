@@ -1,7 +1,7 @@
 import type { LlmProvider } from '../ports/llm-provider.ts';
 import type { ModelRunRecord } from './model-run.ts';
 import { stageBudget, type BudgetProfile } from './pipeline-budget.ts';
-import { sourceAssessmentSchema, validateSourceAssessmentDraft } from './source-assessment-contract.ts';
+import { sourceAssessmentSchema, validateSourceAssessmentDraft, type SourceAssessmentDraft } from './source-assessment-contract.ts';
 import { sourceAssessmentPrompt } from './source-assessment-prompt.ts';
 import { selectAssessmentPassages } from './select-assessment-passages.ts';
 import { evaluateStudyGate, methodologyRelease } from '../../domain/evidence-policy.ts';
@@ -31,13 +31,17 @@ function failureCode(error: unknown): NonNullable<SourceAssessmentExecution['fai
   return 'provider_error';
 }
 
+function passageAlias(index: number): string { return `p${index + 1}`; }
+
 function inputText(question: string, document: ScientificSourceDocument): string {
   return JSON.stringify({
     question,
     source: {
       sourceId: document.sourceId, title: document.title,
       publicationTypes: document.publicationTypes, contentLevel: document.contentLevel,
-      passages: document.chunks.map((chunk) => ({ id: chunk.id, locator: chunk.locator, text: chunk.text })),
+      passages: document.chunks.map((chunk, index) => ({
+        id: passageAlias(index), locator: chunk.locator, text: chunk.text,
+      })),
     },
   });
 }
@@ -51,9 +55,19 @@ function baseRecord(options: SourceAssessmentExecutionOptions, document: Scienti
   };
 }
 
-function provenanceIsValid(document: ScientificSourceDocument, ids: string[][]): boolean {
-  const allowed = new Set(document.chunks.map((chunk) => chunk.id));
-  return ids.flat().every((id) => allowed.has(id));
+function restoreProvenance(document: ScientificSourceDocument, draft: SourceAssessmentDraft): SourceAssessmentDraft {
+  const aliases = new Map(document.chunks.map((chunk, index) => [passageAlias(index), chunk.id]));
+  const restore = (ids: string[]) => ids.map((id) => {
+    const sourceId = aliases.get(id);
+    if (!sourceId) throw new Error('Assessment cited an unknown passage.');
+    return sourceId;
+  });
+  return {
+    ...draft,
+    finding: { ...draft.finding, provenanceIds: restore(draft.finding.provenanceIds) },
+    dimensions: draft.dimensions.map((item) => ({ ...item, provenanceIds: restore(item.provenanceIds) })),
+    integrityChecks: draft.integrityChecks.map((item) => ({ ...item, provenanceIds: restore(item.provenanceIds) })),
+  };
 }
 
 export async function executeSourceAssessment(
@@ -76,9 +90,7 @@ export async function executeSourceAssessment(
       outputSchema: sourceAssessmentSchema, maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,
       metadata: { runId: options.researchRunId, stage: 'source_assessment', promptVersion: sourceAssessmentPrompt.version },
     });
-    const draft = validateSourceAssessmentDraft(result.output);
-    const provenanceIds = [draft.finding, ...draft.dimensions, ...draft.integrityChecks].map((item) => item.provenanceIds);
-    if (!provenanceIsValid(assessmentDocument, provenanceIds)) throw new Error('Assessment cited an unknown passage.');
+    const draft = restoreProvenance(assessmentDocument, validateSourceAssessmentDraft(result.output));
     const input = {
       ...draft,
       sourceId: document.sourceId,
