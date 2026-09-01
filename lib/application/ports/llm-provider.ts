@@ -1,4 +1,4 @@
-export type LlmProviderId = 'openai' | 'openrouter';
+export type LlmProviderId = 'openai' | 'openrouter' | 'routerai';
 export type LlmCapability = 'structured_output' | 'streaming' | 'tool_calling' | 'reasoning';
 
 export interface LlmToolDefinition {

@@ -21,7 +21,9 @@ function ModelRoutes({ status }: { status: LlmConnectionStatus | null }) {
     status.researchModel ? `Research · ${status.researchModel}` : 'Research · ожидает настройки',
     status.contentModel ? `Content · ${status.contentModel}` : 'Content · ожидает настройки',
     status.budgetProfile === 'economy' ? 'Бюджет · экономный' : 'Бюджет · сбалансированный',
-    'Privacy · ZDR',
+    status.privacy === 'zero_retention_required'
+      ? 'Privacy · ZDR обязателен'
+      : 'Privacy · RouterAI не хранит промпты',
   ];
   return <ul aria-label="Маршруты и режим LLM">
     {routes.map((route) => <li key={route}>{route}</li>)}

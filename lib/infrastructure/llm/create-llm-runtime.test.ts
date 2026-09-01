@@ -30,9 +30,22 @@ test('selects the content model without changing the provider boundary', () => {
   assert.equal(runtime?.model, 'route/content');
 });
 
+test('creates a RouterAI runtime with the gateway privacy posture', () => {
+  const runtime = createLlmRuntime({
+    LLM_PROVIDER: 'routerai', ROUTERAI_API_KEY: 'test-only',
+    ROUTERAI_MODEL_RESEARCH: 'openai/gpt-5-mini',
+  });
+  assert.equal(runtime?.provider.id, 'routerai');
+  assert.equal(runtime?.model, 'openai/gpt-5-mini');
+  assert.equal(runtime?.privacy, 'gateway_no_prompt_storage');
+});
+
 test('keeps the model stage disabled when configuration is incomplete', () => {
   assert.equal(createLlmRuntime({ LLM_PROVIDER: 'openai', OPENAI_MODEL_RESEARCH: 'research-model' }), null);
   assert.equal(createLlmRuntime({
     LLM_PROVIDER: 'openrouter', OPENROUTER_API_KEY: '   ', OPENROUTER_MODEL_RESEARCH: 'research-model',
+  }), null);
+  assert.equal(createLlmRuntime({
+    LLM_PROVIDER: 'routerai', ROUTERAI_API_KEY: '', ROUTERAI_MODEL_RESEARCH: 'research-model',
   }), null);
 });

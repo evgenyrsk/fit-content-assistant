@@ -24,23 +24,25 @@ function configuredBase(input: LlmConnectionInput, research: LlmRuntime, content
     researchModel: research.model,
     contentModel: content.model,
     budgetProfile: research.budgetProfile,
-    privacy: 'zero_retention_required' as const,
+    privacy: research.privacy,
     checkedAt: checkedAt(input),
   };
 }
 
-function selectedProvider(value: unknown): 'openai' | 'openrouter' | undefined {
-  return value === 'openai' || value === 'openrouter' ? value : undefined;
+function selectedProvider(value: unknown): 'openai' | 'openrouter' | 'routerai' | undefined {
+  return value === 'openai' || value === 'openrouter' || value === 'routerai' ? value : undefined;
 }
 
 function notConfigured(input: LlmConnectionInput): LlmConnectionStatus {
   const provider = selectedProvider(input.provider);
   return {
-    provider, budgetProfile: 'economy', privacy: 'zero_retention_required', checkedAt: checkedAt(input),
+    provider, budgetProfile: 'economy',
+    privacy: provider === 'routerai' ? 'gateway_no_prompt_storage' : 'zero_retention_required',
+    checkedAt: checkedAt(input),
     state: 'not_configured', liveProbe: false,
     summary: provider ? 'LLM ждёт полную серверную конфигурацию' : 'LLM-провайдер не выбран',
     detail: 'Научный поиск продолжает работать без модели. Ключ не передаётся в браузер и не сохраняется в базе.',
-    recommendedAction: provider ? 'Добавьте ключ и обе модели в секреты хостинга.' : 'Выберите OpenRouter или OpenAI.',
+    recommendedAction: provider ? 'Добавьте ключ выбранного провайдера в секреты хостинга.' : 'Выберите LLM-провайдера.',
   };
 }
 
@@ -67,19 +69,22 @@ export async function inspectLlmConnection(input: LlmConnectionInput): Promise<L
       recommendedAction: 'Нажмите «Проверить подключение».',
     };
   }
-  try {
-    await Promise.all([probe(input.researchRuntime, 'research'), probe(input.contentRuntime, 'content')]);
+  const results = await Promise.allSettled([
+    probe(input.researchRuntime, 'research'), probe(input.contentRuntime, 'content'),
+  ]);
+  const failedRoutes = results.flatMap((result, index) => result.status === 'rejected'
+    ? [index === 0 ? 'Research' : 'Content'] : []);
+  if (failedRoutes.length === 0) {
     return {
       ...configuration, state: 'connected', liveProbe: true,
       summary: 'LLM подключена',
       detail: 'Оба маршрута ответили по строгой схеме. Научные выводы всё равно проходят evidence-gates и ручное подтверждение.',
     };
-  } catch {
-    return {
-      ...configuration, state: 'attention_required', liveProbe: true,
-      summary: 'LLM требует внимания',
-      detail: 'Ключ, баланс, доступность модели или поддержка строгого JSON не прошли проверку.',
-      recommendedAction: 'Проверьте ключ, баланс и выбранные модели, затем повторите.',
-    };
   }
+  return {
+    ...configuration, state: 'attention_required', liveProbe: true,
+    summary: 'LLM требует внимания',
+    detail: `Проверку строгого JSON не прошли маршруты: ${failedRoutes.join(', ')}.`,
+    recommendedAction: 'Проверьте ключ, баланс и выбранные модели, затем повторите.',
+  };
 }

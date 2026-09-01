@@ -23,6 +23,7 @@
 - LLM adapters обязаны передавать strict schema и возвращать usage/cost metadata.
 - LLM live probe считается успешным только когда research и content routes независимо проходят строгую диагностическую схему; ключ и raw provider error не возвращаются клиенту.
 - OpenRouter requests обязаны требовать ZDR, запрещать data collection и исключать endpoints без поддержки переданных параметров.
+- RouterAI requests обязаны использовать strict JSON Schema; интерфейс не должен называть заявленное шлюзом отсутствие хранения промптов режимом ZDR.
 - research plan обязан содержать disconfirming evidence; лишнее поле или неполная схема блокируют модельный результат.
 - неподдерживаемый structured output и ошибка контракта переводят research plan в видимый deterministic fallback.
 - каждый модельный research plan сохраняет provider, model, prompt version, usage/cost и gate decision.

@@ -19,7 +19,7 @@ LLM связывает этапы и управляет инструментам
 ### LLM Provider Layer
 
 - доменные этапы зависят только от внутреннего `LlmProvider`;
-- OpenAI и OpenRouter подключаются серверными адаптерами;
+- OpenAI, OpenRouter и RouterAI подключаются отдельными серверными адаптерами;
 - provider/model выбираются отдельно для research и content после общего eval;
 - capabilities проверяются явно, а фактический маршрут записывается в audit log;
 - отсутствие ключа или невалидный structured output не маскируются: поиск продолжает безопасный deterministic route с видимым статусом;

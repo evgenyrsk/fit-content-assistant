@@ -15,7 +15,7 @@
 - [x] Перевести интерфейсные иконки на единый SVG-набор и закрепить правила иконографии.
 - [x] Оформить development environment, CI quality gate и Definition of Done.
 - [x] Зафиксировать LLM-конвейер, eval-gates и claim-first hybrid RAG.
-- [x] Заложить provider-neutral LLM boundary для OpenAI и OpenRouter.
+- [x] Заложить provider-neutral LLM boundary для OpenAI, OpenRouter и RouterAI.
 - [x] Сделать боковую навигацию компактной и раскрываемой.
 - [x] Принять модульный монолит, SOLID-правила, ADR-процесс и автоматические архитектурные ограничения.
 - [x] Разделить крупный UI и глобальные стили по feature-границам и ответственности.
@@ -48,11 +48,11 @@
 
 - [x] Схема D1 для claims, sources, research runs, trend signals, audit trail и content items.
 - [ ] Подключить выбранный LLM-провайдер в production.
-  - [x] Реализовать OpenAI/OpenRouter adapters, строгие схемы и provider-neutral runtime.
+  - [x] Реализовать OpenAI/OpenRouter/RouterAI adapters, строгие схемы и provider-neutral runtime.
   - [x] Добавить безопасный status/live probe для research и content routes.
-  - [x] Зафиксировать экономные OpenRouter-модели и ZDR/privacy routing.
-  - [ ] Сохранить серверный OpenRouter key и подтвердить live probe.
-- [ ] Проверить прямой OpenAI и OpenRouter на одном eval-наборе, затем выбрать primary/fallback по качеству, функциям, задержке и стоимости.
+  - [x] Зафиксировать экономные RouterAI-модели и честную privacy-маркировку.
+  - [ ] Сохранить серверный RouterAI key и подтвердить live probe.
+- [ ] Проверить прямой OpenAI, OpenRouter и RouterAI на одном eval-наборе, затем выбрать primary/fallback по качеству, функциям, задержке и стоимости.
 - [x] Реализовать strict schema и prompt contract для первого этапа `research_plan`.
 - [x] Сохранять `model_runs` и `audit_events` для модельного research plan.
 - [ ] Реализовать строгие схемы остальных этапов LLM-конвейера.
@@ -121,4 +121,4 @@
 
 ## Ближайший измеримый результат
 
-Автономный operations-контур готов. OpenRouter runtime и диагностика готовы; следующий внешний шаг — сохранить серверный key, подтвердить оба модельных маршрута и провести один реальный вопрос через source/body review до утверждённого claim и отдельного платформенного материала. Timeweb принят как российский portability target до начала физической миграции.
+Автономный operations-контур готов. RouterAI runtime и диагностика готовы; следующий внешний шаг — сохранить серверный key, подтвердить оба модельных маршрута и провести один реальный вопрос через source/body review до утверждённого claim и отдельного платформенного материала. Timeweb принят как российский portability target до начала физической миграции.

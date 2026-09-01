@@ -15,7 +15,7 @@ Forme развивается как модульный монолит. Это с
 - `features/shared/` — только действительно общие presentation-типы и демо-данные; не место для бизнес-логики.
 - `lib/domain/` — сущности, value objects, политики и инварианты без React, SDK, HTTP и базы данных.
 - `lib/application/` — use cases, оркестрация и узкие порты внешних зависимостей.
-- `lib/infrastructure/` — адаптеры OpenAI/OpenRouter, D1, vector store и внешних API.
+- `lib/infrastructure/` — адаптеры OpenAI/OpenRouter/RouterAI, D1, vector store и внешних API.
 - `styles/` — стили по поверхности или ответственности; порядок импорта задаётся в `app/globals.css`.
 
 Domain не импортирует application, infrastructure или UI. Application не импортирует infrastructure или UI. Infrastructure реализует application ports. Связка конкретных реализаций происходит только в composition root.
