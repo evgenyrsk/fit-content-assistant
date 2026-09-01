@@ -1,6 +1,7 @@
 import type { D1Database, D1PreparedStatement } from '@cloudflare/workers-types';
 import type { SourceIntakeDecisionStore } from '../../application/ports/source-intake-decision-store.ts';
 import type { SourceIntakeDecision } from '../../domain/index.ts';
+import { resolveStoredSourceId } from './resolve-source-id.ts';
 
 function decisionStatements(
   database: D1Database,
@@ -41,7 +42,10 @@ export class D1SourceIntakeDecisionStore implements SourceIntakeDecisionStore {
   }
 
   async saveAll(researchRunId: string, decisions: SourceIntakeDecision[]): Promise<void> {
-    const statements = decisions.flatMap((decision) => decisionStatements(this.database, researchRunId, decision));
+    const storedDecisions = await Promise.all(decisions.map(async (decision) => ({
+      ...decision, sourceId: await resolveStoredSourceId(this.database, { sourceId: decision.sourceId }),
+    })));
+    const statements = storedDecisions.flatMap((decision) => decisionStatements(this.database, researchRunId, decision));
     if (statements.length > 0) await this.database.batch(statements);
   }
 }

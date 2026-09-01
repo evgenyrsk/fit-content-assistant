@@ -6,6 +6,7 @@ import type {
   SourceContentLevel,
   SourceDocumentChunk,
 } from '../../domain/index.ts';
+import { resolveStoredSourceId } from './resolve-source-id.ts';
 
 interface SourceRow {
   id: string;
@@ -137,29 +138,37 @@ export class D1SourceDocumentStore implements SourceDocumentStore {
 
   async saveAll(documents: ScientificSourceDocument[]): Promise<void> {
     for (const document of documents) {
+      const storedId = await resolveStoredSourceId(this.database, {
+        sourceId: document.sourceId, pmid: document.pmid, doi: document.doi,
+      });
+      const storedDocument = {
+        ...document, sourceId: storedId,
+        chunks: document.chunks.map((chunk) => ({ ...chunk, sourceId: storedId })),
+      };
       const statements: D1PreparedStatement[] = [
-        sourceInsert(this.database, document),
-        documentInsert(this.database, document),
-        ...await Promise.all(document.chunks.map((chunk) => chunkInsert(this.database, chunk, document.fetchedAt))),
+        sourceInsert(this.database, storedDocument),
+        documentInsert(this.database, storedDocument),
+        ...await Promise.all(storedDocument.chunks.map((chunk) => chunkInsert(this.database, chunk, storedDocument.fetchedAt))),
       ];
       await this.database.batch(statements);
     }
   }
 
   async findById(sourceId: string): Promise<ScientificSourceDocument | null> {
+    const storedId = await resolveStoredSourceId(this.database, { sourceId });
     const source = await this.database.prepare(`
       SELECT id, title, doi, pmid, source_type, record_status, last_checked_at
       FROM sources WHERE id = ?
-    `).bind(sourceId).first<SourceRow>();
+    `).bind(storedId).first<SourceRow>();
     if (!source) return null;
     const metadata = await this.database.prepare(`
       SELECT source_provider, content_level, pmcid, reuse_status, license, reuse_origin, fetched_at
       FROM source_documents WHERE source_id = ?
-    `).bind(sourceId).first<DocumentRow>();
+    `).bind(storedId).first<DocumentRow>();
     const result = await this.database.prepare(`
       SELECT id, source_id, chunk_kind, locator, content
       FROM source_chunks WHERE source_id = ? ORDER BY locator, id
-    `).bind(sourceId).all<ChunkRow>();
+    `).bind(storedId).all<ChunkRow>();
     const chunks = result.results.map((row) => ({
       id: row.id, sourceId: row.source_id, kind: row.chunk_kind,
       locator: row.locator, text: row.content,

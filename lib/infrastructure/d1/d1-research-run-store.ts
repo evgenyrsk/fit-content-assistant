@@ -1,6 +1,7 @@
 import type { D1Database, D1PreparedStatement } from '@cloudflare/workers-types';
 import type { ResearchSearchResult, ScientificSourceCandidate } from '../../domain/index.ts';
 import type { ResearchRunStore } from '../../application/ports/research-run-store.ts';
+import { resolveStoredSourceId } from './resolve-source-id.ts';
 
 function fingerprint(source: ScientificSourceCandidate): string {
   if (source.provider === 'pubmed' && source.pmid) return `pmid:${source.pmid}`;
@@ -9,19 +10,21 @@ function fingerprint(source: ScientificSourceCandidate): string {
   return `url:${source.url}`;
 }
 
-function sourceInsert(database: D1Database, source: ScientificSourceCandidate): D1PreparedStatement {
+function sourceInsert(database: D1Database, source: ScientificSourceCandidate, storedId: string): D1PreparedStatement {
   const sourceFingerprint = fingerprint(source);
   return database.prepare(`
     INSERT INTO sources (
       id, doi, pmid, url, title, source_type, publication_date, record_status,
       fingerprint, raw_metadata_json, discovered_at, last_checked_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, 'unknown', ?, ?, ?, ?)
-    ON CONFLICT(fingerprint) DO UPDATE SET
+    ON CONFLICT(id) DO UPDATE SET
+      doi = COALESCE(sources.doi, excluded.doi),
+      pmid = COALESCE(sources.pmid, excluded.pmid),
       title = excluded.title,
       raw_metadata_json = excluded.raw_metadata_json,
       last_checked_at = excluded.last_checked_at
   `).bind(
-    sourceFingerprint, source.doi ?? null, source.pmid ?? null, source.url, source.title,
+    storedId, source.doi ?? null, source.pmid ?? null, source.url, source.title,
     source.sourceType, source.publishedAt ?? null, sourceFingerprint, JSON.stringify(source),
     source.discoveredAt, source.discoveredAt,
   );
@@ -35,6 +38,9 @@ export class D1ResearchRunStore implements ResearchRunStore {
   }
 
   async saveSearch(result: ResearchSearchResult): Promise<void> {
+    const storedIds = await Promise.all(result.candidates.map((source) => resolveStoredSourceId(this.database, {
+      sourceId: fingerprint(source), pmid: source.pmid, doi: source.doi,
+    })));
     const statements: D1PreparedStatement[] = [
       this.database.prepare(`
         INSERT INTO research_runs (
@@ -48,14 +54,14 @@ export class D1ResearchRunStore implements ResearchRunStore {
         result.completedAt,
         result.completedAt,
       ),
-      ...result.candidates.map((source) => sourceInsert(this.database, source)),
+      ...result.candidates.map((source, index) => sourceInsert(this.database, source, storedIds[index])),
     ];
     for (const [index, source] of result.candidates.entries()) {
       statements.push(this.database.prepare(`
         INSERT OR REPLACE INTO research_run_sources (
           research_run_id, source_id, provider, rank, disposition
         ) VALUES (?, ?, ?, ?, 'candidate')
-      `).bind(result.runId, fingerprint(source), source.provider, index + 1));
+      `).bind(result.runId, storedIds[index], source.provider, index + 1));
     }
     await this.database.batch(statements);
   }

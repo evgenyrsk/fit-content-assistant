@@ -65,6 +65,7 @@
 - [x] Поиск PubMed/Crossref по одному вопросу с сохранением source candidates.
 - [x] Пакетная загрузка PubMed-аннотаций и сохранение секций как provenance chunks.
 - [x] Разделить search history и исследовательский архив; добавить deterministic source intake с причинами отказа.
+- [x] Нормализовать идентичность PubMed/DOI без дублей и сохранить совместимость с ранними записями.
 - [x] Запретить abstract-only источникам открывать evidence gate.
 - [x] Подключить Google Trends/News proxy и PubMed Research Pulse с явной маркировкой типа сигнала.
 - [x] Реализовать прямые Threads/Instagram adapters и явные состояния подключения.
