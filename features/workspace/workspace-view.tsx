@@ -6,6 +6,7 @@ import { ContentComposer } from './content-composer';
 import { LlmConnectionPanel } from './llm-connection-panel';
 import { ResearchConsole } from './research-console';
 import { ResearchResult } from './research-result';
+import { ReviewerDemo } from './reviewer-demo';
 import { SourceReviewQueue } from './source-review-queue';
 import { useResearchSearch } from './use-research-search';
 import { useLlmConnection } from './use-llm-connection';
@@ -26,6 +27,10 @@ export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewPro
 
   async function startWork() {
     if (!topic.trim()) return;
+    if (mode === 'Проверить') {
+      document.getElementById('reviewer-demo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
     onFormatChange(null);
     await start(topic);
   }
@@ -41,9 +46,11 @@ export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewPro
     <>
       <ResearchConsole topic={topic} mode={mode} status={status} trendOpen={trendOpen} trendSource={trendSource} onTopicChange={setTopic} onModeChange={setMode} onStart={startWork} onTrendToggle={() => setTrendOpen((value) => !value)} onTrendSourceChange={setTrendSource} onTrendChoose={chooseTrend} />
       <LlmConnectionPanel status={llm.result} loading={llm.loading} onProbe={llm.probe} />
-      <ResearchResult topic={topic} working={status === 'working'} result={result} error={error} showAllClaims={showAllClaims} onToggleClaims={() => setShowAllClaims((value) => !value)} />
-      <SourceReviewQueue refreshKey={result?.runId ?? ''} />
-      <ContentComposer activeFormat={activeFormat} onFormatChange={onFormatChange} />
+      {mode === 'Проверить' ? <ReviewerDemo /> : <>
+        <ResearchResult topic={topic} working={status === 'working'} result={result} error={error} showAllClaims={showAllClaims} onToggleClaims={() => setShowAllClaims((value) => !value)} />
+        <SourceReviewQueue refreshKey={result?.runId ?? ''} />
+        <ContentComposer activeFormat={activeFormat} onFormatChange={onFormatChange} />
+      </>}
     </>
   );
 }
