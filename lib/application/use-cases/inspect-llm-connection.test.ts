@@ -19,16 +19,17 @@ function runtime(role: string, succeeds = true) {
 
 test('does not probe when a server secret is missing', async () => {
   const result = await inspectLlmConnection({
-    provider: 'openrouter', researchRuntime: null, contentRuntime: null, liveProbe: true,
+    provider: 'openrouter', researchRuntime: null, contentRuntime: null, reviewRuntime: null, liveProbe: true,
     now: () => new Date('2026-09-01T10:00:00.000Z'),
   });
   assert.equal(result.state, 'not_configured');
   assert.equal(result.liveProbe, false);
 });
 
-test('requires both model routes to pass the strict live probe', async () => {
+test('requires all three model routes to pass the strict live probe', async () => {
   const result = await inspectLlmConnection({
-    provider: 'openrouter', researchRuntime: runtime('research'), contentRuntime: runtime('content'), liveProbe: true,
+    provider: 'openrouter', researchRuntime: runtime('research'), contentRuntime: runtime('content'),
+    reviewRuntime: runtime('review'), liveProbe: true,
   });
   assert.equal(result.state, 'connected');
   assert.equal(result.privacy, 'zero_retention_required');
@@ -36,7 +37,8 @@ test('requires both model routes to pass the strict live probe', async () => {
 
 test('fails closed when one model route is unavailable', async () => {
   const result = await inspectLlmConnection({
-    provider: 'openrouter', researchRuntime: runtime('research'), contentRuntime: runtime('content', false), liveProbe: true,
+    provider: 'openrouter', researchRuntime: runtime('research'), contentRuntime: runtime('content', false),
+    reviewRuntime: runtime('review'), liveProbe: true,
   });
   assert.equal(result.state, 'attention_required');
   assert.match(result.detail, /Content/);
@@ -50,7 +52,8 @@ test('reports RouterAI gateway privacy without claiming ZDR', async () => {
   };
   const result = await inspectLlmConnection({
     provider: 'routerai', researchRuntime: routerAiRuntime,
-    contentRuntime: { ...routerAiRuntime, model: 'content' }, liveProbe: false,
+    contentRuntime: { ...routerAiRuntime, model: 'content' },
+    reviewRuntime: { ...routerAiRuntime, model: 'review' }, liveProbe: false,
   });
   assert.equal(result.privacy, 'gateway_no_prompt_storage');
 });

@@ -62,10 +62,19 @@ function validReview(value: unknown, source: VoiceEditOutput): value is Fragment
     && Array.isArray(value.reasons) && value.reasons.every((reason) => typeof reason === 'string');
 }
 
-function approvedReviewIsSafe(value: Record<string, unknown>, reviews: FragmentReview[]): boolean {
+function knownStrings(actual: unknown, expected: readonly string[]): actual is string[] {
+  return Array.isArray(actual) && actual.every((item) => typeof item === 'string' && expected.includes(item));
+}
+
+function approvedReviewIsSafe(
+  value: Record<string, unknown>,
+  reviews: FragmentReview[],
+  requiredCaveats: readonly string[],
+): boolean {
   if (value.decision !== 'approved') return true;
   return reviews.every((review) => review.decision === 'approved')
-    && Array.isArray(value.unsupportedFragmentIds) && value.unsupportedFragmentIds.length === 0;
+    && Array.isArray(value.unsupportedFragmentIds) && value.unsupportedFragmentIds.length === 0
+    && sameStrings(value.preservedCaveats, requiredCaveats);
 }
 
 function validReviewCoverage(value: unknown, source: VoiceEditOutput): value is FragmentReview[] {
@@ -76,6 +85,11 @@ function validReviewCoverage(value: unknown, source: VoiceEditOutput): value is 
 
 function validUnsupported(value: unknown, fragmentIds: ReadonlySet<string>): value is string[] {
   return Array.isArray(value) && value.every((id) => typeof id === 'string' && fragmentIds.has(id));
+}
+
+function consistentUnsupported(value: string[], reviews: FragmentReview[]): boolean {
+  const expected = reviews.filter((review) => review.decision !== 'approved').map((review) => review.fragmentId);
+  return sameStrings(value, expected);
 }
 
 function validNotes(value: unknown): value is string[] {
@@ -92,10 +106,11 @@ export function validateFactReview(
   const reviews = value.fragmentReviews;
   const valid = ['approved', 'needs_review', 'rejected'].includes(String(value.decision))
     && validReviewCoverage(reviews, source)
-    && sameStrings(value.preservedCaveats, requiredCaveats)
+    && knownStrings(value.preservedCaveats, requiredCaveats)
     && validUnsupported(value.unsupportedFragmentIds, fragmentIds)
+    && consistentUnsupported(value.unsupportedFragmentIds, reviews as FragmentReview[])
     && validNotes(value.notes)
-    && approvedReviewIsSafe(value, reviews);
+    && approvedReviewIsSafe(value, reviews, requiredCaveats);
   if (!valid) throw new Error('Fact review did not cover every fragment or approved unsupported text.');
   return value as unknown as FactReviewOutput;
 }

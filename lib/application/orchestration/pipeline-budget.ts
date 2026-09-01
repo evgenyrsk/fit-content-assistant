@@ -1,7 +1,7 @@
 import type { PipelineStageId } from './pipeline.ts';
 
 export type BudgetProfile = 'economy' | 'balanced';
-export type ModelRole = 'research' | 'content';
+export type ModelRole = 'research' | 'content' | 'review';
 
 export interface StageBudget {
   role: ModelRole;
@@ -10,13 +10,15 @@ export interface StageBudget {
 }
 
 const researchStages: PipelineStageId[] = [
-  'research_plan', 'source_assessment', 'body_assessment', 'claim_synthesis', 'claim_review', 'fact_review',
+  'research_plan', 'source_assessment', 'body_assessment', 'claim_synthesis', 'claim_review',
 ];
 
 export function stageBudget(stage: PipelineStageId, profile: BudgetProfile): StageBudget {
-  const research = researchStages.includes(stage);
+  const role: ModelRole = stage === 'fact_review' ? 'review'
+    : researchStages.includes(stage) ? 'research' : 'content';
+  const researchGrade = role !== 'content';
   if (profile === 'economy') {
-    return { role: research ? 'research' : 'content', maxOutputTokens: research ? 1800 : 900, maxToolCalls: research ? 4 : 1 };
+    return { role, maxOutputTokens: researchGrade ? 1800 : 900, maxToolCalls: researchGrade ? 4 : 1 };
   }
-  return { role: research ? 'research' : 'content', maxOutputTokens: research ? 3200 : 1600, maxToolCalls: research ? 8 : 2 };
+  return { role, maxOutputTokens: researchGrade ? 3200 : 1600, maxToolCalls: researchGrade ? 8 : 2 };
 }

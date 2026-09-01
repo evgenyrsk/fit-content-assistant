@@ -5,6 +5,7 @@ interface LlmConnectionInput {
   provider?: unknown;
   researchRuntime: LlmRuntime | null;
   contentRuntime: LlmRuntime | null;
+  reviewRuntime: LlmRuntime | null;
   liveProbe: boolean;
   now?: () => Date;
 }
@@ -18,11 +19,12 @@ function checkedAt(input: LlmConnectionInput): string {
   return (input.now ?? (() => new Date()))().toISOString();
 }
 
-function configuredBase(input: LlmConnectionInput, research: LlmRuntime, content: LlmRuntime) {
+function configuredBase(input: LlmConnectionInput, research: LlmRuntime, content: LlmRuntime, review: LlmRuntime) {
   return {
     provider: research.provider.id,
     researchModel: research.model,
     contentModel: content.model,
+    reviewModel: review.model,
     budgetProfile: research.budgetProfile,
     privacy: research.privacy,
     checkedAt: checkedAt(input),
@@ -46,7 +48,7 @@ function notConfigured(input: LlmConnectionInput): LlmConnectionStatus {
   };
 }
 
-async function probe(runtime: LlmRuntime, role: 'research' | 'content'): Promise<void> {
+async function probe(runtime: LlmRuntime, role: 'research' | 'content' | 'review'): Promise<void> {
   const result = await runtime.provider.generateStructured<{ status: 'ok' }>({
     model: runtime.model,
     system: 'Return only the requested diagnostic JSON. Do not add facts or commentary.',
@@ -59,26 +61,27 @@ async function probe(runtime: LlmRuntime, role: 'research' | 'content'): Promise
 }
 
 export async function inspectLlmConnection(input: LlmConnectionInput): Promise<LlmConnectionStatus> {
-  if (!input.researchRuntime || !input.contentRuntime) return notConfigured(input);
-  const configuration = configuredBase(input, input.researchRuntime, input.contentRuntime);
+  if (!input.researchRuntime || !input.contentRuntime || !input.reviewRuntime) return notConfigured(input);
+  const configuration = configuredBase(input, input.researchRuntime, input.contentRuntime, input.reviewRuntime);
   if (!input.liveProbe) {
     return {
       ...configuration, state: 'attention_required', liveProbe: false,
       summary: 'LLM настроена и готова к проверке',
-      detail: 'Research и content маршруты заданы. Запустите короткую проверку, чтобы подтвердить ключ и строгие JSON-ответы.',
+      detail: 'Research, content и review маршруты заданы. Запустите короткую проверку строгих JSON-ответов.',
       recommendedAction: 'Нажмите «Проверить подключение».',
     };
   }
   const results = await Promise.allSettled([
     probe(input.researchRuntime, 'research'), probe(input.contentRuntime, 'content'),
+    probe(input.reviewRuntime, 'review'),
   ]);
-  const failedRoutes = results.flatMap((result, index) => result.status === 'rejected'
-    ? [index === 0 ? 'Research' : 'Content'] : []);
+  const routeNames = ['Research', 'Content', 'Review'] as const;
+  const failedRoutes = results.flatMap((result, index) => result.status === 'rejected' ? [routeNames[index]] : []);
   if (failedRoutes.length === 0) {
     return {
       ...configuration, state: 'connected', liveProbe: true,
       summary: 'LLM подключена',
-      detail: 'Оба маршрута ответили по строгой схеме. Научные выводы всё равно проходят evidence-gates и ручное подтверждение.',
+      detail: 'Все три маршрута ответили по строгой схеме. Научные выводы всё равно проходят evidence-gates и ручное подтверждение.',
     };
   }
   return {

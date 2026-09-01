@@ -5,6 +5,7 @@ export interface LlmConnectionStatus {
   provider?: 'openai' | 'openrouter' | 'routerai';
   researchModel?: string;
   contentModel?: string;
+  reviewModel?: string;
   budgetProfile: 'economy' | 'balanced';
   privacy: 'zero_retention_required' | 'gateway_no_prompt_storage';
   liveProbe: boolean;

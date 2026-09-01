@@ -20,6 +20,7 @@ function ModelRoutes({ status }: { status: LlmConnectionStatus | null }) {
   const routes = [
     status.researchModel ? `Research · ${status.researchModel}` : 'Research · ожидает настройки',
     status.contentModel ? `Content · ${status.contentModel}` : 'Content · ожидает настройки',
+    status.reviewModel ? `Review · ${status.reviewModel}` : 'Review · ожидает настройки',
     status.budgetProfile === 'economy' ? 'Бюджет · экономный' : 'Бюджет · сбалансированный',
     status.privacy === 'zero_retention_required'
       ? 'Privacy · ZDR обязателен'

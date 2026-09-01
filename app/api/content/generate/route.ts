@@ -101,7 +101,7 @@ async function generate(
     'awaiting_claims', 'Нужен хотя бы один свежий approved-claim. Демо-текст не подставляется.',
   ));
   const contentRuntime = createLlmRuntime(runtime, 'content');
-  const reviewRuntime = createLlmRuntime(runtime, 'research');
+  const reviewRuntime = createLlmRuntime(runtime, 'review');
   if (!contentRuntime || !reviewRuntime) return Response.json(waitingResponse(
     'awaiting_provider', 'Claims готовы, но серверные модели content и research ещё не подключены.',
   ));

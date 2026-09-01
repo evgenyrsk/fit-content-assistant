@@ -14,6 +14,7 @@ async function inspect(liveProbe: boolean): Promise<Response> {
     provider: runtime.LLM_PROVIDER,
     researchRuntime: createLlmRuntime(runtime, 'research'),
     contentRuntime: createLlmRuntime(runtime, 'content'),
+    reviewRuntime: createLlmRuntime(runtime, 'review'),
     liveProbe,
   });
   return Response.json(result, { headers: { 'Cache-Control': 'no-store' } });

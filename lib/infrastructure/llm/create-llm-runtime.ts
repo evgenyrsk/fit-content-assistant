@@ -18,13 +18,13 @@ function budgetProfile(value: unknown): BudgetProfile {
 }
 
 function modelKey(provider: LlmProviderId, role: ModelRole): string {
-  const suffix = role === 'content' ? 'CONTENT' : 'RESEARCH';
+  const suffix = role.toUpperCase();
   return `${provider.toUpperCase()}_MODEL_${suffix}`;
 }
 
 function configuredModel(bindings: RuntimeBindings, provider: LlmProviderId, role: ModelRole): string {
   const providerModel = bindings[modelKey(provider, role)];
-  const configuredModel = bindings[role === 'content' ? 'LLM_CONTENT_MODEL' : 'LLM_RESEARCH_MODEL'] ?? providerModel;
+  const configuredModel = bindings[`LLM_${role.toUpperCase()}_MODEL`] ?? providerModel;
   return typeof configuredModel === 'string' ? configuredModel.trim() : '';
 }
 

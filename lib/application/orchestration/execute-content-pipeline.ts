@@ -8,6 +8,7 @@ import { contentBriefPrompt, factReviewPrompt, platformDraftPrompt, voiceEditPro
 import { executeStructuredContentStage } from './execute-structured-content-stage.ts';
 import { factReviewSchema, validateFactReview } from './fact-review-contract.ts';
 import type { FactReviewOutput } from './fact-review-contract.ts';
+import { missingRequiredCaveats } from './fact-review-preflight.ts';
 import type { ModelRunRecord } from './model-run.ts';
 import { neutralStyleProfile } from './neutral-style-profile.ts';
 import type { BudgetProfile } from './pipeline-budget.ts';
@@ -168,6 +169,9 @@ export async function executeContentPipeline(options: ExecuteContentOptions): Pr
   modelRuns.push(voiceRun.modelRun);
   if (!voiceRun.output) return stopped(modelRuns, ['content_brief', 'platform_draft'], 'voice_edit');
   const voiceDraft = voiceRun.output;
+  if (missingRequiredCaveats(voiceDraft, brief.requiredCaveats).length > 0) {
+    return stopped(modelRuns, ['content_brief', 'platform_draft', 'voice_edit'], 'fact_review');
+  }
 
   const reviewRun = await executeStructuredContentStage({
     stage: 'fact_review', ...options.reviewRuntime, contentItemId,

@@ -30,6 +30,15 @@ test('selects the content model without changing the provider boundary', () => {
   assert.equal(runtime?.model, 'route/content');
 });
 
+test('selects an independent review model without changing the provider boundary', () => {
+  const runtime = createLlmRuntime({
+    LLM_PROVIDER: 'routerai', ROUTERAI_API_KEY: 'test-only',
+    ROUTERAI_MODEL_RESEARCH: 'route/research', ROUTERAI_MODEL_REVIEW: 'route/review',
+  }, 'review');
+  assert.equal(runtime?.provider.id, 'routerai');
+  assert.equal(runtime?.model, 'route/review');
+});
+
 test('creates a RouterAI runtime with the gateway privacy posture', () => {
   const runtime = createLlmRuntime({
     LLM_PROVIDER: 'routerai', ROUTERAI_API_KEY: 'test-only',

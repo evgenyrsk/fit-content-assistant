@@ -53,6 +53,7 @@
   - [x] Зафиксировать экономные RouterAI-модели и честную privacy-маркировку.
   - [x] Сохранить серверный RouterAI key и подтвердить live probe.
 - [x] Провести первый RouterAI smoke-eval research/content маршрутов и зафиксировать ограничения.
+- [x] Выделить независимую review-role и пройти восьмикейсный blocking eval без unsafe approvals.
 - [ ] Проверить прямой OpenAI, OpenRouter и RouterAI на одном eval-наборе, затем выбрать primary/fallback по качеству, функциям, задержке и стоимости.
 - [x] Реализовать strict schema и prompt contract для первого этапа `research_plan`.
 - [x] Сохранять `model_runs` и `audit_events` для модельного research plan.
