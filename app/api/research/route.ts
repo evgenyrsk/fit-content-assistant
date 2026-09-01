@@ -36,6 +36,12 @@ function requestQuery(body: ResearchRequestBody): string | null {
   return query.length >= 3 && query.length <= 500 ? query : null;
 }
 
+function reportResearchFailure(error: unknown): void {
+  console.error('research_run_failed', error instanceof Error
+    ? { name: error.name, message: error.message }
+    : { name: 'UnknownError' });
+}
+
 type PlanningOutcome = {
   trace: ResearchPlanningTrace;
   modelRun?: Awaited<ReturnType<typeof executeResearchPlan>>['modelRun'];
@@ -163,7 +169,8 @@ export async function POST(request: Request): Promise<Response> {
       occurredAt: result.completedAt,
     });
     return Response.json(completed);
-  } catch {
+  } catch (error) {
+    reportResearchFailure(error);
     return Response.json({ error: 'Не удалось сохранить исследовательский запуск. Попробуйте ещё раз.' }, { status: 503 });
   }
 }
