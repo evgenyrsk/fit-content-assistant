@@ -47,11 +47,12 @@
 ## Этап 2 — Реальный вертикальный сценарий
 
 - [x] Схема D1 для claims, sources, research runs, trend signals, audit trail и content items.
-- [ ] Подключить выбранный LLM-провайдер в production.
+- [x] Подключить выбранный LLM-провайдер в production.
   - [x] Реализовать OpenAI/OpenRouter/RouterAI adapters, строгие схемы и provider-neutral runtime.
   - [x] Добавить безопасный status/live probe для research и content routes.
   - [x] Зафиксировать экономные RouterAI-модели и честную privacy-маркировку.
-  - [ ] Сохранить серверный RouterAI key и подтвердить live probe.
+  - [x] Сохранить серверный RouterAI key и подтвердить live probe.
+- [x] Провести первый RouterAI smoke-eval research/content маршрутов и зафиксировать ограничения.
 - [ ] Проверить прямой OpenAI, OpenRouter и RouterAI на одном eval-наборе, затем выбрать primary/fallback по качеству, функциям, задержке и стоимости.
 - [x] Реализовать strict schema и prompt contract для первого этапа `research_plan`.
 - [x] Сохранять `model_runs` и `audit_events` для модельного research plan.
@@ -121,4 +122,4 @@
 
 ## Ближайший измеримый результат
 
-Автономный operations-контур готов. RouterAI runtime и диагностика готовы; следующий внешний шаг — сохранить серверный key, подтвердить оба модельных маршрута и провести один реальный вопрос через source/body review до утверждённого claim и отдельного платформенного материала. Timeweb принят как российский portability target до начала физической миграции.
+Автономный operations-контур и RouterAI production runtime готовы. Live probe и первый comparative smoke-eval пройдены; следующий измеримый шаг — отдельная review-role, versioned reviewer-eval и один реальный вопрос через source/body review до утверждённого claim и платформенного материала. Timeweb принят как российский portability target до начала физической миграции.
