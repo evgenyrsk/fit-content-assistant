@@ -39,12 +39,12 @@ export function ResearchConsole(props: ResearchConsoleProps) {
           <label htmlFor="topic">
             {mode === 'Исследовать' && 'Какой вопрос разберём?'}
             {mode === 'Создать' && 'На какую тему создаём контент?'}
-            {mode === 'Проверить' && 'Какой тезис или текст проверяем?'}
+            {mode === 'Проверить' && 'Демо-вопрос: какой путь проходит научный тезис?'}
           </label>
           <textarea id="topic" rows={2} value={topic} onChange={(event) => onTopicChange(event.target.value)} onKeyDown={(event) => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') onStart(); }} />
           <div className="command-footer">
             <span><Command aria-hidden="true" /> Enter, чтобы запустить</span>
-            <button onClick={onStart} disabled={status === 'working' || !topic.trim()}>{status === 'working' ? 'Анализирую…' : mode === 'Проверить' ? 'Открыть стенд' : 'Начать'} <ArrowUpRight aria-hidden="true" /></button>
+            <button onClick={onStart} disabled={status === 'working' || !topic.trim()}>{status === 'working' ? 'Анализирую…' : mode === 'Проверить' ? 'Показать весь путь' : 'Начать'} <ArrowUpRight aria-hidden="true" /></button>
           </div>
         </div>
         <button className="trend-trigger" onClick={onTrendToggle} aria-expanded={trendOpen}>

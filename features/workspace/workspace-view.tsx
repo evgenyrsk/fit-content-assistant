@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { ContentFormat, Mode } from '@/features/shared';
 import { ContentComposer } from './content-composer';
+import { EvidenceFlowDemo } from './evidence-flow-demo';
 import { LlmConnectionPanel } from './llm-connection-panel';
 import { ResearchConsole } from './research-console';
 import { ResearchResult } from './research-result';
@@ -28,7 +29,7 @@ export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewPro
   async function startWork() {
     if (!topic.trim()) return;
     if (mode === 'Проверить') {
-      document.getElementById('reviewer-demo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('evidence-flow-demo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
     onFormatChange(null);
@@ -46,7 +47,7 @@ export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewPro
     <>
       <ResearchConsole topic={topic} mode={mode} status={status} trendOpen={trendOpen} trendSource={trendSource} onTopicChange={setTopic} onModeChange={setMode} onStart={startWork} onTrendToggle={() => setTrendOpen((value) => !value)} onTrendSourceChange={setTrendSource} onTrendChoose={chooseTrend} />
       <LlmConnectionPanel status={llm.result} loading={llm.loading} onProbe={llm.probe} />
-      {mode === 'Проверить' ? <ReviewerDemo /> : <>
+      {mode === 'Проверить' ? <><EvidenceFlowDemo /><ReviewerDemo /></> : <>
         <ResearchResult topic={topic} working={status === 'working'} result={result} error={error} showAllClaims={showAllClaims} onToggleClaims={() => setShowAllClaims((value) => !value)} />
         <SourceReviewQueue refreshKey={result?.runId ?? ''} />
         <ContentComposer activeFormat={activeFormat} onFormatChange={onFormatChange} />
