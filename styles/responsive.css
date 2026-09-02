@@ -62,6 +62,7 @@
   .mode-switch button { min-width: 0; flex: 1; justify-content: center; padding: 0 7px; font-size: var(--type-caption); }
   .mode-switch button small { display: none; }
   .command-box { padding: 14px; }
+  .command-box textarea { min-height: 84px; }
   .command-footer > span { display: none; }
   .command-footer { justify-content: flex-end; }
   .signal-panel { min-height: 300px; padding-inline: 20px; }
@@ -130,7 +131,7 @@
   .history-feed { padding: 20px; }
   .history-heading { align-items: flex-start; flex-direction: column; }
   .history-feed > article { grid-template-columns: 48px auto minmax(0,1fr); gap: 10px; }
-  .history-feed article > button { display: none; }
+  .history-feed article > button { grid-column: 3; justify-self: end; }
   .history-orbit { width: 120px; height: 120px; }
   .trend-header { align-items: flex-start; flex-direction: column; }
   .trend-header label, .trend-header select { width: 100%; }

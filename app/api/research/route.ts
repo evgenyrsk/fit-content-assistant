@@ -5,6 +5,7 @@ import { researchPlanPrompt } from '@/lib/application/orchestration/research-pla
 import { buildScientificQuery } from '@/lib/application/use-cases/build-scientific-query';
 import { ingestFullTextDocuments } from '@/lib/application/use-cases/ingest-full-text-documents';
 import { ingestSourceDocuments } from '@/lib/application/use-cases/ingest-source-documents';
+import { reuseStoredFullText } from '@/lib/application/use-cases/reuse-stored-full-text';
 import { searchScientificSources } from '@/lib/application/use-cases/search-scientific-sources';
 import { methodologyRelease } from '@/lib/domain';
 import type { FullTextCoverage, ResearchPlanningTrace, ScientificSourceCandidate, SourceDocumentCoverage } from '@/lib/domain';
@@ -84,7 +85,7 @@ async function planResearch(query: string, runId: string, runtime: ReturnType<ty
 
 async function capturePubmedDocuments(
   candidates: ScientificSourceCandidate[],
-  database: D1Database,
+  store: D1SourceDocumentStore,
   runtime: ReturnType<typeof bindings>,
 ): Promise<SourceDocumentCoverage> {
   const ids = candidates.flatMap((candidate) => candidate.pmid ? [candidate.pmid] : []);
@@ -94,7 +95,7 @@ async function capturePubmedDocuments(
         apiKey: runtime.PUBMED_API_KEY as string,
         email: runtime.NCBI_EMAIL as string,
       }),
-      store: new D1SourceDocumentStore(database),
+      store,
     });
   } catch {
     return {
@@ -106,18 +107,28 @@ async function capturePubmedDocuments(
 
 async function capturePmcFullText(
   coverage: SourceDocumentCoverage,
-  database: D1Database,
+  store: D1SourceDocumentStore,
 ): Promise<FullTextCoverage> {
   const ids = coverage.decisions.flatMap((decision) =>
     decision.decision === 'admitted_to_triage' ? [decision.sourceId.replace('pmid:', '')] : []);
   try {
     return await ingestFullTextDocuments(ids, {
       loader: new PmcOpenAccessLoader(),
-      store: new D1SourceDocumentStore(database),
+      store,
     });
   } catch {
     return { requested: ids.length, stored: 0, unavailable: ids.length, documents: [] };
   }
+}
+
+function completionWarnings(
+  base: string[], documents: SourceDocumentCoverage, fullTexts: FullTextCoverage,
+): string[] {
+  const warnings = [...base];
+  if (documents.unavailable > 0) warnings.push('Часть аннотаций PubMed не удалось сохранить.');
+  if (documents.rejected > 0) warnings.push(`Intake-gate исключил ${documents.rejected} источников из исследовательского архива.`);
+  if ((fullTexts.reused ?? 0) > 0) warnings.push(`Повторно использовано ${fullTexts.reused} ранее сохранённых полных текстов.`);
+  return warnings;
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -139,6 +150,7 @@ export async function POST(request: Request): Promise<Response> {
     await ensureResearchSchema(runtime.DB);
     await ensureEvidenceSchema(runtime.DB);
     await ensurePipelineSchema(runtime.DB);
+    const sourceDocumentStore = new D1SourceDocumentStore(runtime.DB);
     failureStage = 'planning';
     const runId = crypto.randomUUID();
     const planning = await planResearch(query, runId, createLlmRuntime(runtime));
@@ -146,27 +158,25 @@ export async function POST(request: Request): Promise<Response> {
     const result = await searchScientificSources(query, 10, {
       searches,
       retrievalQuery: planning.trace.searchQuery,
+      fallbackRetrievalQuery: buildScientificQuery(query),
       createId: () => runId,
     });
     const discovered = { ...result, planning: planning.trace };
     failureStage = 'research_persistence';
     await new D1ResearchRunStore(runtime.DB).saveSearch(discovered);
     failureStage = 'document_ingestion';
-    const documentCoverage = await capturePubmedDocuments(result.candidates, runtime.DB, runtime);
+    const documentCoverage = await capturePubmedDocuments(result.candidates, sourceDocumentStore, runtime);
     await new D1SourceIntakeDecisionStore(runtime.DB).saveAll(runId, documentCoverage.decisions);
     failureStage = 'full_text_ingestion';
-    const fullTextCoverage = await capturePmcFullText(documentCoverage, runtime.DB);
+    const downloadedFullTextCoverage = await capturePmcFullText(documentCoverage, sourceDocumentStore);
+    const admittedSourceIds = documentCoverage.decisions.flatMap((decision) =>
+      decision.decision === 'admitted_to_triage' ? [decision.sourceId] : []);
+    const fullTextCoverage = await reuseStoredFullText(admittedSourceIds, downloadedFullTextCoverage, sourceDocumentStore);
     const completed = {
       ...discovered,
       documentCoverage,
       fullTextCoverage,
-      warnings: [
-        ...discovered.warnings,
-        ...(documentCoverage.unavailable > 0 ? ['Часть аннотаций PubMed не удалось сохранить.'] : []),
-        ...(documentCoverage.rejected > 0
-          ? [`Intake-gate исключил ${documentCoverage.rejected} источников из исследовательского архива.`]
-          : []),
-      ],
+      warnings: completionWarnings(discovered.warnings, documentCoverage, fullTextCoverage),
     };
     failureStage = 'model_run_persistence';
     if (planning.modelRun) await new D1ModelRunStore(runtime.DB).save(planning.modelRun);

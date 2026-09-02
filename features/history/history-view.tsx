@@ -1,4 +1,4 @@
-import { Download, SearchCheck } from 'lucide-react';
+import { Download, RotateCcw, SearchCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { ResearchArchiveItem } from '@/lib/domain';
 import { useResearchArchive } from './use-research-archive';
@@ -19,7 +19,9 @@ function exportCsv(items: ResearchArchiveItem[]): void {
   URL.revokeObjectURL(url);
 }
 
-export function HistoryView() {
+interface HistoryViewProps { onRepeat: (query: string) => void; }
+
+export function HistoryView({ onRepeat }: HistoryViewProps) {
   const archive = useResearchArchive();
   const [filter, setFilter] = useState<Filter>('all');
   const [recentBoundary] = useState(() => Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -49,7 +51,8 @@ export function HistoryView() {
         {items.map((item) => <article key={item.id}><div className="history-date"><strong>{new Intl.DateTimeFormat('ru', { day: 'numeric', month: 'short' }).format(new Date(item.startedAt))}</strong>
           <span>{new Intl.DateTimeFormat('ru', { hour: '2-digit', minute: '2-digit' }).format(new Date(item.startedAt))}</span></div><i />
           <div><span className={`history-state ${['needs_review', 'failed'].includes(item.status) ? 'attention' : ''}`}>{statusNames[item.status]}</span>
-            <h3>{item.query}</h3><p>{item.sourceCount} источников · {item.assessmentCount} assessments · {item.claimCount} claims</p></div></article>)}
+            <h3>{item.query}</h3><p>{item.sourceCount} источников · {item.assessmentCount} assessments · {item.claimCount} claims</p></div>
+          <button type="button" onClick={() => onRepeat(item.query)} aria-label={`Повторить поиск: ${item.query}`} title="Повторить поиск"><RotateCcw aria-hidden="true" /></button></article>)}
         {!items.length && <div className="history-empty"><SearchCheck aria-hidden="true" /><h3>{archive.loading ? 'Загружаю историю…' : 'Исследований пока нет'}</h3>
           <p>{archive.error ?? 'Первый реальный search run появится здесь после запуска исследования.'}</p></div>}
       </div></div>

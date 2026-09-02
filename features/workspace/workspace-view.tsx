@@ -14,13 +14,14 @@ import { useResearchSearch } from './use-research-search';
 import { useLlmConnection } from './use-llm-connection';
 
 interface WorkspaceViewProps {
+  initialTopic?: string;
   activeFormat: ContentFormat | null;
   onFormatChange: (format: ContentFormat | null) => void;
   onOpenContent: () => void;
 }
 
-export function WorkspaceView({ activeFormat, onFormatChange, onOpenContent }: WorkspaceViewProps) {
-  const [topic, setTopic] = useState('Нужно ли тренироваться до отказа для роста мышц?');
+export function WorkspaceView({ initialTopic, activeFormat, onFormatChange, onOpenContent }: WorkspaceViewProps) {
+  const [topic, setTopic] = useState(initialTopic || 'Нужно ли тренироваться до отказа для роста мышц?');
   const [mode, setMode] = useState<Mode>('Исследовать');
   const { status, result, error, start } = useResearchSearch();
   const llm = useLlmConnection();

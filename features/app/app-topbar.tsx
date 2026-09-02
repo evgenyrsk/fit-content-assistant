@@ -5,9 +5,10 @@ interface AppTopbarProps {
   activeView: ViewId;
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
+  onOpenCommands: () => void;
 }
 
-export function AppTopbar({ activeView, theme, onThemeChange }: AppTopbarProps) {
+export function AppTopbar({ activeView, theme, onThemeChange, onOpenCommands }: AppTopbarProps) {
   const meta = viewMeta[activeView];
   const nextTheme = theme === 'dark' ? 'light' : 'dark';
 
@@ -23,7 +24,7 @@ export function AppTopbar({ activeView, theme, onThemeChange }: AppTopbarProps) 
           <span>{theme === 'dark' ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}</span>
           <b>{theme === 'dark' ? 'Light' : 'Dark'}</b>
         </button>
-        <button className="quiet-button" type="button" aria-label="Открыть палитру команд"><Command aria-hidden="true" /> K</button>
+        <button className="quiet-button" type="button" onClick={onOpenCommands} aria-label="Открыть палитру команд"><Command aria-hidden="true" /> K</button>
       </div>
     </header>
   );

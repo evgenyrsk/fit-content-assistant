@@ -47,6 +47,7 @@ export interface SourceDocumentCoverage {
 export interface FullTextCoverage {
   requested: number;
   stored: number;
+  reused?: number;
   unavailable: number;
   documents: Array<{
     sourceId: string;

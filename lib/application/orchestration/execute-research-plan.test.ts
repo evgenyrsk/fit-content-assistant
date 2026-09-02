@@ -40,7 +40,7 @@ test('returns a validated draft and a complete model audit record', async () => 
   assert.deepEqual(result.modelRun, {
     runId: 'model-run-1', researchRunId: 'research-1', stage: 'research_plan',
     provider: 'openrouter', model: 'research-test', routedProvider: 'test-route',
-    promptVersion: 'research-plan@0.1.0', startedAt: '2026-08-27T10:00:00.000Z',
+    promptVersion: 'research-plan@0.2.0', startedAt: '2026-08-27T10:00:00.000Z',
     completedAt: '2026-08-27T10:00:00.000Z', retrievedIds: [], toolCalls: [],
     decision: 'needs_review', inputTokens: 21, outputTokens: 34, costUsd: 0.002,
   });

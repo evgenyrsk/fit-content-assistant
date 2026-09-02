@@ -63,6 +63,7 @@
   - [x] `claim_synthesis`: атомарный claim, scope, limitations, evidence ids и review date.
   - [x] Content brief, platform draft, voice edit и final fact review.
 - [x] Поиск PubMed/Crossref по одному вопросу с сохранением source candidates.
+- [x] Добавить широкий deterministic PubMed fallback к модельному плану и повторное использование eligible full text из канонического архива.
 - [x] Пакетная загрузка PubMed-аннотаций и сохранение секций как provenance chunks.
 - [x] Разделить search history и исследовательский архив; добавить deterministic source intake с причинами отказа.
 - [x] Нормализовать идентичность PubMed/DOI без дублей и сохранить совместимость с ранними записями.
@@ -86,6 +87,7 @@
 - [x] Реализовать versioned сохранение model-draft claims с confidence, limitations и evidence links; approval остаётся заблокированным.
 - [x] Подключить live-переход `confirmed body → model claim draft → needs_review` без автоматического approval.
 - [x] Подключить inline human claim review и сквозной переход к генерации строго на выбранной approved claim version.
+- [x] Добавить честную live-карту канонических claims, рабочую командную панель и возврат research query из истории.
 - [x] Создание review-required Reels, Telegram, Threads и каруселей на основе свежих approved claims.
 - [x] Трассировка content fragment → claim version; переход к source обеспечивается канонической claim evidence-связью.
 - [x] Связать успешный fact-check с каноническим архивом, финальной human review, календарём и публикационным статусом.

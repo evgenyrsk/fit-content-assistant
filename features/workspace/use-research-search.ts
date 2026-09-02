@@ -11,6 +11,7 @@ export function useResearchSearch() {
 
   async function start(query: string): Promise<void> {
     setStatus('working');
+    setResult(null);
     setError(null);
     try {
       const response = await fetch('/api/research', {

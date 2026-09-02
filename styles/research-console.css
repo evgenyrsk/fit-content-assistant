@@ -114,6 +114,8 @@
 }
 .signal-caption { display: flex; justify-content: space-between; align-items: center; color: #728278; font-size: var(--type-caption); font-weight: 800; text-transform: uppercase; letter-spacing: .12em; }
 .signal-caption b { padding: 4px 7px; border: 1px solid rgba(221,244,91,.2); border-radius: 12px; color: var(--acid); font-size: var(--type-caption); }
+.signal-caption b[data-state='offline'] { border-color: rgba(233,109,115,.3); color: #ef8f95; }
+.signal-caption b[data-state='syncing'] { color: #b2bd75; }
 .evidence-orbit { position: relative; width: min(300px, 100%); aspect-ratio: 1; margin: auto; }
 .orbit { position: absolute; border: 1px solid rgba(221,244,91,.16); border-radius: 50%; }
 .orbit-one { inset: 7%; }
@@ -209,8 +211,10 @@
 .flow-strip > i { width: 20px; height: 1px; margin: 0 10px; background: #dfe3dc; }
 
 .result-section { transition: opacity .22s ease, filter .22s ease; }
-.result-section.is-loading { opacity: .45; filter: saturate(.55); pointer-events: none; }
+.research-loading { min-height: 220px; padding: 28px; border: 1px solid var(--line); border-radius: 24px; display: flex; align-items: center; justify-content: center; gap: 16px; color: var(--text-main); background: var(--panel-bg); }
+.research-loading > svg { width: 26px; height: 26px; flex: 0 0 auto; color: var(--cobalt); animation: rotate 1s linear infinite; }
+.research-loading strong { font-size: var(--type-body-lg); }
+.research-loading p { max-width: 520px; margin: 5px 0 0; color: var(--text-soft); font-size: var(--type-body); line-height: 1.5; }
 .section-title { margin-bottom: 16px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
 .section-title h2 { max-width: 750px; margin: 6px 0 0; font-size: clamp(21px, 2.4vw, 31px); line-height: 1.2; letter-spacing: -.04em; }
 .result-status { padding: 7px 10px; border: 1px solid #dce4da; border-radius: 20px; color: #52705b; background: #edf5ed; font-size: var(--type-caption); font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
-

@@ -32,11 +32,13 @@ LLM связывает этапы и управляет инструментам
 - формулирует PICO/PECO-вопрос там, где это уместно;
 - сначала ищет в собственной базе;
 - затем обращается к PubMed, Crossref и издательским страницам;
+- выполняет model-planned PubMed query вместе с широким детерминированным fallback, резервирует место для обоих путей и явно отмечает расширение поиска;
 - сохраняет метаданные, полный контекст поиска и доступные секции PubMed-аннотаций как неизменяемые chunks;
 - сохраняет версию prompt, модельный run и событие решения отдельно от найденных source candidates.
 - явно различает `metadata_only`, `abstract_only` и `full_text`; аннотация служит для triage и не открывает evidence gate.
 - разделяет полную историю candidates и исследовательский архив: chunks сохраняются только после versioned deterministic intake, а причины допуска/отказа остаются в D1.
 - после intake пакетно проверяет официальный PMC Open Access corpus, сохраняет только allowlisted reuse licenses и повышает документ до `full_text` лишь при наличии Methods/Results;
+- в новом run повторно использует ранее сохранённый eligible full text только после проверки active record, reuse rights и Methods/Results provenance gate;
 - хранит content level, PMCID, license и reuse origin отдельно от библиографической записи, не допуская downgrade при повторном импорте abstract.
 - принимает ручные PDF через отдельный application use case: bytes дедуплицируются и сохраняются в приватном R2, а D1 фиксирует источник, основание доступа, extraction status, chunks и audit event;
 - ручной PDF никогда не становится claim: нечитаемый текст и неполная структура остаются в Source Inbox, а assessment-grade gate по-прежнему требует Methods и Results.
@@ -158,6 +160,7 @@ Rights-aware full-text ingestion зафиксирован в `docs/decisions/000
 Граница между подготовкой claim draft и утверждением знания зафиксирована в `docs/decisions/0021-claim-draft-before-calibration.md`.
 Трассируемый контентный конвейер зафиксирован в `docs/decisions/0012-traceable-content-pipeline.md`.
 Claim-scoped запуск контента зафиксирован в `docs/decisions/0022-claim-scoped-content-launch.md`.
+Сбалансированный PubMed retrieval и rights-aware reuse full text зафиксированы в `docs/decisions/0023-balanced-scientific-retrieval.md`.
 Ручной owner-reviewed claim workflow зафиксирован в `docs/decisions/0013-manual-claim-review.md`.
 Автономный operations-слой без LLM зафиксирован в `docs/decisions/0014-autonomous-operations-layer.md`.
 Российский portability target зафиксирован в `docs/decisions/0015-timeweb-portability-target.md`.

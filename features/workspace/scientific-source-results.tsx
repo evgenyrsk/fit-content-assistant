@@ -1,5 +1,5 @@
 import { ArrowUpRight, CircleAlert, Database } from 'lucide-react';
-import type { ResearchSearchResult } from '@/lib/domain';
+import type { ResearchSearchResult, ScientificSourceCandidate, SourceIntakeDecision } from '@/lib/domain';
 import { ResearchPipelineTrace } from './research-pipeline-trace';
 import { intakePresentation } from './source-intake-presentation';
 
@@ -9,6 +9,26 @@ interface ScientificSourceResultsProps {
 
 function sourceMeta(provider: string, publishedAt?: string): string {
   return [provider === 'pubmed' ? 'PubMed' : 'Crossref', publishedAt].filter(Boolean).join(' · ');
+}
+
+function SourceCandidateCard({ source, index, decision, license }: {
+  source: ScientificSourceCandidate; index: number; decision?: SourceIntakeDecision; license?: string;
+}) {
+  const intake = intakePresentation(decision, license);
+  return <article>
+    <span className="source-rank">{String(index + 1).padStart(2, '0')}</span>
+    <div><small>{sourceMeta(source.provider, source.publishedAt)}</small><h4>{source.title}</h4>
+      <p>{[source.journal, source.authors.slice(0, 3).join(', ')].filter(Boolean).join(' · ')}</p>
+      <span className="source-intake-status" data-state={intake.state} title={intake.details}>{intake.label} · {intake.details}</span></div>
+    <a href={source.url} target="_blank" rel="noreferrer" aria-label={`Открыть источник: ${source.title}`}><ArrowUpRight aria-hidden="true" /></a>
+  </article>;
+}
+
+function CoverageFooter({ result }: ScientificSourceResultsProps) {
+  const available = result.fullTextCoverage?.documents.length ?? 0;
+  const reused = result.fullTextCoverage?.reused ?? 0;
+  const reusedLabel = reused > 0 ? `, ${reused} из архива` : '';
+  return <footer><Database aria-hidden="true" /><p><strong>{result.documentCoverage?.stored ?? 0} допущено в triage · {available} полных текстов доступно{reusedLabel} · {result.documentCoverage?.rejected ?? 0} отсечено.</strong> Полный текст сохраняется только из разрешённой Open Access коллекции и всё равно требует evidence review.</p></footer>;
 }
 
 export function ScientificSourceResults({ result }: ScientificSourceResultsProps) {
@@ -23,26 +43,12 @@ export function ScientificSourceResults({ result }: ScientificSourceResultsProps
       {result.planning && <ResearchPipelineTrace planning={result.planning} />}
       <div className="source-candidate-list">
         {result.candidates.map((source, index) => {
-          const sourceId = source.pmid ? `pmid:${source.pmid}` : undefined;
-          const intake = intakePresentation(
-            sourceId ? decisions.get(sourceId) : undefined,
-            sourceId ? fullTexts.get(sourceId)?.license : undefined,
-          );
-          return (
-            <article key={source.id}>
-              <span className="source-rank">{String(index + 1).padStart(2, '0')}</span>
-              <div>
-                <small>{sourceMeta(source.provider, source.publishedAt)}</small>
-                <h4>{source.title}</h4>
-                <p>{[source.journal, source.authors.slice(0, 3).join(', ')].filter(Boolean).join(' · ')}</p>
-                <span className="source-intake-status" data-state={intake.state} title={intake.details}>{intake.label} · {intake.details}</span>
-              </div>
-              <a href={source.url} target="_blank" rel="noreferrer" aria-label={`Открыть источник: ${source.title}`}><ArrowUpRight aria-hidden="true" /></a>
-            </article>
-          );
+          const sourceId = source.pmid ? `pmid:${source.pmid}` : '';
+          return <SourceCandidateCard key={source.id} source={source} index={index}
+            decision={decisions.get(sourceId)} license={fullTexts.get(sourceId)?.license} />;
         })}
       </div>
-      <footer><Database aria-hidden="true" /><p><strong>{result.documentCoverage?.stored ?? 0} допущено в triage · {result.fullTextCoverage?.stored ?? 0} полных текстов PMC · {result.documentCoverage?.rejected ?? 0} отсечено.</strong> Полный текст сохраняется только из разрешённой Open Access коллекции и всё равно требует evidence review.</p></footer>
+      <CoverageFooter result={result} />
     </section>
   );
 }
