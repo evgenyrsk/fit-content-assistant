@@ -96,3 +96,18 @@ test('does not retry a provider failure', async () => {
   assert.equal(calls, 1);
   assert.equal(result.failure, 'provider_error');
 });
+
+test('records an exhausted contract repair in the model run', async () => {
+  let calls = 0;
+  const fake = provider({ incomplete: true });
+  fake.generateStructured = async <T>() => {
+    calls += 1;
+    return { output: { incomplete: true } as T, provider: 'openai', model: 'research', requestId: `request-${calls}` };
+  };
+  const result = await executeSourceAssessment('Does creatine improve strength?', document('full_text'), {
+    provider: fake, model: 'research', budgetProfile: 'economy', researchRunId: 'research-1',
+  });
+  assert.equal(calls, 2);
+  assert.equal(result.failure, 'invalid_model_output');
+  assert.deepEqual(result.modelRun.toolCalls, ['structured_output_retry']);
+});

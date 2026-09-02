@@ -1,5 +1,4 @@
-import type { LlmProvider } from '../ports/llm-provider.ts';
-import type { LlmExecutionResult } from '../ports/llm-provider.ts';
+import type { LlmExecutionResult, LlmProvider } from '../ports/llm-provider.ts';
 import type { ModelRunRecord } from './model-run.ts';
 import { stageBudget, type BudgetProfile } from './pipeline-budget.ts';
 import { sourceAssessmentSchema, validateSourceAssessmentDraft, type SourceAssessmentDraft } from './source-assessment-contract.ts';
@@ -39,6 +38,7 @@ function failureCode(error: unknown): NonNullable<SourceAssessmentExecution['fai
 }
 
 function passageAlias(index: number): string { return `p${index + 1}`; }
+function retryToolCalls(retried: boolean): string[] { return retried ? ['structured_output_retry'] : []; }
 
 interface ValidatedAssessmentDraft {
   draft: SourceAssessmentDraft;
@@ -77,6 +77,7 @@ async function generateValidatedDraft(
   question: string,
   document: ScientificSourceDocument,
   options: SourceAssessmentExecutionOptions,
+  onRepair: () => void,
 ): Promise<ValidatedAssessmentDraft> {
   const budget = stageBudget('source_assessment', options.budgetProfile);
   let repair = '';
@@ -93,7 +94,7 @@ async function generateValidatedDraft(
       return { draft, result, retried: attempt > 0 };
     } catch (error) {
       const retryable = ['invalid_model_output', 'invalid_provenance'].includes(failureCode(error));
-      if (attempt === 0 && retryable) { repair = repairInstruction(error); continue; }
+      if (attempt === 0 && retryable) { onRepair(); repair = repairInstruction(error); continue; }
       throw error;
     }
   }
@@ -133,8 +134,11 @@ export async function executeSourceAssessment(
   if (!options.provider.supports('structured_output', options.model) || assessmentDocument.chunks.length === 0) {
     return { status: 'needs_review', assessment: null, modelRun, failure: 'input_unavailable' };
   }
+  let repairAttempted = false;
   try {
-    const { draft, result, retried } = await generateValidatedDraft(question, assessmentDocument, options);
+    const { draft, result, retried } = await generateValidatedDraft(
+      question, assessmentDocument, options, () => { repairAttempted = true; },
+    );
     const { readerBrief, ...appraisalDraft } = draft;
     const input = {
       ...appraisalDraft,
@@ -160,14 +164,17 @@ export async function executeSourceAssessment(
         ...modelRun, provider: result.provider, model: result.model,
         routedProvider: result.routedProvider, completedAt: assessment.createdAt,
         inputTokens: result.usage?.inputTokens, outputTokens: result.usage?.outputTokens,
-        costUsd: result.costUsd, toolCalls: retried ? ['structured_output_retry'] : [],
+        costUsd: result.costUsd, toolCalls: retryToolCalls(retried),
       },
     };
   } catch (error) {
     return {
       status: 'needs_review', assessment: null, failure: failureCode(error),
       failureDetail: error instanceof Error ? error.message.slice(0, 160) : 'unknown_error',
-      modelRun: { ...modelRun, completedAt: clock().toISOString() },
+      modelRun: {
+        ...modelRun, completedAt: clock().toISOString(),
+        toolCalls: retryToolCalls(repairAttempted),
+      },
     };
   }
 }
