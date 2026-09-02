@@ -32,6 +32,7 @@
 - body assessment обязан сохранить все eligible и contradicting assessment ids;
 - claim synthesis не вызывается до готового body gate и не может повысить certainty;
 - каждый evidence-этап отклоняет неизвестные поля и сохраняет model run отдельно от доменного решения;
+- source assessment может выполнить только один наблюдаемый repair-проход после ошибки strict contract или provenance; provider errors не повторяются, а невалидный второй ответ закрывает gate;
 - база знаний возвращает только канонические claim versions, а не source candidates.
 - source intake не сохраняет chunks для ретракций, expressions of concern, не исследовательских форматов и недостаточных аннотаций;
 - любое intake-решение содержит versioned reason codes и не удаляет candidate из истории поиска.

@@ -1,4 +1,5 @@
 import type { LlmProvider } from '../ports/llm-provider.ts';
+import type { LlmExecutionResult } from '../ports/llm-provider.ts';
 import type { ModelRunRecord } from './model-run.ts';
 import { stageBudget, type BudgetProfile } from './pipeline-budget.ts';
 import { sourceAssessmentSchema, validateSourceAssessmentDraft, type SourceAssessmentDraft } from './source-assessment-contract.ts';
@@ -39,6 +40,17 @@ function failureCode(error: unknown): NonNullable<SourceAssessmentExecution['fai
 
 function passageAlias(index: number): string { return `p${index + 1}`; }
 
+interface ValidatedAssessmentDraft {
+  draft: SourceAssessmentDraft;
+  result: LlmExecutionResult<unknown>;
+  retried: boolean;
+}
+
+function repairInstruction(error: unknown): string {
+  const failure = failureCode(error);
+  return `The previous response was rejected as ${failure}. Regenerate the complete JSON from scratch and recheck every schema field and supplied passage alias.`;
+}
+
 function inputText(question: string, document: ScientificSourceDocument): string {
   return JSON.stringify({
     question,
@@ -59,6 +71,33 @@ function baseRecord(options: SourceAssessmentExecutionOptions, document: Scienti
     promptVersion: sourceAssessmentPrompt.version, startedAt: timestamp, completedAt: timestamp,
     retrievedIds: document.chunks.map((chunk) => chunk.id), toolCalls: [], decision: 'needs_review',
   };
+}
+
+async function generateValidatedDraft(
+  question: string,
+  document: ScientificSourceDocument,
+  options: SourceAssessmentExecutionOptions,
+): Promise<ValidatedAssessmentDraft> {
+  const budget = stageBudget('source_assessment', options.budgetProfile);
+  let repair = '';
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const result = await options.provider.generateStructured<unknown>({
+        model: options.model,
+        system: repair ? `${sourceAssessmentPrompt.system} ${repair}` : sourceAssessmentPrompt.system,
+        input: inputText(question, document), schemaName: 'forme_source_assessment',
+        outputSchema: sourceAssessmentSchema, maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,
+        metadata: { runId: options.researchRunId, stage: 'source_assessment', promptVersion: sourceAssessmentPrompt.version },
+      });
+      const draft = restoreProvenance(document, validateSourceAssessmentDraft(result.output));
+      return { draft, result, retried: attempt > 0 };
+    } catch (error) {
+      const retryable = ['invalid_model_output', 'invalid_provenance'].includes(failureCode(error));
+      if (attempt === 0 && retryable) { repair = repairInstruction(error); continue; }
+      throw error;
+    }
+  }
+  throw new Error('Source assessment retry exhausted.');
 }
 
 function restoreProvenance(document: ScientificSourceDocument, draft: SourceAssessmentDraft): SourceAssessmentDraft {
@@ -95,14 +134,7 @@ export async function executeSourceAssessment(
     return { status: 'needs_review', assessment: null, modelRun, failure: 'input_unavailable' };
   }
   try {
-    const budget = stageBudget('source_assessment', options.budgetProfile);
-    const result = await options.provider.generateStructured<unknown>({
-      model: options.model, system: sourceAssessmentPrompt.system,
-      input: inputText(question, assessmentDocument), schemaName: 'forme_source_assessment',
-      outputSchema: sourceAssessmentSchema, maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,
-      metadata: { runId: options.researchRunId, stage: 'source_assessment', promptVersion: sourceAssessmentPrompt.version },
-    });
-    const draft = restoreProvenance(assessmentDocument, validateSourceAssessmentDraft(result.output));
+    const { draft, result, retried } = await generateValidatedDraft(question, assessmentDocument, options);
     const { readerBrief, ...appraisalDraft } = draft;
     const input = {
       ...appraisalDraft,
@@ -128,7 +160,7 @@ export async function executeSourceAssessment(
         ...modelRun, provider: result.provider, model: result.model,
         routedProvider: result.routedProvider, completedAt: assessment.createdAt,
         inputTokens: result.usage?.inputTokens, outputTokens: result.usage?.outputTokens,
-        costUsd: result.costUsd,
+        costUsd: result.costUsd, toolCalls: retried ? ['structured_output_retry'] : [],
       },
     };
   } catch (error) {

@@ -69,3 +69,30 @@ test('does not call the model when no passages are available', async () => {
   assert.equal(called, false);
   assert.equal(result.status, 'needs_review');
 });
+
+test('repairs one invalid structured draft without weakening the gate', async () => {
+  let calls = 0;
+  const fake = provider(validSourceAssessmentDraft());
+  fake.generateStructured = async <T>() => {
+    calls += 1;
+    const output = calls === 1 ? { incomplete: true } : validSourceAssessmentDraft();
+    return { output: output as T, provider: 'openai', model: 'research', requestId: `request-${calls}` };
+  };
+  const result = await executeSourceAssessment('Does creatine improve strength?', document('full_text'), {
+    provider: fake, model: 'research', budgetProfile: 'economy', researchRunId: 'research-1',
+  });
+  assert.equal(calls, 2);
+  assert.equal(result.status, 'model_draft');
+  assert.deepEqual(result.modelRun.toolCalls, ['structured_output_retry']);
+});
+
+test('does not retry a provider failure', async () => {
+  let calls = 0;
+  const fake = provider(validSourceAssessmentDraft());
+  fake.generateStructured = async () => { calls += 1; throw new Error('Provider unavailable.'); };
+  const result = await executeSourceAssessment('Does creatine improve strength?', document('full_text'), {
+    provider: fake, model: 'research', budgetProfile: 'economy', researchRunId: 'research-1',
+  });
+  assert.equal(calls, 1);
+  assert.equal(result.failure, 'provider_error');
+});

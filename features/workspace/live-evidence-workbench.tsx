@@ -44,11 +44,14 @@ function BodyResult({ response, onReviewed }: {
 
 function assessmentStatus(running: boolean, response?: SourceAssessmentResponse): string {
   if (running) return 'модель анализирует';
-  return response ? 'черновик оценки готов' : 'ожидает запуска';
+  if (response?.assessment) return 'черновик оценки готов';
+  return response ? 'оценка отклонена' : 'ожидает запуска';
 }
 
 function AssessmentMarker({ response, index }: { response?: SourceAssessmentResponse; index: number }) {
-  return <span>{response ? <Check aria-hidden="true" /> : String(index + 1).padStart(2, '0')}</span>;
+  if (response?.assessment) return <span><Check aria-hidden="true" /></span>;
+  if (response) return <span><CircleAlert aria-hidden="true" /></span>;
+  return <span>{String(index + 1).padStart(2, '0')}</span>;
 }
 
 function PendingScore({ running, failed }: { running: boolean; failed: boolean }) {
@@ -60,7 +63,7 @@ function AssessmentItem({ result, sourceId, index, running, response, onReviewed
   result: ResearchSearchResult; sourceId: string; index: number; running: boolean;
   response?: SourceAssessmentResponse; onReviewed: (review: SourceAssessmentHumanReview) => void;
 }) {
-  const state = running ? 'running' : response ? 'complete' : 'waiting';
+  const state = running ? 'running' : response?.assessment ? 'complete' : response ? 'failed' : 'waiting';
   return <article data-state={state}><div className="live-assessment-title"><AssessmentMarker response={response} index={index} /><div><small>{sourceId} · полный текст · {assessmentStatus(running, response)}</small><h3>{sourceTitle(result, sourceId)}</h3></div>{!response?.assessment && <PendingScore running={running} failed={Boolean(response)} />}</div>{response && <AssessmentResult response={response} onReviewed={onReviewed} />}</article>;
 }
 

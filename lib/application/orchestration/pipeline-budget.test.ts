@@ -3,8 +3,8 @@ import test from 'node:test';
 import { stageBudget } from './pipeline-budget.ts';
 
 test('reserves enough output space for the complete source assessment contract', () => {
-  assert.equal(stageBudget('source_assessment', 'economy').maxOutputTokens, 5200);
-  assert.equal(stageBudget('source_assessment', 'balanced').maxOutputTokens, 6500);
+  assert.equal(stageBudget('source_assessment', 'economy').maxOutputTokens, 7200);
+  assert.equal(stageBudget('source_assessment', 'balanced').maxOutputTokens, 9000);
 });
 
 test('keeps content drafting economical while scientific review gets its own budget', () => {
