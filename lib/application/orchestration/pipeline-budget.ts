@@ -14,7 +14,7 @@ const researchStages: PipelineStageId[] = [
 ];
 
 function outputBudget(profile: BudgetProfile, role: ModelRole, stage: PipelineStageId): number {
-  if (stage === 'source_assessment') return profile === 'economy' ? 3800 : 4800;
+  if (stage === 'source_assessment') return profile === 'economy' ? 5200 : 6500;
   if (stage === 'body_assessment') return profile === 'economy' ? 3200 : 4200;
   if (profile === 'economy') return role === 'content' ? 900 : 1800;
   return role === 'content' ? 1600 : 3200;
