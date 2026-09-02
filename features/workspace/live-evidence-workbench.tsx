@@ -8,6 +8,7 @@ import type {
 import { BodyAssessmentReview } from './body-assessment-review';
 import { certaintyLabels, concernLabels, domainLabels, studyDecisionLabels, studyReasonLabels } from './evidence-review-presentation';
 import { SourceAssessmentReview } from './source-assessment-review';
+import { SourceReadingBrief } from './source-reading-brief';
 import { useLiveEvidenceWorkbench } from './use-live-evidence-workbench';
 
 function sourceTitle(result: ResearchSearchResult, sourceId: string): string {
@@ -22,9 +23,8 @@ function AssessmentResult({ response, onReviewed }: {
   const { assessment } = response;
   return <div className="live-assessment-result">
     <header><span data-decision={assessment.gate.decision}>{studyDecisionLabels[assessment.gate.decision]}</span><em>{assessment.input.studyDesign.replaceAll('_', ' ')}</em></header>
-    <p>{assessment.finding.effectEstimate}</p>
-    <small>{assessment.finding.statisticalUncertainty} · {assessment.finding.practicalSignificance}</small>
-    <div>{assessment.gate.reasons.map((reason) => <span key={reason}>{studyReasonLabels[reason]}</span>)}</div>
+    <SourceReadingBrief assessment={assessment} />
+    <details className="source-technical-details"><summary>Показать технические детали оценки</summary><p>{assessment.finding.effectEstimate}</p><small>{assessment.finding.statisticalUncertainty} · {assessment.finding.practicalSignificance}</small><div>{assessment.gate.reasons.map((reason) => <span key={reason}>{studyReasonLabels[reason]}</span>)}</div></details>
     <SourceAssessmentReview assessment={assessment} onReviewed={onReviewed} />
   </div>;
 }

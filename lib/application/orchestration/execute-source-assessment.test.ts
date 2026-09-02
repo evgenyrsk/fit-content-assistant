@@ -48,6 +48,16 @@ test('rejects a citation to a passage that was not supplied', async () => {
   assert.equal(result.failure, 'invalid_provenance');
 });
 
+test('rejects an invented passage in the reader summary', async () => {
+  const draft = validSourceAssessmentDraft();
+  draft.readerBrief.keyPoints[0].provenanceIds = ['invented-alias'];
+  const result = await executeSourceAssessment('Does creatine improve strength?', document('full_text'), {
+    provider: provider(draft), model: 'research', budgetProfile: 'economy', researchRunId: 'research-1',
+  });
+  assert.equal(result.assessment, null);
+  assert.equal(result.failure, 'invalid_provenance');
+});
+
 test('does not call the model when no passages are available', async () => {
   let called = false;
   const empty = { ...document('metadata_only'), chunks: [] };

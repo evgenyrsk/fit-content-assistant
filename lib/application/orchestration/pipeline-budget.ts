@@ -13,8 +13,9 @@ const researchStages: PipelineStageId[] = [
   'research_plan', 'source_assessment', 'body_assessment', 'claim_synthesis', 'claim_review',
 ];
 
-function outputBudget(profile: BudgetProfile, role: ModelRole, structuredAssessment: boolean): number {
-  if (structuredAssessment) return profile === 'economy' ? 3200 : 4200;
+function outputBudget(profile: BudgetProfile, role: ModelRole, stage: PipelineStageId): number {
+  if (stage === 'source_assessment') return profile === 'economy' ? 3800 : 4800;
+  if (stage === 'body_assessment') return profile === 'economy' ? 3200 : 4200;
   if (profile === 'economy') return role === 'content' ? 900 : 1800;
   return role === 'content' ? 1600 : 3200;
 }
@@ -23,9 +24,8 @@ export function stageBudget(stage: PipelineStageId, profile: BudgetProfile): Sta
   const role: ModelRole = stage === 'fact_review' ? 'review'
     : researchStages.includes(stage) ? 'research' : 'content';
   const researchGrade = role !== 'content';
-  const structuredAssessment = stage === 'source_assessment' || stage === 'body_assessment';
   return {
-    role, maxOutputTokens: outputBudget(profile, role, structuredAssessment),
+    role, maxOutputTokens: outputBudget(profile, role, stage),
     maxToolCalls: profile === 'economy' ? (researchGrade ? 4 : 1) : (researchGrade ? 8 : 2),
   };
 }

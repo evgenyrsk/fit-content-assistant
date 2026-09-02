@@ -74,6 +74,12 @@ const evidenceSchema = [
     statistical_uncertainty TEXT NOT NULL, practical_significance TEXT NOT NULL,
     provenance_ids_json TEXT NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS source_assessment_reader_briefs (
+    source_assessment_id TEXT PRIMARY KEY REFERENCES source_assessments(id),
+    plain_language_summary TEXT NOT NULL, key_points_json TEXT NOT NULL,
+    conclusion_allowed TEXT NOT NULL, conclusion_not_allowed TEXT NOT NULL,
+    trust_profile_json TEXT NOT NULL
+  )`,
   `CREATE TABLE IF NOT EXISTS study_dimension_assessments (
     id TEXT PRIMARY KEY, source_assessment_id TEXT NOT NULL REFERENCES source_assessments(id),
     dimension TEXT NOT NULL, judgement TEXT NOT NULL, rationale TEXT NOT NULL,

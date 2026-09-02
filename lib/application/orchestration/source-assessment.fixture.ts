@@ -12,6 +12,16 @@ export function validSourceAssessmentDraft(): SourceAssessmentDraft {
       statisticalUncertainty: 'Insufficient detail in abstract.',
       practicalSignificance: 'Cannot be established from abstract.', provenanceIds: ['p1'],
     },
+    readerBrief: {
+      plainLanguageSummary: 'Исследование сравнивает вмешательство с контролем, но доступный текст не позволяет уверенно оценить надёжность результата.',
+      keyPoints: [
+        { type: 'main_result', statement: 'Авторы сообщили об увеличении силы.', provenanceIds: ['p1'] },
+        { type: 'method', statement: 'Исследование описано как рандомизированное.', provenanceIds: ['p1'] },
+        { type: 'limitation', statement: 'По аннотации нельзя проверить методы и неопределённость.', provenanceIds: ['p1'] },
+      ],
+      conclusionAllowed: 'Источник позволяет сказать только, что авторы сообщили об увеличении силы.',
+      conclusionNotAllowed: 'Источник не позволяет заключить, что эффект надёжен и применим ко всем людям.',
+    },
     dimensions: requiredStudyDimensions.map((dimension) => ({
       dimension, judgement: 'unclear', rationale: 'Abstract is insufficient.', provenanceIds: ['p1'],
     })),

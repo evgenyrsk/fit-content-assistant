@@ -58,6 +58,8 @@ LLM связывает этапы и управляет инструментам
 - до экспертной калибровки любой body assessment требует ручного подтверждения.
 - модельный `eligible_for_synthesis` остаётся закрытым до добавочного human review; body synthesis читает только последнее подтверждённое решение по последней оценке каждого источника.
 - human review не переписывает модельный assessment и не может повысить `excluded` или `context_only`; body confirmation также не открывает claim до release-калибровки.
+- каждый source assessment хранит отдельный читательский brief: plain-language summary, 3–5 provenance-linked тезисов и границу допустимого вывода.
+- source review index 0–100 рассчитывается детерминированно из dimension/integrity judgements, ограничивается gate и служит только навигацией; это не вероятность истинности и не appraisal quality score.
 
 ### Knowledge Base
 
@@ -73,6 +75,7 @@ LLM связывает этапы и управляет инструментам
 - `manual_source_imports` + private R2 object
 - `source_assessments`
 - `source_assessment_human_reviews`
+- `source_assessment_reader_briefs`
 - `body_assessments`
 - `body_assessment_human_reviews`
 - `claim_versions`
@@ -145,6 +148,7 @@ Rights-aware full-text ingestion зафиксирован в `docs/decisions/000
 Прямые Meta trend adapters и граница хранения токенов зафиксированы в `docs/decisions/0010-direct-meta-trend-adapters.md`.
 Личный Meta Development Mode и отложенный публичный review зафиксированы в `docs/decisions/0011-personal-meta-development-mode.md`.
 Добавочные human gates для source/body assessment зафиксированы в `docs/decisions/0018-append-only-human-evidence-review.md`.
+Прозрачный source review index и provenance-linked brief зафиксированы в `docs/decisions/0019-transparent-source-review-index.md`.
 Трассируемый контентный конвейер зафиксирован в `docs/decisions/0012-traceable-content-pipeline.md`.
 Ручной owner-reviewed claim workflow зафиксирован в `docs/decisions/0013-manual-claim-review.md`.
 Автономный operations-слой без LLM зафиксирован в `docs/decisions/0014-autonomous-operations-layer.md`.

@@ -1,5 +1,16 @@
 import type { AppraisalRoute, StudyAssessmentInput, StudyGateResult } from './evidence-methodology.ts';
 
+export interface SourceReadingBrief {
+  plainLanguageSummary: string;
+  keyPoints: Array<{
+    type: 'main_result' | 'method' | 'limitation';
+    statement: string;
+    provenanceIds: string[];
+  }>;
+  conclusionAllowed: string;
+  conclusionNotAllowed: string;
+}
+
 export interface SourceAssessmentRecord {
   id: string;
   researchRunId: string;
@@ -11,6 +22,8 @@ export interface SourceAssessmentRecord {
     practicalSignificance: string;
     provenanceIds: string[];
   };
+  readerBrief: SourceReadingBrief;
+  trustProfile: import('./source-trust-score.ts').SourceTrustProfile;
   route: AppraisalRoute;
   gate: StudyGateResult;
   methodologyVersion: string;

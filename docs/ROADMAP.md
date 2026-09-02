@@ -81,6 +81,7 @@
 - [x] Реализовать provider-neutral structured source/body assessment с audit trail; реальный запуск ждёт LLM secret и full text.
 - [x] Добавить рабочий UI для live source assessments и body synthesis с блокировкой claim до human review.
 - [x] Добавить append-only human review для source/body assessments; в synthesis допускаются только подтверждённые оценки, hard stops не переопределяются.
+- [x] Добавить provenance-linked краткий разбор статьи и прозрачный review index 0–100 с диапазоном, coverage и gate caps.
 - [x] Реализовать versioned сохранение model-draft claims с confidence, limitations и evidence links; approval остаётся заблокированным.
 - [x] Создание review-required Reels, Telegram, Threads и каруселей на основе свежих approved claims.
 - [x] Трассировка content fragment → claim version; переход к source обеспечивается канонической claim evidence-связью.

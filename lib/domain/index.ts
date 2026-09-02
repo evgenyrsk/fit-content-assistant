@@ -22,6 +22,7 @@ export * from './source-document.ts';
 export * from './source-intake-policy.ts';
 export * from './source-review.ts';
 export * from './source-assessment.ts';
+export * from './source-trust-score.ts';
 export * from './study-integrity-policy.ts';
 export * from './trends.ts';
 export * from './public-claim-language.ts';

@@ -6,7 +6,12 @@ import { sourceAssessmentPrompt } from './source-assessment-prompt.ts';
 import { selectAssessmentPassages } from './select-assessment-passages.ts';
 import { evaluateStudyGate, methodologyRelease } from '../../domain/evidence-policy.ts';
 import { routeAppraisal } from '../../domain/evidence-routing.ts';
-import { hasAssessmentGradeProvenance, type ScientificSourceDocument, type SourceAssessmentRecord } from '../../domain/index.ts';
+import {
+  calculateSourceTrustProfile,
+  hasAssessmentGradeProvenance,
+  type ScientificSourceDocument,
+  type SourceAssessmentRecord,
+} from '../../domain/index.ts';
 
 interface SourceAssessmentExecutionOptions {
   provider: LlmProvider;
@@ -65,6 +70,12 @@ function restoreProvenance(document: ScientificSourceDocument, draft: SourceAsse
   return {
     ...draft,
     finding: { ...draft.finding, provenanceIds: restore(draft.finding.provenanceIds) },
+    readerBrief: {
+      ...draft.readerBrief,
+      keyPoints: draft.readerBrief.keyPoints.map((item) => ({
+        ...item, provenanceIds: restore(item.provenanceIds),
+      })),
+    },
     dimensions: draft.dimensions.map((item) => ({ ...item, provenanceIds: restore(item.provenanceIds) })),
     integrityChecks: draft.integrityChecks.map((item) => ({ ...item, provenanceIds: restore(item.provenanceIds) })),
   };
@@ -91,8 +102,9 @@ export async function executeSourceAssessment(
       metadata: { runId: options.researchRunId, stage: 'source_assessment', promptVersion: sourceAssessmentPrompt.version },
     });
     const draft = restoreProvenance(assessmentDocument, validateSourceAssessmentDraft(result.output));
+    const { readerBrief, ...appraisalDraft } = draft;
     const input = {
-      ...draft,
+      ...appraisalDraft,
       sourceId: document.sourceId,
       recordStatus: document.recordStatus,
       hasStableIdentifier: Boolean(document.pmid || document.doi),
@@ -100,10 +112,13 @@ export async function executeSourceAssessment(
       dimensions: draft.dimensions.map((item) => ({ ...item, assessor: 'model_draft' as const })),
       integrityChecks: draft.integrityChecks.map((item) => ({ ...item, assessor: 'model_draft' as const })),
     };
+    const gate = evaluateStudyGate(input);
     const assessment: SourceAssessmentRecord = {
       id: crypto.randomUUID(), researchRunId: options.researchRunId,
-      input, finding: draft.finding, route: routeAppraisal(input.questionType, input.studyDesign),
-      gate: evaluateStudyGate(input), methodologyVersion: methodologyRelease.version,
+      input, finding: draft.finding, readerBrief,
+      trustProfile: calculateSourceTrustProfile(input, gate),
+      route: routeAppraisal(input.questionType, input.studyDesign), gate,
+      methodologyVersion: methodologyRelease.version,
       assessor: 'model_draft', createdAt: clock().toISOString(),
     };
     return {

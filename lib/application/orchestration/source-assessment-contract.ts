@@ -9,6 +9,7 @@ import {
 } from '../../domain/evidence-methodology.ts';
 import { requiredIntegrityChecks } from '../../domain/study-integrity-policy.ts';
 import type { SourceAssessmentRecord } from '../../domain/source-assessment.ts';
+import { sourceReadingBriefIsValid, sourceReadingBriefSchema } from './source-reading-brief-contract.ts';
 
 export interface SourceAssessmentDraft {
   resultId: string;
@@ -17,6 +18,7 @@ export interface SourceAssessmentDraft {
   targetOutcomeMeasured: boolean;
   sponsorRole: 'fully_reported' | 'partially_reported' | 'not_reported' | 'not_applicable';
   finding: SourceAssessmentRecord['finding'];
+  readerBrief: SourceAssessmentRecord['readerBrief'];
   dimensions: Array<{ dimension: StudyDimension; judgement: DimensionJudgement; rationale: string; provenanceIds: string[] }>;
   integrityChecks: Array<{ check: StudyIntegrityCheckId; state: IntegrityCheckState; rationale: string; provenanceIds: string[] }>;
 }
@@ -44,7 +46,7 @@ const checkIds: StudyIntegrityCheckId[] = [
 ];
 const assessmentKeys = [
   'resultId', 'questionType', 'studyDesign', 'targetOutcomeMeasured',
-  'sponsorRole', 'finding', 'dimensions', 'integrityChecks',
+  'sponsorRole', 'finding', 'readerBrief', 'dimensions', 'integrityChecks',
 ] as const;
 
 const citedAssessment = (idKey: 'dimension' | 'check', values: readonly string[]) => ({
@@ -62,7 +64,7 @@ const citedAssessment = (idKey: 'dimension' | 'check', values: readonly string[]
 
 export const sourceAssessmentSchema: Record<string, unknown> = {
   type: 'object', additionalProperties: false,
-  required: ['resultId', 'questionType', 'studyDesign', 'targetOutcomeMeasured', 'sponsorRole', 'finding', 'dimensions', 'integrityChecks'],
+  required: ['resultId', 'questionType', 'studyDesign', 'targetOutcomeMeasured', 'sponsorRole', 'finding', 'readerBrief', 'dimensions', 'integrityChecks'],
   properties: {
     resultId: { type: 'string', minLength: 1, maxLength: 200 },
     questionType: { type: 'string', enum: questionTypes },
@@ -80,6 +82,7 @@ export const sourceAssessmentSchema: Record<string, unknown> = {
         provenanceIds: { type: 'array', minItems: 1, maxItems: 8, items: { type: 'string', minLength: 1 } },
       },
     },
+    readerBrief: sourceReadingBriefSchema,
     dimensions: { type: 'array', minItems: 7, maxItems: 7, items: citedAssessment('dimension', requiredStudyDimensions) },
     integrityChecks: { type: 'array', minItems: 1, maxItems: 12, items: citedAssessment('check', checkIds) },
   },
@@ -126,6 +129,7 @@ export function validateSourceAssessmentDraft(value: unknown): SourceAssessmentD
     typeof value.targetOutcomeMeasured === 'boolean',
     ['fully_reported', 'partially_reported', 'not_reported', 'not_applicable'].includes(String(value.sponsorRole)),
     findingIsValid(value.finding),
+    sourceReadingBriefIsValid(value.readerBrief),
     citedRowsAreValid(value.dimensions, requiredStudyDimensions, 'judgement', judgements),
     citedRowsAreValid(value.integrityChecks, requiredChecks, 'state', checkStates),
   ].every(Boolean);
