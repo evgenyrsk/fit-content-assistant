@@ -115,6 +115,8 @@ LLM связывает этапы и управляет инструментам
 - реальный архив читает агрегаты напрямую из D1 и не смешивает их с демонстрационными шаблонами;
 - никогда не публикует автоматически: успешный gate создаёт только `ready_for_human_review`.
 
+Научная маршрутизация разделена по риску: discovery и research plan используют экономный research route, а source appraisal и body-of-evidence assessment — независимый review route. Смена модели не меняет доменные контракты, детерминированный score или human gates.
+
 Ручной контент использует тот же canonical archive. Каждая редакция создаёт immutable snapshot, сбрасывает human gate и редакционный статус в `draft`. `content_operations` хранит только editorial lifecycle; научное состояние остаётся в `content_items.status`. Планирование и публикация невозможны до подтверждённого fact-check. Банк тем, `narrative_only` заметки и performance snapshots не участвуют в расчёте evidence confidence.
 
 ## Технический курс
@@ -149,6 +151,7 @@ Rights-aware full-text ingestion зафиксирован в `docs/decisions/000
 Личный Meta Development Mode и отложенный публичный review зафиксированы в `docs/decisions/0011-personal-meta-development-mode.md`.
 Добавочные human gates для source/body assessment зафиксированы в `docs/decisions/0018-append-only-human-evidence-review.md`.
 Прозрачный source review index и provenance-linked brief зафиксированы в `docs/decisions/0019-transparent-source-review-index.md`.
+Маршрутизация научных оценок через независимую review-модель зафиксирована в `docs/decisions/0020-review-model-for-scientific-appraisal.md`.
 Трассируемый контентный конвейер зафиксирован в `docs/decisions/0012-traceable-content-pipeline.md`.
 Ручной owner-reviewed claim workflow зафиксирован в `docs/decisions/0013-manual-claim-review.md`.
 Автономный operations-слой без LLM зафиксирован в `docs/decisions/0014-autonomous-operations-layer.md`.

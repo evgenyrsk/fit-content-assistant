@@ -40,7 +40,8 @@ async function synthesize(
   await ensureEvidenceSchema(database);
   await ensurePipelineSchema(database);
   const assessments = await new D1SourceAssessmentReader(database).listForResearchRun(body.researchRunId);
-  const llm = createLlmRuntime(runtime);
+  // Body-of-evidence synthesis is verification, not open-ended research.
+  const llm = createLlmRuntime(runtime, 'review');
   if (!llm) return Response.json(response('awaiting_provider', null, 'Body assessment включится после подключения серверной LLM.'));
   const execution = await executeBodyAssessment(body.question.trim(), body.outcomeId.trim(), assessments, {
     ...llm, researchRunId: body.researchRunId,

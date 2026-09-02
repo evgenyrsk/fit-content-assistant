@@ -64,7 +64,9 @@ async function performAssessment(
   }
   const document = await new D1SourceDocumentStore(database).findById(body.sourceId);
   if (!document) return Response.json({ error: 'Сохранённый документ не найден.' }, { status: 404 });
-  const llm = createLlmRuntime(runtime);
+  // Source appraisal is a verification task, so prefer the stricter review route.
+  // Discovery remains on the budget research model.
+  const llm = createLlmRuntime(runtime, 'review');
   if (!llm) return Response.json(awaitingResponse(document.contentLevel));
   const execution = await executeSourceAssessment(body.question.trim(), document, {
     ...llm, researchRunId: body.researchRunId,

@@ -43,7 +43,7 @@ function AssessmentItem({ result, sourceId, index, running, response, onReviewed
 }) {
   const state = running ? 'running' : response ? 'complete' : 'waiting';
   const status = running ? 'модель анализирует' : response ? 'черновик оценки готов' : 'ожидает запуска';
-  return <article data-state={state}><div className="live-assessment-title"><span>{response ? <Check aria-hidden="true" /> : String(index + 1).padStart(2, '0')}</span><div><small>{sourceId} · полный текст · {status}</small><h3>{sourceTitle(result, sourceId)}</h3></div></div>{response && <AssessmentResult response={response} onReviewed={onReviewed} />}</article>;
+  return <article data-state={state}><div className="live-assessment-title"><span>{response ? <Check aria-hidden="true" /> : String(index + 1).padStart(2, '0')}</span><div><small>{sourceId} · полный текст · {status}</small><h3>{sourceTitle(result, sourceId)}</h3></div><div className="source-score-pending" aria-label="Индекс доверия ожидает оценки"><strong>—</strong><span>/100</span><small>{running ? 'считаю' : 'после оценки'}</small></div></div>{response && <AssessmentResult response={response} onReviewed={onReviewed} />}</article>;
 }
 
 function assessButtonLabel(running: boolean, complete: number, total: number): string {
@@ -56,7 +56,7 @@ export function LiveEvidenceWorkbench({ result, question }: { result: ResearchSe
   if (flow.targets.length === 0) return null;
   const complete = Object.keys(flow.assessments).length;
   return <section className="live-evidence-workbench">
-    <header><div><p className="overline">LIVE EVIDENCE REVIEW</p><h2>Оценить полные тексты</h2><p>LLM получает ограниченный пакет Methods/Results с provenance. Аннотации остаются контекстом и не расходуют бюджет оценки.</p></div><span><FlaskConical aria-hidden="true" />Реальный запуск</span></header>
+    <header><div><p className="overline">LIVE EVIDENCE REVIEW</p><h2>Оценить полные тексты</h2><p>После оценки справа у каждой статьи появится индекс доверия 0–100, диапазон и расшифровка факторов. Аннотации остаются контекстом и не оцениваются.</p></div><span><FlaskConical aria-hidden="true" />Реальный запуск</span></header>
     <div className="live-assessment-list">{flow.targets.map((sourceId, index) => <AssessmentItem key={sourceId} result={result} sourceId={sourceId} index={index} running={flow.runningSourceId === sourceId} response={flow.assessments[sourceId]} onReviewed={flow.recordReview} />)}</div>
     {flow.error && <p className="live-evidence-error"><CircleAlert aria-hidden="true" />{flow.error}</p>}
     <div className="live-evidence-actions"><button type="button" onClick={() => void flow.assess()} disabled={Boolean(flow.runningSourceId) || flow.synthesizing}><Play aria-hidden="true" />{assessButtonLabel(Boolean(flow.runningSourceId), complete, flow.targets.length)}</button>
