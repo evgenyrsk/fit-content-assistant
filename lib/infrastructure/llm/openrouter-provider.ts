@@ -1,5 +1,6 @@
 import type { LlmCapability, LlmExecutionRequest, LlmExecutionResult, LlmProvider } from '../../application/ports/llm-provider.ts';
 import { parseJsonOutput, requireSuccessfulResponse } from './llm-response.ts';
+import { llmRequestTimeoutMs } from './llm-request-timeout.ts';
 
 type Fetcher = typeof fetch;
 
@@ -59,7 +60,7 @@ export class OpenRouterProvider implements LlmProvider {
     if (!this.supports('structured_output', request.model)) throw new Error('Configured OpenRouter route lacks structured output capability.');
     const response = await this.fetcher(`${this.options.baseUrl.replace(/\/$/, '')}/chat/completions`, {
       method: 'POST',
-      signal: AbortSignal.timeout(45_000),
+      signal: AbortSignal.timeout(llmRequestTimeoutMs(request.metadata.stage, 45_000)),
       headers: {
         Authorization: `Bearer ${this.options.apiKey}`,
         'Content-Type': 'application/json',

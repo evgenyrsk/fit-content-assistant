@@ -12,6 +12,7 @@
 
 - Research plan и discovery остаются на provider-agnostic `research` route.
 - Source assessment и body-of-evidence assessment используют provider-agnostic `review` route.
+- Для source/body/claim appraisal действует ограниченный 120-секундный timeout; остальные маршруты сохраняют короткий timeout.
 - Review-модель не выставляет процент. Она возвращает только структурированные суждения с provenance.
 - Индекс 0–100 по-прежнему рассчитывается детерминированным кодом и ограничивается evidence gate.
 - Любой невалидный ответ закрывает gate; автоматического fallback-score нет.

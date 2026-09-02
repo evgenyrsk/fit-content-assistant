@@ -1,5 +1,6 @@
 import type { LlmCapability, LlmExecutionRequest, LlmExecutionResult, LlmProvider } from '../../application/ports/llm-provider.ts';
 import { parseJsonOutput, requireSuccessfulResponse } from './llm-response.ts';
+import { llmRequestTimeoutMs } from './llm-request-timeout.ts';
 
 type Fetcher = typeof fetch;
 
@@ -43,7 +44,7 @@ export class RouterAiProvider implements LlmProvider {
       throw new Error('Configured RouterAI route lacks structured output capability.');
     }
     const response = await this.fetcher(`${this.options.baseUrl.replace(/\/$/, '')}/chat/completions`, {
-      method: 'POST', signal: AbortSignal.timeout(60_000),
+      method: 'POST', signal: AbortSignal.timeout(llmRequestTimeoutMs(request.metadata.stage, 60_000)),
       headers: { Authorization: `Bearer ${this.options.apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: request.model,
