@@ -20,6 +20,14 @@ interface GenerateRequestBody {
   format?: unknown;
   audience?: unknown;
   goal?: unknown;
+  claimVersionIds?: unknown;
+}
+
+interface ValidGenerateRequest {
+  format: ContentFormat;
+  audience?: string;
+  goal?: string;
+  claimVersionIds?: string[];
 }
 
 const formats: ContentFormat[] = ['reels', 'telegram', 'threads', 'carousel'];
@@ -29,10 +37,17 @@ function bindings(): Record<string, string | D1Database | undefined> {
   return env as unknown as Record<string, string | D1Database | undefined>;
 }
 
-function validBody(body: GenerateRequestBody): body is { format: ContentFormat; audience?: string; goal?: string } {
+function validClaimIds(value: unknown): value is string[] {
+  return value === undefined || (Array.isArray(value) && value.length >= 1 && value.length <= 8
+    && value.every((id) => typeof id === 'string' && id.length >= 1 && id.length <= 120)
+    && new Set(value).size === value.length);
+}
+
+function validBody(body: GenerateRequestBody): body is ValidGenerateRequest {
   return typeof body.format === 'string' && formats.includes(body.format as ContentFormat)
     && (body.audience === undefined || (typeof body.audience === 'string' && body.audience.length <= 300))
-    && (body.goal === undefined || (typeof body.goal === 'string' && body.goal.length <= 500));
+    && (body.goal === undefined || (typeof body.goal === 'string' && body.goal.length <= 500))
+    && validClaimIds(body.claimVersionIds);
 }
 
 function waitingResponse(status: 'awaiting_claims' | 'awaiting_provider', message: string): ContentPipelineResponse {
@@ -93,10 +108,17 @@ function executionResponse(execution: ContentPipelineExecution): ContentPipeline
 async function generate(
   runtime: Record<string, string | D1Database | undefined>,
   database: D1Database,
-  body: { format: ContentFormat; audience?: string; goal?: string },
+  body: ValidGenerateRequest,
 ): Promise<Response> {
   await ensureSchemas(database);
-  const claims = await new D1KnowledgeClaimReader(database).listApproved(8, new Date().toISOString());
+  const claimReader = new D1KnowledgeClaimReader(database);
+  const checkedAt = new Date().toISOString();
+  const claims = body.claimVersionIds
+    ? await claimReader.listApprovedByIds(body.claimVersionIds, checkedAt)
+    : await claimReader.listApproved(8, checkedAt);
+  if (body.claimVersionIds && claims.length !== body.claimVersionIds.length) return Response.json(waitingResponse(
+    'awaiting_claims', 'Выбранный тезис больше не является свежим approved-claim. Проверьте его повторно.',
+  ));
   if (claims.length === 0) return Response.json(waitingResponse(
     'awaiting_claims', 'Нужен хотя бы один свежий approved-claim. Демо-текст не подставляется.',
   ));

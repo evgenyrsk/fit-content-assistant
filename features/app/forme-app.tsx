@@ -28,7 +28,7 @@ export function FormeApp() {
       <section className="workspace">
         <AppTopbar activeView={activeView} theme={theme} onThemeChange={setTheme} />
         <div className="view-frame" key={activeView}>
-          {activeView === 'workspace' && <WorkspaceView activeFormat={activeFormat} onFormatChange={setActiveFormat} />}
+          {activeView === 'workspace' && <WorkspaceView activeFormat={activeFormat} onFormatChange={setActiveFormat} onOpenContent={() => navigate('content')} />}
           {activeView === 'knowledge' && <KnowledgeView />}
           {activeView === 'content' && <ContentLibraryView onCreate={() => navigate('workspace')} onOpenFormat={openFormat} />}
           {activeView === 'history' && <HistoryView />}

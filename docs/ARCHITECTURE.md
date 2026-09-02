@@ -112,6 +112,7 @@ LLM связывает этапы и управляет инструментам
 - использует provider-neutral content runtime для первых трёх этапов и отдельный research runtime для независимого фактчека;
 - до утверждения style profile применяет явно помеченный нейтральный fallback, не выдавая его за голос автора;
 - сохраняет `content_items`, фрагменты, `content_claims`, model runs и audit event в D1;
+- при запуске из claim review принимает явный набор claim version ids, повторно проверяет их свежесть и approval и не подмешивает другие тезисы;
 - реальный архив читает агрегаты напрямую из D1 и не смешивает их с демонстрационными шаблонами;
 - никогда не публикует автоматически: успешный gate создаёт только `ready_for_human_review`.
 
@@ -156,6 +157,7 @@ Rights-aware full-text ingestion зафиксирован в `docs/decisions/000
 Маршрутизация научных оценок через независимую review-модель зафиксирована в `docs/decisions/0020-review-model-for-scientific-appraisal.md`.
 Граница между подготовкой claim draft и утверждением знания зафиксирована в `docs/decisions/0021-claim-draft-before-calibration.md`.
 Трассируемый контентный конвейер зафиксирован в `docs/decisions/0012-traceable-content-pipeline.md`.
+Claim-scoped запуск контента зафиксирован в `docs/decisions/0022-claim-scoped-content-launch.md`.
 Ручной owner-reviewed claim workflow зафиксирован в `docs/decisions/0013-manual-claim-review.md`.
 Автономный operations-слой без LLM зафиксирован в `docs/decisions/0014-autonomous-operations-layer.md`.
 Российский portability target зафиксирован в `docs/decisions/0015-timeweb-portability-target.md`.

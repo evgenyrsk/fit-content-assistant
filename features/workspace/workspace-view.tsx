@@ -16,9 +16,10 @@ import { useLlmConnection } from './use-llm-connection';
 interface WorkspaceViewProps {
   activeFormat: ContentFormat | null;
   onFormatChange: (format: ContentFormat | null) => void;
+  onOpenContent: () => void;
 }
 
-export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewProps) {
+export function WorkspaceView({ activeFormat, onFormatChange, onOpenContent }: WorkspaceViewProps) {
   const [topic, setTopic] = useState('Нужно ли тренироваться до отказа для роста мышц?');
   const [mode, setMode] = useState<Mode>('Исследовать');
   const { status, result, error, start } = useResearchSearch();
@@ -26,6 +27,8 @@ export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewPro
   const [showAllClaims, setShowAllClaims] = useState(false);
   const [trendOpen, setTrendOpen] = useState(false);
   const [trendSource, setTrendSource] = useState<'all' | 'google_trends' | 'google_news' | 'pubmed_pulse' | 'threads' | 'instagram'>('all');
+  const [contentAutoRunKey, setContentAutoRunKey] = useState(0);
+  const [contentClaimVersionIds, setContentClaimVersionIds] = useState<string[]>([]);
 
   async function startWork() {
     if (!topic.trim()) return;
@@ -49,15 +52,22 @@ export function WorkspaceView({ activeFormat, onFormatChange }: WorkspaceViewPro
     window.setTimeout(() => document.getElementById('topic')?.focus(), 0);
   }
 
+  function launchContent(format: ContentFormat, claimVersionId: string) {
+    onFormatChange(format);
+    setContentClaimVersionIds([claimVersionId]);
+    setContentAutoRunKey((value) => value + 1);
+    window.setTimeout(() => document.querySelector('.content-studio')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+  }
+
   return (
     <>
       <ResearchConsole topic={topic} mode={mode} status={status} trendOpen={trendOpen} trendSource={trendSource} onTopicChange={setTopic} onModeChange={setMode} onStart={startWork} onTrendToggle={() => setTrendOpen((value) => !value)} onTrendSourceChange={setTrendSource} onTrendChoose={chooseTrend} />
       <LlmConnectionPanel status={llm.result} loading={llm.loading} onProbe={llm.probe} />
       {mode === 'Проверить' ? <><EvidenceFlowDemo onLiveRun={openLiveResearch} /><ReviewerDemo /></> : <>
         <ResearchResult topic={topic} working={status === 'working'} result={result} error={error} showAllClaims={showAllClaims} onToggleClaims={() => setShowAllClaims((value) => !value)} />
-        {result && <LiveEvidenceWorkbench key={result.runId} result={result} question={topic} />}
+        {result && <LiveEvidenceWorkbench key={result.runId} result={result} question={topic} onContentFormat={launchContent} />}
         <SourceReviewQueue refreshKey={result?.runId ?? ''} />
-        <ContentComposer activeFormat={activeFormat} onFormatChange={onFormatChange} />
+        <ContentComposer activeFormat={activeFormat} onFormatChange={onFormatChange} autoRunKey={contentAutoRunKey} autoRunClaimVersionIds={contentClaimVersionIds} onOpenContent={onOpenContent} />
       </>}
     </>
   );

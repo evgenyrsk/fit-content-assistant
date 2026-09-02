@@ -85,8 +85,10 @@
 - [x] Перевести source/body appraisal на отдельную review-модель; дешёвая research-модель остаётся на discovery и планировании.
 - [x] Реализовать versioned сохранение model-draft claims с confidence, limitations и evidence links; approval остаётся заблокированным.
 - [x] Подключить live-переход `confirmed body → model claim draft → needs_review` без автоматического approval.
+- [x] Подключить inline human claim review и сквозной переход к генерации строго на выбранной approved claim version.
 - [x] Создание review-required Reels, Telegram, Threads и каруселей на основе свежих approved claims.
 - [x] Трассировка content fragment → claim version; переход к source обеспечивается канонической claim evidence-связью.
+- [x] Связать успешный fact-check с каноническим архивом, финальной human review, календарём и публикационным статусом.
 - [ ] Полный regression eval-набор и blocking release gates.
   - [x] Локальный deterministic blocking-набор: сильный, пограничный, противоречивый и отозванный сценарии.
   - [x] Blocking tests для ручного контента, fact-check, календаря и CSV-метрик.
@@ -133,4 +135,4 @@
 
 ## Ближайший измеримый результат
 
-Автономный operations-контур, RouterAI runtime и source/body human gates готовы. В UI заранее видно место индекса 0–100, строгая научная оценка маршрутизируется через независимую review-модель, а подтверждённый body может породить только трассируемый `needs_review` claim draft. Следующий измеримый шаг — провести один реальный вопрос через consolidated human checkpoint, отдельный claim review и создать первый traceable платформенный материал. Timeweb принят как российский portability target до начала физической миграции.
+Основной вертикальный контур собран: вопрос → источники → source/body review → claim draft → human claim approval → генерация строго на выбранной claim version → независимый fact-check → human review → календарь/публикация/метрики. Следующий измеримый шаг — провести реальный пользовательский сценарий на нескольких темах, собрать экспертно размеченный eval-набор и откалибровать методологию и авторский стиль. Timeweb принят как российский portability target до начала физической миграции.

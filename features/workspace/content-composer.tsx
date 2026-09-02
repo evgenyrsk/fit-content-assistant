@@ -1,6 +1,7 @@
 import {
   ArrowUpRight, Check, CircleAlert, Link2, LoaderCircle, LockKeyhole, Sparkles, X,
 } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import type { ContentFormat } from '@/features/shared';
 import type { ContentPipelineResponse, ContentPipelineStage, ContentStageState } from '@/lib/domain';
 import { useContentPipeline } from './use-content-pipeline';
@@ -8,6 +9,9 @@ import { useContentPipeline } from './use-content-pipeline';
 interface ContentComposerProps {
   activeFormat: ContentFormat | null;
   onFormatChange: (format: ContentFormat | null) => void;
+  autoRunKey: number;
+  autoRunClaimVersionIds: string[];
+  onOpenContent: () => void;
 }
 
 const formats: ContentFormat[] = ['Reels', 'Telegram', 'Threads', 'Карусель'];
@@ -94,7 +98,7 @@ function StudioBody(props: {
 
 function ContentStudio(props: {
   format: ContentFormat; result: ContentPipelineResponse | null; error: string | null;
-  running: boolean; onRun: () => void; onClose: () => void;
+  running: boolean; onRun: () => void; onClose: () => void; onOpenContent: () => void;
 }) {
   const title = props.result?.contentItem?.draft.title ?? `Новый ${props.format}-материал`;
   return <section className="content-studio">
@@ -104,12 +108,21 @@ function ContentStudio(props: {
     </div>
     <PipelineStages result={props.result} running={props.running} />
     <StudioBody {...props} />
+    {props.result?.contentItem && <button className="content-open-operations" type="button" onClick={props.onOpenContent}>Открыть финальную проверку и архив <ArrowUpRight aria-hidden="true" /></button>}
   </section>;
 }
 
-export function ContentComposer({ activeFormat, onFormatChange }: ContentComposerProps) {
-  const pipeline = useContentPipeline();
-  const state = pipeline.stateFor(activeFormat);
+export function ContentComposer({
+  activeFormat, onFormatChange, autoRunKey, autoRunClaimVersionIds, onOpenContent,
+}: ContentComposerProps) {
+  const { generate, stateFor } = useContentPipeline();
+  const lastAutoRun = useRef(0);
+  const state = stateFor(activeFormat);
+  useEffect(() => {
+    if (!activeFormat || autoRunKey <= lastAutoRun.current) return;
+    lastAutoRun.current = autoRunKey;
+    void generate(activeFormat, autoRunClaimVersionIds);
+  }, [activeFormat, autoRunClaimVersionIds, autoRunKey, generate]);
   return <>
     <section className="content-launcher">
       <div className="launcher-copy"><span className="launcher-index">02</span><div><p className="overline">CONTENT ENGINE</p>
@@ -120,7 +133,7 @@ export function ContentComposer({ activeFormat, onFormatChange }: ContentCompose
     </section>
     {activeFormat && <ContentStudio
       format={activeFormat} result={state.result} error={state.error} running={state.running}
-      onRun={() => pipeline.generate(activeFormat)} onClose={() => onFormatChange(null)}
+      onRun={() => generate(activeFormat)} onClose={() => onFormatChange(null)} onOpenContent={onOpenContent}
     />}
   </>;
 }

@@ -209,6 +209,7 @@
 .factcheck[data-state='blocked'] { border-color: rgba(190,74,74,.2); background: rgba(190,74,74,.06); }
 .factcheck[data-state='blocked'] > div > span { color: #9d4646; background: rgba(190,74,74,.12); }
 .factcheck[data-state='blocked'] strong { color: #8f4444; }
+.content-open-operations { min-height: 44px; margin-top: 14px; padding: 0 14px; border: 1px solid var(--forest-800); border-radius: 11px; display: inline-flex; align-items: center; gap: 8px; color: white; background: var(--forest-800); cursor: pointer; font-size: var(--type-meta); font-weight: 900; }.content-open-operations svg { width: 16px; height: 16px; }
 
 footer { margin-top: 20px; padding: 15px 3px 0; border-top: 1px solid #dfe3dc; display: flex; align-items: center; justify-content: space-between; gap: 20px; color: #9ba29c; font-size: var(--type-caption); }
 footer span { font-weight: 850; text-transform: uppercase; letter-spacing: .1em; }

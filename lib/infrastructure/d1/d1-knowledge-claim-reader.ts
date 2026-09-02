@@ -88,4 +88,19 @@ export class D1KnowledgeClaimReader implements KnowledgeClaimReader {
     `).bind(checkedAt, Math.min(Math.max(limit, 1), 20)).all<ClaimRow>();
     return result.results.map(mapClaim);
   }
+
+  async listApprovedByIds(ids: string[], checkedAt: string): Promise<KnowledgeClaimRecord[]> {
+    const uniqueIds = [...new Set(ids)].slice(0, 8);
+    if (uniqueIds.length === 0) return [];
+    const placeholders = uniqueIds.map(() => '?').join(', ');
+    const result = await this.database.prepare(`
+      WITH latest AS (
+        SELECT claim_id, MAX(version) AS version FROM claim_versions GROUP BY claim_id
+      )
+      ${claimProjection}
+      WHERE cv.status = 'approved' AND cv.review_due_at > ? AND cv.id IN (${placeholders})
+      ORDER BY cv.created_at DESC
+    `).bind(checkedAt, ...uniqueIds).all<ClaimRow>();
+    return result.results.map(mapClaim);
+  }
 }

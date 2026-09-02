@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { ContentFormat as DomainContentFormat, ContentPipelineResponse } from '@/lib/domain';
 import { readJsonBody, type ContentFormat } from '@/features/shared';
 
@@ -20,12 +20,12 @@ function isErrorPayload(value: ContentPipelineResponse | { error?: string }): va
 export function useContentPipeline() {
   const [state, setState] = useState<PipelineState>({ format: null, result: null, error: null, running: false });
 
-  async function generate(format: ContentFormat): Promise<void> {
+  const generate = useCallback(async (format: ContentFormat, claimVersionIds?: string[]): Promise<void> => {
     setState({ format, result: null, error: null, running: true });
     try {
       const response = await fetch('/api/content/generate', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ format: formatIds[format] }),
+        body: JSON.stringify({ format: formatIds[format], ...(claimVersionIds?.length ? { claimVersionIds } : {}) }),
       });
       const payload = await readJsonBody<ContentPipelineResponse>(response);
       if (!response.ok || isErrorPayload(payload)) throw new Error(
@@ -36,7 +36,7 @@ export function useContentPipeline() {
       const error = cause instanceof Error ? cause.message : 'Контентный конвейер недоступен.';
       setState({ format, result: null, error, running: false });
     }
-  }
+  }, []);
 
   function stateFor(format: ContentFormat | null) {
     const current = state.format === format;

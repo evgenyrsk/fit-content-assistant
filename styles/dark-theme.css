@@ -87,6 +87,7 @@
 [data-theme='dark'] .factcheck small,
 [data-theme='dark'] .factcheck > p { color: #75837a; }
 [data-theme='dark'] .factcheck[data-state='blocked'] strong { color: #e19a9a; }
+[data-theme='dark'] .content-open-operations { color: var(--forest-950); border-color: var(--acid); background: var(--acid); }
 [data-theme='dark'] footer { border-color: var(--border-main); color: #626d65; }
 [data-theme='dark'] .view-hero { border-color: var(--border-main); background: radial-gradient(circle at 92% 8%, rgba(221,244,91,.08), transparent 17rem), var(--panel-bg); }
 [data-theme='dark'] .view-hero h1 em { color: #8eb09a; }

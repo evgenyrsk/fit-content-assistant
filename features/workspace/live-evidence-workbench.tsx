@@ -6,6 +6,7 @@ import type {
   SourceAssessmentHumanReview,
   SourceAssessmentResponse,
 } from '@/lib/domain';
+import type { ContentFormat } from '@/features/shared';
 import { BodyAssessmentReview } from './body-assessment-review';
 import { ClaimDraftResult } from './claim-draft-result';
 import { certaintyLabels, concernLabels, domainLabels, studyDecisionLabels, studyReasonLabels } from './evidence-review-presentation';
@@ -75,11 +76,14 @@ function ClaimDraftAction({ flow }: { flow: EvidenceFlow }) {
   return <div className="claim-draft-action"><div><strong>Совокупность подтверждена</strong><p>Можно подготовить узкий тезис с точными evidence links. Это ещё не знание и не контент.</p></div><button type="button" disabled={flow.preparingClaim} onClick={() => void flow.prepareClaim(flow.body?.body?.id ?? '')}><Bot aria-hidden="true" />{flow.preparingClaim ? 'Готовлю claim draft…' : 'Подготовить claim draft'}</button></div>;
 }
 
-function BodyFlow({ flow }: { flow: EvidenceFlow }) {
-  return <>{flow.body && <BodyResult response={flow.body} onReviewed={flow.recordBodyReview} />}<ClaimDraftAction flow={flow} />{flow.claim && <ClaimDraftResult response={flow.claim} />}</>;
+function BodyFlow({ flow, onContentFormat }: { flow: EvidenceFlow; onContentFormat: (format: ContentFormat, claimVersionId: string) => void }) {
+  return <>{flow.body && <BodyResult response={flow.body} onReviewed={flow.recordBodyReview} />}<ClaimDraftAction flow={flow} />{flow.claim && <ClaimDraftResult response={flow.claim} onContentFormat={onContentFormat} />}</>;
 }
 
-export function LiveEvidenceWorkbench({ result, question }: { result: ResearchSearchResult; question: string }) {
+export function LiveEvidenceWorkbench({ result, question, onContentFormat }: {
+  result: ResearchSearchResult; question: string;
+  onContentFormat: (format: ContentFormat, claimVersionId: string) => void;
+}) {
   const flow = useLiveEvidenceWorkbench(result, question);
   if (flow.targets.length === 0) return null;
   const complete = Object.keys(flow.assessments).length;
@@ -89,7 +93,7 @@ export function LiveEvidenceWorkbench({ result, question }: { result: ResearchSe
     {flow.error && <p className="live-evidence-error"><CircleAlert aria-hidden="true" />{flow.error}</p>}
     <div className="live-evidence-actions"><button type="button" onClick={() => void flow.assess()} disabled={Boolean(flow.runningSourceId) || flow.synthesizing}><Play aria-hidden="true" />{assessButtonLabel(Boolean(flow.runningSourceId), complete, flow.targets.length)}</button>
       <button type="button" onClick={() => void flow.synthesize()} disabled={!flow.canSynthesize || Boolean(flow.runningSourceId) || flow.synthesizing}><Bot aria-hidden="true" />{flow.synthesizing ? 'Собираю evidence body…' : 'Собрать подтверждённые данные'}</button></div>
-    <BodyFlow flow={flow} />
+    <BodyFlow flow={flow} onContentFormat={onContentFormat} />
     {!flow.body && <div className="live-workbench-gate"><ShieldCheck aria-hidden="true" /><p><strong>Следующий gate закрыт.</strong> Сначала нужны source assessments; затем body assessment и ваше подтверждение.</p></div>}
   </section>;
 }
