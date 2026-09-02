@@ -37,6 +37,7 @@ export interface SourceAssessmentResponse {
   contentLevel: import('./source-document.ts').SourceContentLevel;
   assessment: SourceAssessmentRecord | null;
   warning: string;
+  failureDetail?: string;
 }
 
 export interface SourceAssessmentSummary {

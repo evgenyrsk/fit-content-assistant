@@ -79,7 +79,7 @@ async function performAssessment(
     payload: {
       sourceId: body.sourceId, modelRunId: execution.modelRun.runId,
       assessmentId: execution.assessment?.id, gate: execution.assessment?.gate.decision ?? 'needs_review',
-      contentLevel: document.contentLevel,
+      contentLevel: document.contentLevel, failure: execution.failure, failureDetail: execution.failureDetail,
     },
     occurredAt: execution.modelRun.completedAt,
   });
@@ -87,6 +87,7 @@ async function performAssessment(
     status: execution.status, reviewRequired: true, contentLevel: document.contentLevel,
     assessment: execution.assessment,
     warning: assessmentWarning(document.contentLevel, execution),
+    failureDetail: execution.failureDetail,
   };
   return Response.json(response);
 }

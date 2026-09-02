@@ -25,5 +25,5 @@ test('rejects unexpected top-level or nested fields', () => {
 test('requires result, method and limitation in the fast-reading brief', () => {
   const draft = validSourceAssessmentDraft();
   draft.readerBrief.keyPoints = draft.readerBrief.keyPoints.map((point) => ({ ...point, type: 'main_result' }));
-  assert.throws(() => validateSourceAssessmentDraft(draft));
+  assert.throws(() => validateSourceAssessmentDraft(draft), /reader_brief/);
 });

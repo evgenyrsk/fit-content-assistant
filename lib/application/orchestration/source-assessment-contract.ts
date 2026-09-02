@@ -48,6 +48,10 @@ const assessmentKeys = [
   'resultId', 'questionType', 'studyDesign', 'targetOutcomeMeasured',
   'sponsorRole', 'finding', 'readerBrief', 'dimensions', 'integrityChecks',
 ] as const;
+const validationIssues = [
+  'shape', 'result_id', 'question_type', 'study_design', 'target_outcome',
+  'sponsor_role', 'finding', 'reader_brief', 'dimensions', 'integrity_checks',
+] as const;
 
 const citedAssessment = (idKey: 'dimension' | 'check', values: readonly string[]) => ({
   type: 'object', additionalProperties: false,
@@ -121,7 +125,7 @@ export function validateSourceAssessmentDraft(value: unknown): SourceAssessmentD
   const requiredChecks = studyDesigns.includes(design) ? requiredIntegrityChecks(design) : [];
   const exactShape = Object.keys(value).length === assessmentKeys.length
     && Object.keys(value).every((key) => assessmentKeys.includes(key as typeof assessmentKeys[number]));
-  const valid = [
+  const checks = [
     exactShape,
     typeof value.resultId === 'string',
     questionTypes.includes(value.questionType as EvidenceQuestionType),
@@ -132,7 +136,10 @@ export function validateSourceAssessmentDraft(value: unknown): SourceAssessmentD
     sourceReadingBriefIsValid(value.readerBrief),
     citedRowsAreValid(value.dimensions, requiredStudyDimensions, 'judgement', judgements),
     citedRowsAreValid(value.integrityChecks, requiredChecks, 'state', checkStates),
-  ].every(Boolean);
-  if (!valid) throw new Error('Source assessment failed the strict runtime contract.');
+  ];
+  const failedIndex = checks.findIndex((valid) => !valid);
+  if (failedIndex >= 0) {
+    throw new Error(`Source assessment failed the strict runtime contract: ${validationIssues[failedIndex]}.`);
+  }
   return value as unknown as SourceAssessmentDraft;
 }

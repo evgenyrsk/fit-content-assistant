@@ -27,6 +27,7 @@ export interface SourceAssessmentExecution {
   assessment: SourceAssessmentRecord | null;
   modelRun: ModelRunRecord;
   failure?: 'input_unavailable' | 'provider_error' | 'invalid_model_output' | 'invalid_provenance';
+  failureDetail?: string;
 }
 
 function failureCode(error: unknown): NonNullable<SourceAssessmentExecution['failure']> {
@@ -133,6 +134,7 @@ export async function executeSourceAssessment(
   } catch (error) {
     return {
       status: 'needs_review', assessment: null, failure: failureCode(error),
+      failureDetail: error instanceof Error ? error.message.slice(0, 160) : 'unknown_error',
       modelRun: { ...modelRun, completedAt: clock().toISOString() },
     };
   }
