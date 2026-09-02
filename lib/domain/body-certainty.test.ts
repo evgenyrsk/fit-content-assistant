@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { evaluateBodyGate, type BodyOfEvidenceAssessment, type GradeDomain } from './body-certainty.ts';
+import { canPrepareClaimDraft, evaluateBodyGate, type BodyOfEvidenceAssessment, type GradeDomain } from './body-certainty.ts';
 
 const domains: GradeDomain[] = ['risk_of_bias', 'inconsistency', 'indirectness', 'imprecision', 'publication_bias'];
 
@@ -35,4 +35,9 @@ test('a complete calibrated and confirmed body can proceed to claim review', () 
   assert.deepEqual(evaluateBodyGate(makeBody(), true), {
     decision: 'ready_for_claim_review', reasons: ['body_ready_for_claim_review'],
   });
+});
+
+test('a confirmed complete body may produce a review draft before methodology calibration', () => {
+  assert.equal(canPrepareClaimDraft(makeBody()), true);
+  assert.equal(canPrepareClaimDraft(makeBody({ humanReview: 'pending' })), false);
 });

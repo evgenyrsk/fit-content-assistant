@@ -84,6 +84,7 @@
 - [x] Добавить provenance-linked краткий разбор статьи и прозрачный review index 0–100 с диапазоном, coverage и gate caps.
 - [x] Перевести source/body appraisal на отдельную review-модель; дешёвая research-модель остаётся на discovery и планировании.
 - [x] Реализовать versioned сохранение model-draft claims с confidence, limitations и evidence links; approval остаётся заблокированным.
+- [x] Подключить live-переход `confirmed body → model claim draft → needs_review` без автоматического approval.
 - [x] Создание review-required Reels, Telegram, Threads и каруселей на основе свежих approved claims.
 - [x] Трассировка content fragment → claim version; переход к source обеспечивается канонической claim evidence-связью.
 - [ ] Полный regression eval-набор и blocking release gates.
@@ -132,4 +133,4 @@
 
 ## Ближайший измеримый результат
 
-Автономный operations-контур, RouterAI runtime и source/body human gates готовы. В UI заранее видно место индекса 0–100, а строгая научная оценка маршрутизируется через независимую review-модель. Следующий измеримый шаг — провести один реальный вопрос через подтверждённый body, отдельный claim review и создать первый traceable платформенный материал. Timeweb принят как российский portability target до начала физической миграции.
+Автономный operations-контур, RouterAI runtime и source/body human gates готовы. В UI заранее видно место индекса 0–100, строгая научная оценка маршрутизируется через независимую review-модель, а подтверждённый body может породить только трассируемый `needs_review` claim draft. Следующий измеримый шаг — провести один реальный вопрос через consolidated human checkpoint, отдельный claim review и создать первый traceable платформенный материал. Timeweb принят как российский portability target до начала физической миграции.

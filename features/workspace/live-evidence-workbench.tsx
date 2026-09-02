@@ -1,11 +1,13 @@
 import { Bot, Check, CircleAlert, FlaskConical, LockKeyhole, Play, ShieldCheck } from 'lucide-react';
 import type {
   BodyAssessmentResponse,
+  BodyAssessmentHumanReview,
   ResearchSearchResult,
   SourceAssessmentHumanReview,
   SourceAssessmentResponse,
 } from '@/lib/domain';
 import { BodyAssessmentReview } from './body-assessment-review';
+import { ClaimDraftResult } from './claim-draft-result';
 import { certaintyLabels, concernLabels, domainLabels, studyDecisionLabels, studyReasonLabels } from './evidence-review-presentation';
 import { SourceAssessmentReview } from './source-assessment-review';
 import { SourceReadingBrief } from './source-reading-brief';
@@ -29,12 +31,28 @@ function AssessmentResult({ response, onReviewed }: {
   </div>;
 }
 
-function BodyResult({ response }: { response: BodyAssessmentResponse }) {
+function BodyResult({ response, onReviewed }: {
+  response: BodyAssessmentResponse; onReviewed: (review: BodyAssessmentHumanReview) => void;
+}) {
   if (!response.body) return <div className="live-body-locked"><LockKeyhole aria-hidden="true" /><div><strong>Claim не создаётся</strong><p>{response.warning}</p></div></div>;
   const record = response.body;
   return <><div className="live-body-result"><header><div><span>Предварительная уверенность</span><strong>{certaintyLabels[record.assessment.proposedCertainty]}</strong></div><em>{record.gate.decision === 'ready_for_claim_review' ? 'готово к claim review' : 'нужна проверка человека'}</em></header>
     <p>{record.assessment.rationale}</p><div className="live-grade-grid">{record.assessment.domains.map((domain) => <article key={domain.domain}><strong>{domainLabels[domain.domain]}</strong><span>{concernLabels[domain.concern]}</span><small>{domain.rationale}</small></article>)}</div>
-    <footer><LockKeyhole aria-hidden="true" /><p><strong>Автоматический claim заблокирован.</strong> {response.warning}</p></footer></div><BodyAssessmentReview body={record} /></>;
+    <footer><LockKeyhole aria-hidden="true" /><p><strong>Автоматическое утверждение заблокировано.</strong> {response.warning}</p></footer></div><BodyAssessmentReview body={record} onReviewed={onReviewed} /></>;
+}
+
+function assessmentStatus(running: boolean, response?: SourceAssessmentResponse): string {
+  if (running) return 'модель анализирует';
+  return response ? 'черновик оценки готов' : 'ожидает запуска';
+}
+
+function AssessmentMarker({ response, index }: { response?: SourceAssessmentResponse; index: number }) {
+  return <span>{response ? <Check aria-hidden="true" /> : String(index + 1).padStart(2, '0')}</span>;
+}
+
+function PendingScore({ running, failed }: { running: boolean; failed: boolean }) {
+  const label = running ? 'считаю' : failed ? 'не рассчитан' : 'после оценки';
+  return <div className="source-score-pending" aria-label="Индекс доверия ожидает оценки"><strong>—</strong><span>/100</span><small>{label}</small></div>;
 }
 
 function AssessmentItem({ result, sourceId, index, running, response, onReviewed }: {
@@ -42,13 +60,23 @@ function AssessmentItem({ result, sourceId, index, running, response, onReviewed
   response?: SourceAssessmentResponse; onReviewed: (review: SourceAssessmentHumanReview) => void;
 }) {
   const state = running ? 'running' : response ? 'complete' : 'waiting';
-  const status = running ? 'модель анализирует' : response ? 'черновик оценки готов' : 'ожидает запуска';
-  return <article data-state={state}><div className="live-assessment-title"><span>{response ? <Check aria-hidden="true" /> : String(index + 1).padStart(2, '0')}</span><div><small>{sourceId} · полный текст · {status}</small><h3>{sourceTitle(result, sourceId)}</h3></div><div className="source-score-pending" aria-label="Индекс доверия ожидает оценки"><strong>—</strong><span>/100</span><small>{running ? 'считаю' : 'после оценки'}</small></div></div>{response && <AssessmentResult response={response} onReviewed={onReviewed} />}</article>;
+  return <article data-state={state}><div className="live-assessment-title"><AssessmentMarker response={response} index={index} /><div><small>{sourceId} · полный текст · {assessmentStatus(running, response)}</small><h3>{sourceTitle(result, sourceId)}</h3></div>{!response?.assessment && <PendingScore running={running} failed={Boolean(response)} />}</div>{response && <AssessmentResult response={response} onReviewed={onReviewed} />}</article>;
 }
 
 function assessButtonLabel(running: boolean, complete: number, total: number): string {
   if (running) return `Оцениваю ${Math.min(complete + 1, total)} из ${total}`;
   return complete ? 'Повторить оценки' : `Оценить ${total} ${total === 1 ? 'документ' : 'документа'}`;
+}
+
+type EvidenceFlow = ReturnType<typeof useLiveEvidenceWorkbench>;
+
+function ClaimDraftAction({ flow }: { flow: EvidenceFlow }) {
+  if (flow.bodyReview?.decision !== 'confirmed' || !flow.body?.body) return null;
+  return <div className="claim-draft-action"><div><strong>Совокупность подтверждена</strong><p>Можно подготовить узкий тезис с точными evidence links. Это ещё не знание и не контент.</p></div><button type="button" disabled={flow.preparingClaim} onClick={() => void flow.prepareClaim(flow.body?.body?.id ?? '')}><Bot aria-hidden="true" />{flow.preparingClaim ? 'Готовлю claim draft…' : 'Подготовить claim draft'}</button></div>;
+}
+
+function BodyFlow({ flow }: { flow: EvidenceFlow }) {
+  return <>{flow.body && <BodyResult response={flow.body} onReviewed={flow.recordBodyReview} />}<ClaimDraftAction flow={flow} />{flow.claim && <ClaimDraftResult response={flow.claim} />}</>;
 }
 
 export function LiveEvidenceWorkbench({ result, question }: { result: ResearchSearchResult; question: string }) {
@@ -61,7 +89,7 @@ export function LiveEvidenceWorkbench({ result, question }: { result: ResearchSe
     {flow.error && <p className="live-evidence-error"><CircleAlert aria-hidden="true" />{flow.error}</p>}
     <div className="live-evidence-actions"><button type="button" onClick={() => void flow.assess()} disabled={Boolean(flow.runningSourceId) || flow.synthesizing}><Play aria-hidden="true" />{assessButtonLabel(Boolean(flow.runningSourceId), complete, flow.targets.length)}</button>
       <button type="button" onClick={() => void flow.synthesize()} disabled={!flow.canSynthesize || Boolean(flow.runningSourceId) || flow.synthesizing}><Bot aria-hidden="true" />{flow.synthesizing ? 'Собираю evidence body…' : 'Собрать подтверждённые данные'}</button></div>
-    {flow.body && <BodyResult response={flow.body} />}
+    <BodyFlow flow={flow} />
     {!flow.body && <div className="live-workbench-gate"><ShieldCheck aria-hidden="true" /><p><strong>Следующий gate закрыт.</strong> Сначала нужны source assessments; затем body assessment и ваше подтверждение.</p></div>}
   </section>;
 }

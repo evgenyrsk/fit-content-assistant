@@ -33,3 +33,11 @@ export interface SavedClaimVersion {
   versionId: string;
   version: number;
 }
+
+export interface ClaimSynthesisResponse {
+  status: 'model_draft' | 'needs_review' | 'awaiting_provider';
+  reviewRequired: true;
+  claim: ClaimDraftRecord | null;
+  saved: SavedClaimVersion | null;
+  warning: string;
+}

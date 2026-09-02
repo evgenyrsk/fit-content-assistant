@@ -80,3 +80,7 @@ export function evaluateBodyGate(input: BodyOfEvidenceAssessment, methodologyCal
     ? { decision: 'needs_human_review', reasons }
     : { decision: 'ready_for_claim_review', reasons: ['body_ready_for_claim_review'] };
 }
+
+export function canPrepareClaimDraft(input: BodyOfEvidenceAssessment): boolean {
+  return evaluateBodyGate(input, true).decision === 'ready_for_claim_review';
+}

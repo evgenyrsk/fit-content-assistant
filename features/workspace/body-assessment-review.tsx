@@ -11,7 +11,9 @@ const checklist = [
   { key: 'scope', label: 'Границы применимости сохранены' },
 ];
 
-export function BodyAssessmentReview({ body }: { body: BodyAssessmentRecord }) {
+export function BodyAssessmentReview({ body, onReviewed }: {
+  body: BodyAssessmentRecord; onReviewed?: (review: BodyAssessmentHumanReview) => void;
+}) {
   const [decision, setDecision] = useState<EvidenceReviewDecision>('needs_more_information');
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [reason, setReason] = useState('');
@@ -26,10 +28,10 @@ export function BodyAssessmentReview({ body }: { body: BodyAssessmentRecord }) {
       contradictionsChecked: Boolean(checks.contradictions), certaintyChecked: Boolean(checks.certainty),
       scopeChecked: Boolean(checks.scope), reason,
     });
-    if (review) setSaved(review);
+    if (review) { setSaved(review); onReviewed?.(review); }
   }
 
-  if (saved) return <div className="body-review-saved"><ShieldCheck aria-hidden="true" /><div><strong>Решение по совокупности сохранено</strong><p>{saved.reason}</p><small><LockKeyhole aria-hidden="true" />Claim всё ещё закрыт до калибровки методологии и отдельного claim review.</small></div></div>;
+  if (saved) return <div className="body-review-saved"><ShieldCheck aria-hidden="true" /><div><strong>Решение по совокупности сохранено</strong><p>{saved.reason}</p><small><LockKeyhole aria-hidden="true" />Можно подготовить claim draft; публикация и статус знания останутся закрыты до отдельного claim review.</small></div></div>;
   return <form className="evidence-human-review body-human-review" onSubmit={(event) => void submit(event)}><header><ShieldCheck aria-hidden="true" /><div><strong>Подтвердить совокупность данных</strong><p>Это решение не публикует claim и не запускает контент автоматически.</p></div></header>
     <ReviewDecisionPicker value={decision} name={`body-${body.id}`} onChange={setDecision} />
     {decision === 'confirmed' && <ReviewChecklist items={checklist} values={checks} onChange={(key, checked) => setChecks((current) => ({ ...current, [key]: checked }))} />}

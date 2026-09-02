@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import type {
   BodyAssessmentResponse,
+  BodyAssessmentHumanReview,
+  ClaimSynthesisResponse,
   ResearchSearchResult,
   SourceAssessmentHumanReview,
   SourceAssessmentResponse,
@@ -30,13 +32,16 @@ export function useLiveEvidenceWorkbench(result: ResearchSearchResult, question:
   }, [result]);
   const [assessments, setAssessments] = useState<AssessmentMap>({});
   const [body, setBody] = useState<BodyAssessmentResponse | null>(null);
+  const [bodyReview, setBodyReview] = useState<BodyAssessmentHumanReview | null>(null);
+  const [claim, setClaim] = useState<ClaimSynthesisResponse | null>(null);
   const [reviews, setReviews] = useState<Record<string, SourceAssessmentHumanReview>>({});
   const [runningSourceId, setRunningSourceId] = useState<string | null>(null);
   const [synthesizing, setSynthesizing] = useState(false);
+  const [preparingClaim, setPreparingClaim] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function assess(): Promise<void> {
-    setError(null); setBody(null); setReviews({});
+    setError(null); setBody(null); setBodyReview(null); setClaim(null); setReviews({});
     for (const sourceId of targets) {
       setRunningSourceId(sourceId);
       try {
@@ -52,7 +57,7 @@ export function useLiveEvidenceWorkbench(result: ResearchSearchResult, question:
   }
 
   async function synthesize(): Promise<void> {
-    setSynthesizing(true); setError(null);
+    setSynthesizing(true); setError(null); setBodyReview(null); setClaim(null);
     try {
       const response = await postJson<BodyAssessmentResponse>('/api/research/synthesize', {
         researchRunId: result.runId, question,
@@ -64,12 +69,22 @@ export function useLiveEvidenceWorkbench(result: ResearchSearchResult, question:
     } finally { setSynthesizing(false); }
   }
 
+  async function prepareClaim(bodyAssessmentId: string): Promise<void> {
+    setPreparingClaim(true); setError(null);
+    try {
+      setClaim(await postJson<ClaimSynthesisResponse>('/api/research/claims/draft', { bodyAssessmentId }));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Не удалось подготовить claim draft.');
+    } finally { setPreparingClaim(false); }
+  }
+
   return {
-    targets, assessments, reviews, body, runningSourceId, synthesizing, error,
-    assess, synthesize,
+    targets, assessments, reviews, body, bodyReview, claim, runningSourceId, synthesizing, preparingClaim, error,
+    assess, synthesize, prepareClaim,
     recordReview: (review: SourceAssessmentHumanReview) => setReviews((current) => ({
       ...current, [review.assessmentId]: review,
     })),
+    recordBodyReview: setBodyReview,
     canSynthesize: Object.values(reviews).some((item) => item.decision === 'confirmed'),
   };
 }

@@ -30,12 +30,29 @@ test('does not call the model before the body gate is ready', async () => {
   let called = false;
   const fake = provider(validClaimSynthesisDraft());
   fake.generateStructured = async () => { called = true; throw new Error('must not run'); };
-  const blockedBody = { ...readyBody, gate: { decision: 'needs_human_review' as const, reasons: ['human_confirmation_required' as const] } };
+  const blockedBody = {
+    ...readyBody,
+    assessment: { ...readyBody.assessment, humanReview: 'pending' as const },
+    gate: { decision: 'needs_human_review' as const, reasons: ['human_confirmation_required' as const] },
+  };
   const result = await executeClaimSynthesis(blockedBody, [eligibleSummary], {
     provider: fake, model: 'research', budgetProfile: 'economy', researchRunId: 'research-1',
   });
   assert.equal(called, false);
   assert.equal(result.claim, null);
+});
+
+test('creates only a review draft when methodology is not calibrated but the body is confirmed', async () => {
+  const uncalibratedBody = {
+    ...readyBody,
+    gate: { decision: 'needs_human_review' as const, reasons: ['methodology_not_calibrated' as const] },
+  };
+  const result = await executeClaimSynthesis(uncalibratedBody, [eligibleSummary], {
+    provider: provider(validClaimSynthesisDraft()), model: 'research', budgetProfile: 'economy',
+    researchRunId: 'research-1', now: () => new Date('2026-08-27T00:00:00.000Z'),
+  });
+  assert.equal(result.claim?.status, 'needs_review');
+  assert.equal(result.modelRun.decision, 'needs_review');
 });
 
 test('rejects confidence stronger than the body or an invented passage', async () => {

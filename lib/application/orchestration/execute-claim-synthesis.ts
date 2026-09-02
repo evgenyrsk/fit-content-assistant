@@ -1,5 +1,5 @@
 import type { LlmProvider } from '../ports/llm-provider.ts';
-import type { BodyAssessmentRecord, BodyCertainty, ClaimDraftRecord, Confidence, SourceAssessmentSummary } from '../../domain/index.ts';
+import { canPrepareClaimDraft, type BodyAssessmentRecord, type BodyCertainty, type ClaimDraftRecord, type Confidence, type SourceAssessmentSummary } from '../../domain/index.ts';
 import type { ModelRunRecord } from './model-run.ts';
 import { stageBudget, type BudgetProfile } from './pipeline-budget.ts';
 import { claimSynthesisSchema, validateClaimSynthesisDraft } from './claim-synthesis-contract.ts';
@@ -61,8 +61,7 @@ export async function executeClaimSynthesis(
   const clock = options.now ?? (() => new Date());
   const startedAt = clock().toISOString();
   const modelRun = baseRecord(options, body, startedAt);
-  if (body.gate.decision !== 'ready_for_claim_review'
-    || !options.provider.supports('structured_output', options.model)) {
+  if (!canPrepareClaimDraft(body.assessment) || !options.provider.supports('structured_output', options.model)) {
     return { status: 'needs_review', claim: null, modelRun };
   }
   try {
