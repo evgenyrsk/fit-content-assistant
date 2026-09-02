@@ -1,5 +1,10 @@
 import { useMemo, useState } from 'react';
-import type { BodyAssessmentResponse, ResearchSearchResult, SourceAssessmentResponse } from '@/lib/domain';
+import type {
+  BodyAssessmentResponse,
+  ResearchSearchResult,
+  SourceAssessmentHumanReview,
+  SourceAssessmentResponse,
+} from '@/lib/domain';
 import { readJsonBody } from '@/features/shared';
 
 type AssessmentMap = Record<string, SourceAssessmentResponse>;
@@ -25,12 +30,13 @@ export function useLiveEvidenceWorkbench(result: ResearchSearchResult, question:
   }, [result]);
   const [assessments, setAssessments] = useState<AssessmentMap>({});
   const [body, setBody] = useState<BodyAssessmentResponse | null>(null);
+  const [reviews, setReviews] = useState<Record<string, SourceAssessmentHumanReview>>({});
   const [runningSourceId, setRunningSourceId] = useState<string | null>(null);
   const [synthesizing, setSynthesizing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function assess(): Promise<void> {
-    setError(null); setBody(null);
+    setError(null); setBody(null); setReviews({});
     for (const sourceId of targets) {
       setRunningSourceId(sourceId);
       try {
@@ -59,8 +65,11 @@ export function useLiveEvidenceWorkbench(result: ResearchSearchResult, question:
   }
 
   return {
-    targets, assessments, body, runningSourceId, synthesizing, error,
+    targets, assessments, reviews, body, runningSourceId, synthesizing, error,
     assess, synthesize,
-    canSynthesize: Object.values(assessments).some((item) => Boolean(item.assessment)),
+    recordReview: (review: SourceAssessmentHumanReview) => setReviews((current) => ({
+      ...current, [review.assessmentId]: review,
+    })),
+    canSynthesize: Object.values(reviews).some((item) => item.decision === 'confirmed'),
   };
 }

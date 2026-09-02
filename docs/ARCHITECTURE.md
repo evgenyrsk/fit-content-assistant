@@ -56,6 +56,8 @@ LLM связывает этапы и управляет инструментам
 - реализует отдельные strict-schema этапы `source_assessment`, `body_assessment` и `claim_synthesis` с проверкой passage ids;
 - не вызывает следующий модельный этап, пока предыдущий gate не готов;
 - до экспертной калибровки любой body assessment требует ручного подтверждения.
+- модельный `eligible_for_synthesis` остаётся закрытым до добавочного human review; body synthesis читает только последнее подтверждённое решение по последней оценке каждого источника.
+- human review не переписывает модельный assessment и не может повысить `excluded` или `context_only`; body confirmation также не открывает claim до release-калибровки.
 
 ### Knowledge Base
 
@@ -70,6 +72,9 @@ LLM связывает этапы и управляет инструментам
 - `source_review_decisions`
 - `manual_source_imports` + private R2 object
 - `source_assessments`
+- `source_assessment_human_reviews`
+- `body_assessments`
+- `body_assessment_human_reviews`
 - `claim_versions`
 - `claim_evidence`
 - `research_runs`
@@ -139,6 +144,7 @@ Rights-aware full-text ingestion зафиксирован в `docs/decisions/000
 Ручной импорт PDF зафиксирован в `docs/decisions/0009-user-authorized-pdf-import.md`.
 Прямые Meta trend adapters и граница хранения токенов зафиксированы в `docs/decisions/0010-direct-meta-trend-adapters.md`.
 Личный Meta Development Mode и отложенный публичный review зафиксированы в `docs/decisions/0011-personal-meta-development-mode.md`.
+Добавочные human gates для source/body assessment зафиксированы в `docs/decisions/0018-append-only-human-evidence-review.md`.
 Трассируемый контентный конвейер зафиксирован в `docs/decisions/0012-traceable-content-pipeline.md`.
 Ручной owner-reviewed claim workflow зафиксирован в `docs/decisions/0013-manual-claim-review.md`.
 Автономный operations-слой без LLM зафиксирован в `docs/decisions/0014-autonomous-operations-layer.md`.

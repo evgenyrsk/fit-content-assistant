@@ -52,6 +52,15 @@ const evidenceSchema = [
   )`,
   `CREATE INDEX IF NOT EXISTS idx_source_assessments_source
   ON source_assessments(source_id, created_at DESC)`,
+  `CREATE TABLE IF NOT EXISTS source_assessment_human_reviews (
+    id TEXT PRIMARY KEY, source_assessment_id TEXT NOT NULL REFERENCES source_assessments(id),
+    decision TEXT NOT NULL CHECK (decision IN ('confirmed', 'rejected', 'needs_more_information')),
+    finding_checked INTEGER NOT NULL, provenance_checked INTEGER NOT NULL,
+    scope_checked INTEGER NOT NULL, reason TEXT NOT NULL, reviewer_id TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_source_assessment_reviews_assessment_created
+  ON source_assessment_human_reviews(source_assessment_id, created_at DESC)`,
   `CREATE TABLE IF NOT EXISTS research_run_assessments (
     research_run_id TEXT NOT NULL REFERENCES research_runs(id),
     source_assessment_id TEXT NOT NULL REFERENCES source_assessments(id),
@@ -87,6 +96,15 @@ const evidenceSchema = [
   )`,
   `CREATE INDEX IF NOT EXISTS idx_body_assessments_run
   ON body_assessments(research_run_id, outcome_id)`,
+  `CREATE TABLE IF NOT EXISTS body_assessment_human_reviews (
+    id TEXT PRIMARY KEY, body_assessment_id TEXT NOT NULL REFERENCES body_assessments(id),
+    decision TEXT NOT NULL CHECK (decision IN ('confirmed', 'rejected', 'needs_more_information')),
+    evidence_set_checked INTEGER NOT NULL, contradictions_checked INTEGER NOT NULL,
+    certainty_checked INTEGER NOT NULL, scope_checked INTEGER NOT NULL,
+    reason TEXT NOT NULL, reviewer_id TEXT NOT NULL, created_at TEXT NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_body_assessment_reviews_assessment_created
+  ON body_assessment_human_reviews(body_assessment_id, created_at DESC)`,
 ] as const;
 
 export async function ensureEvidenceSchema(database: D1Database): Promise<void> {

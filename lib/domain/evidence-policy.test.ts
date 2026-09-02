@@ -92,6 +92,17 @@ test('reporting guidance is never treated as a quality score', () => {
   assert.equal(route.reportingGuidelineIsQualityScore, false);
 });
 
+test('an intervention systematic review can answer an intervention-effect question', () => {
+  const input = makeInput({
+    studyDesign: 'systematic_review_meta_analysis',
+    integrityChecks: requiredIntegrityChecks('systematic_review_meta_analysis').map((check) => ({
+      check, state: 'adequate', rationale: 'Review methods verified in full text.',
+      provenanceIds: [`passage-${check}`], assessor: 'human',
+    })),
+  });
+  assert.equal(evaluateStudyGate(input).decision, 'eligible_for_synthesis');
+});
+
 test('diagnostic accuracy uses the current QUADAS generation', () => {
   assert.equal(routeAppraisal('diagnostic_accuracy', 'diagnostic_accuracy').instrument, 'quadas3');
 });

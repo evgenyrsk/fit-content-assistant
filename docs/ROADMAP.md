@@ -80,6 +80,7 @@
 - [ ] Активировать прямые Instagram signals после выдачи разрешений и сохранения Meta token.
 - [x] Реализовать provider-neutral structured source/body assessment с audit trail; реальный запуск ждёт LLM secret и full text.
 - [x] Добавить рабочий UI для live source assessments и body synthesis с блокировкой claim до human review.
+- [x] Добавить append-only human review для source/body assessments; в synthesis допускаются только подтверждённые оценки, hard stops не переопределяются.
 - [x] Реализовать versioned сохранение model-draft claims с confidence, limitations и evidence links; approval остаётся заблокированным.
 - [x] Создание review-required Reels, Telegram, Threads и каруселей на основе свежих approved claims.
 - [x] Трассировка content fragment → claim version; переход к source обеспечивается канонической claim evidence-связью.
@@ -129,4 +130,4 @@
 
 ## Ближайший измеримый результат
 
-Автономный operations-контур и RouterAI production runtime готовы. Live probe и первый comparative smoke-eval пройдены; следующий измеримый шаг — отдельная review-role, versioned reviewer-eval и один реальный вопрос через source/body review до утверждённого claim и платформенного материала. Timeweb принят как российский portability target до начала физической миграции.
+Автономный operations-контур, RouterAI runtime и source/body human gates готовы. Следующий измеримый шаг — провести один реальный вопрос через подтверждённый body, отдельный claim review и создать первый traceable платформенный материал. Timeweb принят как российский portability target до начала физической миграции.

@@ -37,4 +37,5 @@ export interface SourceAssessmentSummary {
   finding: SourceAssessmentRecord['finding'];
   methodologyVersion: string;
   createdAt: string;
+  humanReview?: import('./evidence-review.ts').SourceAssessmentHumanReview;
 }

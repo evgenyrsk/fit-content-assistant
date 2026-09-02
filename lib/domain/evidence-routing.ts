@@ -4,7 +4,8 @@ const randomizedDesigns: StudyDesign[] = ['randomized_parallel', 'randomized_cro
 const observationalDesigns: StudyDesign[] = ['prospective_cohort', 'retrospective_cohort', 'case_control', 'cross_sectional'];
 
 export function isQuestionDesignCompatible(question: EvidenceQuestionType, design: StudyDesign): boolean {
-  if (question === 'intervention_effect') return randomizedDesigns.includes(design) || design === 'nonrandomized_intervention';
+  if (question === 'intervention_effect') return randomizedDesigns.includes(design)
+    || design === 'nonrandomized_intervention' || design === 'systematic_review_meta_analysis';
   if (question === 'exposure_association') return observationalDesigns.includes(design);
   if (question === 'prognosis') return design === 'prospective_cohort' || design === 'retrospective_cohort';
   if (question === 'diagnostic_accuracy') return design === 'diagnostic_accuracy';
