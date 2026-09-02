@@ -8,12 +8,21 @@ const vocabulary: Array<[RegExp, string]> = [
   [/выносливост\p{L}*/giu, 'endurance'],
   [/мышечн\p{L}*\s+масс\p{L}*/giu, 'muscle mass'],
   [/белк\p{L}*|протеин\p{L}*/giu, 'dietary protein'],
+  [/доз\p{L}*/giu, 'dose'],
   [/похуд\p{L}*|снижени\p{L}*\s+вес\p{L}*/giu, 'weight loss'],
   [/калори\p{L}*/giu, 'calories'],
   [/шаг\p{L}*|ходьб\p{L}*/giu, 'walking steps'],
+  [/объ[её]м\p{L}*\s+тренир\p{L}*/giu, 'training volume'],
+  [/интервал\p{L}*\s+отдых\p{L}*|отдых\p{L}*\s+между\s+подход\p{L}*/giu, 'rest interval'],
+  [/кофеин\p{L}*/giu, 'caffeine'],
+  [/растяжк\p{L}*(?:\s+\p{L}+){0,3}\s+гибкост\p{L}*|гибкост\p{L}*(?:\s+\p{L}+){0,3}\s+растяжк\p{L}*|растяжк\p{L}*|гибкост\p{L}*/giu, 'stretching flexibility'],
+  [/кардио\p{L}*|аэробн\p{L}*\s+тренир\p{L}*/giu, 'aerobic exercise'],
+  [/холодн\p{L}*\s+душ\p{L}*|ледян\p{L}*\s+ванн\p{L}*/giu, 'cold water immersion'],
   [/восстановлен\p{L}*/giu, 'recovery'],
   [/кортизол\p{L}*/giu, 'cortisol'],
   [/сон\p{L}*/giu, 'sleep'],
+  [/здоров\p{L}*\s+взросл\p{L}*/giu, 'healthy adults'],
+  [/пожил\p{L}*/giu, 'older adults'],
 ];
 
 export function buildScientificQuery(query: string): string {
