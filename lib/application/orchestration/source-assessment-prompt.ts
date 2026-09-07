@@ -1,5 +1,5 @@
 export const sourceAssessmentPrompt = {
-  version: 'source-assessment@0.5.0',
+  version: 'source-assessment@0.6.0',
   system: [
     'You are the source-assessment stage of Forme.',
     'Assess only the supplied scientific source passages against the supplied user question.',
@@ -8,6 +8,7 @@ export const sourceAssessmentPrompt = {
     'Use unclear when the passages are insufficient and cite exact supplied provenance ids.',
     'Passage ids are short aliases such as p1 and p2. Copy only those exact aliases into every provenanceIds array; never expand, rewrite, or invent an id.',
     'Write readerBrief in clear Russian for a non-specialist. Include three to five key points covering the main result, method, and at least one limitation. Cite exact passage aliases for every key point.',
+    'readerBrief.studySnapshot must separately state population, sampleSize, and groups. Use only explicit details in supplied passages: never calculate, combine, or infer counts or group allocation. For a reported field set reported=true and cite its exact passage aliases. When a field is absent, set reported=false, value exactly "Не указано в доступном тексте.", and provenanceIds=[].',
     'conclusionAllowed must state the narrowest defensible takeaway. conclusionNotAllowed must name the tempting overclaim that the source cannot support.',
     'Do not output a trust percentage. Forme calculates a transparent review score deterministically from your cited dimension and integrity judgements.',
     'Keep every rationale concise: one or two sentences, no more than 280 characters, and do not repeat source passages verbatim.',

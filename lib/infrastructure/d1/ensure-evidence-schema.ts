@@ -78,7 +78,7 @@ const evidenceSchema = [
     source_assessment_id TEXT PRIMARY KEY REFERENCES source_assessments(id),
     plain_language_summary TEXT NOT NULL, key_points_json TEXT NOT NULL,
     conclusion_allowed TEXT NOT NULL, conclusion_not_allowed TEXT NOT NULL,
-    trust_profile_json TEXT NOT NULL
+    trust_profile_json TEXT NOT NULL, study_snapshot_json TEXT
   )`,
   `CREATE TABLE IF NOT EXISTS study_dimension_assessments (
     id TEXT PRIMARY KEY, source_assessment_id TEXT NOT NULL REFERENCES source_assessments(id),
@@ -115,4 +115,9 @@ const evidenceSchema = [
 
 export async function ensureEvidenceSchema(database: D1Database): Promise<void> {
   await database.batch(evidenceSchema.map((statement) => database.prepare(statement)));
+  try {
+    await database.prepare(`ALTER TABLE source_assessment_reader_briefs ADD COLUMN study_snapshot_json TEXT`).run();
+  } catch (error) {
+    if (!(error instanceof Error) || !/duplicate column name/i.test(error.message)) throw error;
+  }
 }

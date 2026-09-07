@@ -29,6 +29,7 @@
 - каждый модельный research plan сохраняет provider, model, prompt version, usage/cost и gate decision.
 - abstract-only документ не может считаться assessment-grade provenance;
 - source assessment обязан сослаться только на реально сохранённые passage ids;
+- читательская карточка выборки хранит участников, численность и группы отдельно: сообщённое значение обязано иметь passage id, а отсутствие допускается только точной меткой «Не указано в доступном тексте.» без фиктивной ссылки;
 - body assessment обязан сохранить все eligible и contradicting assessment ids;
 - claim synthesis не вызывается до готового body gate и не может повысить certainty;
 - каждый evidence-этап отклоняет неизвестные поля и сохраняет model run отдельно от доменного решения;

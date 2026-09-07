@@ -27,3 +27,11 @@ test('requires result, method and limitation in the fast-reading brief', () => {
   draft.readerBrief.keyPoints = draft.readerBrief.keyPoints.map((point) => ({ ...point, type: 'main_result' }));
   assert.throws(() => validateSourceAssessmentDraft(draft), /reader_brief/);
 });
+
+test('requires cited participant details and a fixed unavailable state', () => {
+  const draft = validSourceAssessmentDraft();
+  draft.readerBrief.studySnapshot.sampleSize = { value: '42 participants', reported: true, provenanceIds: [] };
+  assert.throws(() => validateSourceAssessmentDraft(draft), /reader_brief/);
+  draft.readerBrief.studySnapshot.sampleSize = { value: 'Не указано в доступном тексте.', reported: false, provenanceIds: ['p1'] };
+  assert.throws(() => validateSourceAssessmentDraft(draft), /reader_brief/);
+});

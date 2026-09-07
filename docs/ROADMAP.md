@@ -86,6 +86,7 @@
 - [x] Добавить рабочий UI для live source assessments и body synthesis с блокировкой claim до human review.
 - [x] Добавить append-only human review для source/body assessments; в synthesis допускаются только подтверждённые оценки, hard stops не переопределяются.
 - [x] Добавить provenance-linked краткий разбор статьи и прозрачный review index 0–100 с диапазоном, coverage и gate caps.
+- [x] Показывать отдельно provenance-linked выборку, численность и группы в кратком разборе статьи, не заполняя пропуски догадками.
 - [x] Перевести source/body appraisal на отдельную review-модель; дешёвая research-модель остаётся на discovery и планировании.
 - [x] Реализовать versioned сохранение model-draft claims с confidence, limitations и evidence links; approval остаётся заблокированным.
 - [x] Подключить live-переход `confirmed body → model claim draft → needs_review` без автоматического approval.

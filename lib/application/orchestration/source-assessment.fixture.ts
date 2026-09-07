@@ -14,6 +14,11 @@ export function validSourceAssessmentDraft(): SourceAssessmentDraft {
     },
     readerBrief: {
       plainLanguageSummary: 'Исследование сравнивает вмешательство с контролем, но доступный текст не позволяет уверенно оценить надёжность результата.',
+      studySnapshot: {
+        population: { value: 'Не указано в доступном тексте.', reported: false, provenanceIds: [] },
+        sampleSize: { value: 'Не указано в доступном тексте.', reported: false, provenanceIds: [] },
+        groups: { value: 'Не указано в доступном тексте.', reported: false, provenanceIds: [] },
+      },
       keyPoints: [
         { type: 'main_result', statement: 'Авторы сообщили об увеличении силы.', provenanceIds: ['p1'] },
         { type: 'method', statement: 'Исследование описано как рандомизированное.', provenanceIds: ['p1'] },

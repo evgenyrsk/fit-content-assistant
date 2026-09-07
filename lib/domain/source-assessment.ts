@@ -2,6 +2,11 @@ import type { AppraisalRoute, StudyAssessmentInput, StudyGateResult } from './ev
 
 export interface SourceReadingBrief {
   plainLanguageSummary: string;
+  studySnapshot: {
+    population: SourceStudySnapshotField;
+    sampleSize: SourceStudySnapshotField;
+    groups: SourceStudySnapshotField;
+  };
   keyPoints: Array<{
     type: 'main_result' | 'method' | 'limitation';
     statement: string;
@@ -9,6 +14,12 @@ export interface SourceReadingBrief {
   }>;
   conclusionAllowed: string;
   conclusionNotAllowed: string;
+}
+
+export interface SourceStudySnapshotField {
+  value: string;
+  reported: boolean;
+  provenanceIds: string[];
 }
 
 export interface SourceAssessmentRecord {

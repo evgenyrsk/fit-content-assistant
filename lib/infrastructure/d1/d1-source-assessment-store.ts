@@ -38,12 +38,13 @@ export class D1SourceAssessmentStore implements SourceAssessmentStore {
       this.database.prepare(`
         INSERT INTO source_assessment_reader_briefs (
           source_assessment_id, plain_language_summary, key_points_json,
-          conclusion_allowed, conclusion_not_allowed, trust_profile_json
-        ) VALUES (?, ?, ?, ?, ?, ?)
+          conclusion_allowed, conclusion_not_allowed, trust_profile_json, study_snapshot_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
       `).bind(
         record.id, record.readerBrief.plainLanguageSummary,
         JSON.stringify(record.readerBrief.keyPoints), record.readerBrief.conclusionAllowed,
         record.readerBrief.conclusionNotAllowed, JSON.stringify(record.trustProfile),
+        JSON.stringify(record.readerBrief.studySnapshot),
       ),
       ...record.input.dimensions.map((item) => this.database.prepare(`
         INSERT INTO study_dimension_assessments (

@@ -62,7 +62,7 @@ LLM связывает этапы и управляет инструментам
 - до экспертной калибровки любой body assessment требует ручного подтверждения.
 - модельный `eligible_for_synthesis` остаётся закрытым до добавочного human review; body synthesis читает только последнее подтверждённое решение по последней оценке каждого источника.
 - human review не переписывает модельный assessment и не может повысить `excluded` или `context_only`; body confirmation также не открывает claim до release-калибровки.
-- каждый source assessment хранит отдельный читательский brief: plain-language summary, 3–5 provenance-linked тезисов и границу допустимого вывода.
+- каждый source assessment хранит отдельный читательский brief: plain-language summary, provenance-linked карточку выборки (участники, численность, группы), 3–5 тезисов и границу допустимого вывода; неуказанные характеристики не выводятся из косвенных данных.
 - source review index 0–100 рассчитывается детерминированно из dimension/integrity judgements, ограничивается gate и служит только навигацией; это не вероятность истинности и не appraisal quality score.
 
 ### Knowledge Base

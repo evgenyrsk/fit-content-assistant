@@ -147,6 +147,11 @@ function restoreProvenance(document: ScientificSourceDocument, draft: SourceAsse
     finding: { ...draft.finding, provenanceIds: restore(draft.finding.provenanceIds) },
     readerBrief: {
       ...draft.readerBrief,
+      studySnapshot: {
+        population: { ...draft.readerBrief.studySnapshot.population, provenanceIds: restore(draft.readerBrief.studySnapshot.population.provenanceIds) },
+        sampleSize: { ...draft.readerBrief.studySnapshot.sampleSize, provenanceIds: restore(draft.readerBrief.studySnapshot.sampleSize.provenanceIds) },
+        groups: { ...draft.readerBrief.studySnapshot.groups, provenanceIds: restore(draft.readerBrief.studySnapshot.groups.provenanceIds) },
+      },
       keyPoints: draft.readerBrief.keyPoints.map((item) => ({
         ...item, provenanceIds: restore(item.provenanceIds),
       })),
