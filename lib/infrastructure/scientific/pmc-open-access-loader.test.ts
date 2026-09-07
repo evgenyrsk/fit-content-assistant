@@ -40,6 +40,15 @@ test('normalizes the numeric identifiers returned by the official PMC BioC API',
   assert.equal(document.pmcid, 'PMC10180745');
 });
 
+test('uses the PubMed identity when a PMC BioC response omits the PMID', () => {
+  const withoutPmid = fixture();
+  delete withoutPmid[0].documents[0].passages[0].infons['article-id_pmid'];
+  const [document] = parsePmcOpenAccess(
+    withoutPmid, '2026-08-27T00:00:00.000Z', new Map([['PMC123', '42']]),
+  );
+  assert.equal(document.sourceId, 'pmid:42');
+});
+
 test('rejects restrictive licenses and incomplete section coverage', () => {
   assert.deepEqual(parsePmcOpenAccess(fixture('CC BY-NC'), '2026-08-27T00:00:00.000Z'), []);
   const incomplete = fixture();

@@ -114,9 +114,11 @@ async function capturePmcFullText(
     decision.decision === 'admitted_to_triage' ? [decision.sourceId] : []);
   const documents = await Promise.all(admittedIds.map((sourceId) => store.findById(sourceId)));
   const ids = documents.flatMap((document) => document?.pmcid ? [document.pmcid] : []);
+  const pmidsByPmcid = new Map(documents.flatMap((document) =>
+    document?.pmcid && document.pmid ? [[document.pmcid, document.pmid] as const] : []));
   try {
     return await ingestFullTextDocuments(ids, {
-      loader: new PmcOpenAccessLoader(),
+      loader: new PmcOpenAccessLoader({ pmidsByPmcid }),
       store,
     });
   } catch {

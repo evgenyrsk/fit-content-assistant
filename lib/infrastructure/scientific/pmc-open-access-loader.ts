@@ -7,6 +7,7 @@ type JsonRecord = Record<string, unknown>;
 interface PmcLoaderOptions {
   fetcher?: Fetcher;
   now?: () => Date;
+  pmidsByPmcid?: ReadonlyMap<string, string>;
 }
 
 function record(value: unknown): JsonRecord {
@@ -84,10 +85,16 @@ function hasAssessmentSections(chunks: SourceDocumentChunk[]): boolean {
   return kinds.has('methods') && kinds.has('results');
 }
 
-function parseDocument(value: unknown, fetchedAt: string): ScientificSourceDocument | null {
+function parseDocument(
+  value: unknown,
+  fetchedAt: string,
+  pmidsByPmcid: ReadonlyMap<string, string>,
+): ScientificSourceDocument | null {
   const document = record(value);
   const passages = Array.isArray(document.passages) ? document.passages : [];
-  const { identifiers, pmid, pmcid, license } = documentIdentity(document, passages);
+  const identity = documentIdentity(document, passages);
+  const { identifiers, pmcid, license } = identity;
+  const pmid = identity.pmid || pmidsByPmcid.get(pmcid) || '';
   if (!/^\d+$/.test(pmid) || !/^PMC\d+$/i.test(pmcid) || !permitsFormeReuse(license)) return null;
   const sourceId = `pmid:${pmid}`;
   const chunks = passageChunks(passages, sourceId, pmcid);
@@ -102,12 +109,16 @@ function parseDocument(value: unknown, fetchedAt: string): ScientificSourceDocum
   };
 }
 
-export function parsePmcOpenAccess(payload: unknown, fetchedAt: string): ScientificSourceDocument[] {
+export function parsePmcOpenAccess(
+  payload: unknown,
+  fetchedAt: string,
+  pmidsByPmcid: ReadonlyMap<string, string> = new Map(),
+): ScientificSourceDocument[] {
   if (!Array.isArray(payload)) return [];
   return payload.flatMap((collection) => {
     const documents = record(collection).documents;
     return Array.isArray(documents)
-      ? documents.flatMap((document) => parseDocument(document, fetchedAt) ?? [])
+      ? documents.flatMap((document) => parseDocument(document, fetchedAt, pmidsByPmcid) ?? [])
       : [];
   });
 }
@@ -116,10 +127,12 @@ export class PmcOpenAccessLoader implements ScientificSourceDocumentLoader {
   readonly provider = 'pmc' as const;
   private readonly fetcher: Fetcher;
   private readonly now: () => Date;
+  private readonly pmidsByPmcid: ReadonlyMap<string, string>;
 
   constructor(options: PmcLoaderOptions = {}) {
     this.fetcher = options.fetcher ?? fetch;
     this.now = options.now ?? (() => new Date());
+    this.pmidsByPmcid = options.pmidsByPmcid ?? new Map();
   }
 
   async load(externalIds: string[]): Promise<ScientificSourceDocument[]> {
@@ -131,6 +144,6 @@ export class PmcOpenAccessLoader implements ScientificSourceDocumentLoader {
     const url = `https://www.ncbi.nlm.nih.gov/research/bionlp/RESTful/pmcoa.cgi/BioC_json/${ids.join(',')}/unicode`;
     const response = await this.fetcher(url);
     if (!response.ok) throw new Error(`PMC Open Access fetch failed: ${response.status}`);
-    return parsePmcOpenAccess(await response.json(), this.now().toISOString());
+    return parsePmcOpenAccess(await response.json(), this.now().toISOString(), this.pmidsByPmcid);
   }
 }
