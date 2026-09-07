@@ -16,9 +16,13 @@ function DecisionIcon({ decision }: { decision: HumanSourceReviewDecision }) {
 function CurrentReview({ item }: { item: SourceReviewQueueItem }) {
   const review = item.humanReview;
   if (!review) return null;
+  const fullTextArrivedAfterReview = item.contentLevel === 'full_text'
+    && item.documentFetchedAt && Date.parse(item.documentFetchedAt) > Date.parse(review.createdAt);
   return <div className="source-review-current" data-decision={review.decision}>
     <DecisionIcon decision={review.decision} />
-    <span><strong>{labels[review.decision]}</strong>{review.overridesIntake ? ' · override intake' : ''}<small>{review.reason}</small></span>
+    <span><strong>{labels[review.decision]}</strong>{review.overridesIntake ? ' · override intake' : ''}<small>{review.reason}</small>
+      {fullTextArrivedAfterReview && <small>Полный текст появился после этого решения — обновите его перед следующим evidence review.</small>}
+    </span>
   </div>;
 }
 

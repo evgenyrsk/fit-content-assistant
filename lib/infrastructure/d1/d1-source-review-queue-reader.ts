@@ -16,6 +16,7 @@ interface QueueRow {
   record_status: SourceReviewQueueItem['recordStatus'];
   content_level: SourceReviewQueueItem['contentLevel'] | null;
   license: string | null;
+  document_fetched_at: string | null;
   original_filename: string | null;
   byte_size: number | null;
   page_count: number | null;
@@ -58,21 +59,25 @@ function manualUpload(row: QueueRow): SourceReviewQueueItem['manualUpload'] {
   };
 }
 
+function humanReview(row: QueueRow): SourceReviewQueueItem['humanReview'] {
+  if (!row.review_id || !row.review_decision || !row.review_reason || !row.reviewer_id || !row.review_created_at) return undefined;
+  return {
+    id: row.review_id, decision: row.review_decision, reason: row.review_reason,
+    reviewerId: row.reviewer_id, createdAt: row.review_created_at,
+    overridesIntake: row.overrides_intake === 1,
+  };
+}
+
 function toQueueItem(row: QueueRow): SourceReviewQueueItem {
-  const humanReview = row.review_id && row.review_decision && row.review_reason
-    && row.reviewer_id && row.review_created_at ? {
-      id: row.review_id, decision: row.review_decision, reason: row.review_reason,
-      reviewerId: row.reviewer_id, createdAt: row.review_created_at,
-      overridesIntake: row.overrides_intake === 1,
-    } : undefined;
   return {
     sourceId: row.source_id, researchRunId: row.research_run_id, researchQuery: row.query,
     title: row.title, url: row.url, pmid: row.pmid ?? undefined, pmcid: row.pmcid ?? undefined,
     sourceType: row.source_type, recordStatus: row.record_status,
     contentLevel: row.content_level ?? 'metadata_only', license: row.license ?? undefined,
+    documentFetchedAt: row.document_fetched_at ?? undefined,
     manualUpload: manualUpload(row),
     intakeDecision: row.decision, intakeReasons: reasons(row.reasons_json),
-    policyVersion: row.policy_version, humanReview, lastCheckedAt: row.last_checked_at,
+    policyVersion: row.policy_version, humanReview: humanReview(row), lastCheckedAt: row.last_checked_at,
     revalidationDueAt: dueAt(row.last_checked_at),
   };
 }
@@ -98,7 +103,7 @@ export class D1SourceReviewQueueReader implements SourceReviewQueueReader {
         FROM source_review_decisions srd
       )
       SELECT r.source_id, r.research_run_id, rr.query, s.title, s.url, s.pmid,
-        sd.pmcid, s.source_type, s.record_status, sd.content_level, sd.license,
+        sd.pmcid, s.source_type, s.record_status, sd.content_level, sd.license, sd.fetched_at AS document_fetched_at,
         mi.original_filename, mi.byte_size, mi.page_count, mi.extracted_characters,
         mi.rights_basis, mi.processing_status,
         r.decision, r.reasons_json, r.policy_version, s.last_checked_at,

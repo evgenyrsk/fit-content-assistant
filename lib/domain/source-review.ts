@@ -45,6 +45,7 @@ export interface SourceReviewQueueItem {
   recordStatus: EvidenceRecordStatus;
   contentLevel: SourceContentLevel;
   license?: string;
+  documentFetchedAt?: string;
   manualUpload?: {
     fileName: string;
     byteSize: number;
