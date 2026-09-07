@@ -164,6 +164,7 @@ Rights-aware full-text ingestion зафиксирован в `docs/decisions/000
 Claim-scoped запуск контента зафиксирован в `docs/decisions/0022-claim-scoped-content-launch.md`.
 Сбалансированный PubMed retrieval и rights-aware reuse full text зафиксированы в `docs/decisions/0023-balanced-scientific-retrieval.md`.
 PICO-aware soft-reranking и его границы зафиксированы в `docs/decisions/0024-pico-aware-candidate-reranking.md`.
+Contract-aware bounded repair научной оценки зафиксирован в `docs/decisions/0025-contract-aware-source-assessment-repair.md`.
 Ручной owner-reviewed claim workflow зафиксирован в `docs/decisions/0013-manual-claim-review.md`.
 Автономный operations-слой без LLM зафиксирован в `docs/decisions/0014-autonomous-operations-layer.md`.
 Российский portability target зафиксирован в `docs/decisions/0015-timeweb-portability-target.md`.

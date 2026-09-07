@@ -1,11 +1,16 @@
 import type { LlmExecutionResult, LlmProvider } from '../ports/llm-provider.ts';
 import type { ModelRunRecord } from './model-run.ts';
 import { stageBudget, type BudgetProfile } from './pipeline-budget.ts';
-import { sourceAssessmentSchema, validateSourceAssessmentDraft, type SourceAssessmentDraft } from './source-assessment-contract.ts';
+import {
+  sourceAssessmentSchema, studyDesignValues, validateSourceAssessmentDraft,
+  type SourceAssessmentDraft,
+} from './source-assessment-contract.ts';
 import { sourceAssessmentPrompt } from './source-assessment-prompt.ts';
 import { selectAssessmentPassages } from './select-assessment-passages.ts';
 import { evaluateStudyGate, methodologyRelease } from '../../domain/evidence-policy.ts';
 import { routeAppraisal } from '../../domain/evidence-routing.ts';
+import type { StudyDesign } from '../../domain/evidence-methodology.ts';
+import { requiredIntegrityChecks } from '../../domain/study-integrity-policy.ts';
 import {
   calculateSourceTrustProfile,
   hasAssessmentGradeProvenance,
@@ -46,9 +51,32 @@ interface ValidatedAssessmentDraft {
   retried: boolean;
 }
 
-function repairInstruction(error: unknown): string {
+function runtimeContractIssue(error: unknown): string | null {
+  if (!(error instanceof Error)) return null;
+  return /strict runtime contract: ([a-z_]+)\./i.exec(error.message)?.[1] ?? null;
+}
+
+function draftStudyDesign(output: unknown): StudyDesign | null {
+  if (typeof output !== 'object' || output === null || Array.isArray(output)) return null;
+  const value = (output as Record<string, unknown>).studyDesign;
+  return studyDesignValues.includes(value as StudyDesign) ? value as StudyDesign : null;
+}
+
+function repairInstruction(error: unknown, output: unknown, document: ScientificSourceDocument): string {
   const failure = failureCode(error);
-  return `The previous response was rejected as ${failure}. Regenerate the complete JSON from scratch and recheck every schema field and supplied passage alias.`;
+  const issue = runtimeContractIssue(error);
+  const design = draftStudyDesign(output);
+  const checks = issue === 'integrity_checks' && design ? requiredIntegrityChecks(design) : [];
+  const checkGuide = checks.length > 0
+    ? ` Keep studyDesign=${design}. Return integrityChecks with exactly ${checks.length} entries in this exact order: ${checks.join(', ')}.`
+    : '';
+  const dimensionGuide = issue === 'dimensions'
+    ? ' Return every required dimension exactly once in the schema order.' : '';
+  const briefGuide = issue === 'reader_brief'
+    ? ' Return 3-5 key points including main_result, method, and limitation.' : '';
+  const issueGuide = issue ? ` Runtime validation issue: ${issue}.` : '';
+  const aliases = document.chunks.map((_, index) => passageAlias(index)).join(', ');
+  return `The previous response was rejected as ${failure}.${issueGuide}${checkGuide}${dimensionGuide}${briefGuide} Regenerate the complete JSON from scratch. Use only these passage aliases: ${aliases}. Recheck every schema field before returning.`;
 }
 
 function inputText(question: string, document: ScientificSourceDocument): string {
@@ -82,6 +110,7 @@ async function generateValidatedDraft(
   const budget = stageBudget('source_assessment', options.budgetProfile);
   let repair = '';
   for (let attempt = 0; attempt < 2; attempt += 1) {
+    let draftOutput: unknown;
     try {
       const result = await options.provider.generateStructured<unknown>({
         model: options.model,
@@ -90,11 +119,16 @@ async function generateValidatedDraft(
         outputSchema: sourceAssessmentSchema, maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,
         metadata: { runId: options.researchRunId, stage: 'source_assessment', promptVersion: sourceAssessmentPrompt.version },
       });
+      draftOutput = result.output;
       const draft = restoreProvenance(document, validateSourceAssessmentDraft(result.output));
       return { draft, result, retried: attempt > 0 };
     } catch (error) {
       const retryable = ['invalid_model_output', 'invalid_provenance'].includes(failureCode(error));
-      if (attempt === 0 && retryable) { onRepair(); repair = repairInstruction(error); continue; }
+      if (attempt === 0 && retryable) {
+        onRepair();
+        repair = repairInstruction(error, draftOutput, document);
+        continue;
+      }
       throw error;
     }
   }

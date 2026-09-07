@@ -27,7 +27,7 @@ const questionTypes: EvidenceQuestionType[] = [
   'intervention_effect', 'exposure_association', 'prognosis',
   'diagnostic_accuracy', 'systematic_review', 'mechanistic_context',
 ];
-const studyDesigns: StudyDesign[] = [
+export const studyDesignValues: readonly StudyDesign[] = [
   'randomized_parallel', 'randomized_crossover', 'cluster_randomized',
   'nonrandomized_intervention', 'prospective_cohort', 'retrospective_cohort',
   'case_control', 'cross_sectional', 'diagnostic_accuracy',
@@ -72,7 +72,7 @@ export const sourceAssessmentSchema: Record<string, unknown> = {
   properties: {
     resultId: { type: 'string', minLength: 1, maxLength: 200 },
     questionType: { type: 'string', enum: questionTypes },
-    studyDesign: { type: 'string', enum: studyDesigns },
+    studyDesign: { type: 'string', enum: studyDesignValues },
     targetOutcomeMeasured: { type: 'boolean' },
     sponsorRole: { type: 'string', enum: ['fully_reported', 'partially_reported', 'not_reported', 'not_applicable'] },
     finding: {
@@ -122,14 +122,14 @@ function findingIsValid(value: unknown): boolean {
 export function validateSourceAssessmentDraft(value: unknown): SourceAssessmentDraft {
   if (!isRecord(value)) throw new Error('Source assessment must be an object.');
   const design = value.studyDesign as StudyDesign;
-  const requiredChecks = studyDesigns.includes(design) ? requiredIntegrityChecks(design) : [];
+  const requiredChecks = studyDesignValues.includes(design) ? requiredIntegrityChecks(design) : [];
   const exactShape = Object.keys(value).length === assessmentKeys.length
     && Object.keys(value).every((key) => assessmentKeys.includes(key as typeof assessmentKeys[number]));
   const checks = [
     exactShape,
     typeof value.resultId === 'string',
     questionTypes.includes(value.questionType as EvidenceQuestionType),
-    studyDesigns.includes(design),
+    studyDesignValues.includes(design),
     typeof value.targetOutcomeMeasured === 'boolean',
     ['fully_reported', 'partially_reported', 'not_reported', 'not_applicable'].includes(String(value.sponsorRole)),
     findingIsValid(value.finding),

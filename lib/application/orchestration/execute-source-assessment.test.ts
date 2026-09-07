@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import type { LlmProvider } from '../ports/llm-provider.ts';
+import type { LlmExecutionRequest, LlmProvider } from '../ports/llm-provider.ts';
 import type { ScientificSourceDocument } from '../../domain/source-document.ts';
 import { executeSourceAssessment } from './execute-source-assessment.ts';
 import { validSourceAssessmentDraft } from './source-assessment.fixture.ts';
@@ -84,6 +84,28 @@ test('repairs one invalid structured draft without weakening the gate', async ()
   assert.equal(calls, 2);
   assert.equal(result.status, 'model_draft');
   assert.deepEqual(result.modelRun.toolCalls, ['structured_output_retry']);
+});
+
+test('gives a failed design-specific check list exact bounded repair guidance', async () => {
+  let calls = 0;
+  let repairSystem = '';
+  const fake = provider(validSourceAssessmentDraft());
+  fake.generateStructured = async <T>(request: LlmExecutionRequest) => {
+    calls += 1;
+    if (calls === 2) repairSystem = request.system;
+    const output = calls === 1
+      ? { ...validSourceAssessmentDraft(), integrityChecks: [] }
+      : validSourceAssessmentDraft();
+    return { output: output as T, provider: 'openai', model: 'research', requestId: `request-${calls}` };
+  };
+  const result = await executeSourceAssessment('Does creatine improve strength?', document('full_text'), {
+    provider: fake, model: 'research', budgetProfile: 'economy', researchRunId: 'research-1',
+  });
+  assert.equal(result.status, 'model_draft');
+  assert.match(repairSystem, /Runtime validation issue: integrity_checks/);
+  assert.match(repairSystem, /exactly 9 entries/);
+  assert.match(repairSystem, /prospective_registration, prespecified_outcomes/);
+  assert.match(repairSystem, /Use only these passage aliases: p1/);
 });
 
 test('does not retry a provider failure', async () => {
