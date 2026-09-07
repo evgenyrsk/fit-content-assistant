@@ -53,17 +53,17 @@ Forme превращает исследовательский вопрос в п
 
 **Что входит:**
 
-- Заменить синтетическую релевантность экспертной разметкой реальной PubMed-выдачи; измерять `recall@10`, долю релевантных full text и долю нерелевантных кандидатов.
+- ~~Заменить синтетическую релевантность экспертной разметкой реальной PubMed-выдачи; измерять `recall@10`, долю релевантных full text и долю нерелевантных кандидатов.~~ Воспроизводимая owner-authorized PICO-разметка и сравнение до/после зафиксированы в `docs/evals/2026-09-07-real-pubmed-retrieval.md`; независимая клиническая калибровка остаётся отдельной процедурой.
 - Развить hybrid retrieval/reranking: abstract-aware второй проход, diversity дизайнов, отдельные FTS/vector namespaces для evidence chunks и approved claims.
 - Расширять только законное full-text покрытие и reuse PDF, импортированных владельцем.
-- Сделать внешний scheduler для corrections, expressions of concern и retractions при закрытом приложении; блокировать зависимые claims/content, создавать revalidation и audit trail.
+- ~~Сделать внешний scheduler для corrections, expressions of concern и retractions при закрытом приложении; блокировать зависимые claims/content, создавать revalidation и audit trail.~~ Ежедневный autonomous heartbeat запускает production revalidation; защищённый endpoint оставлен для независимого scheduler. Неблагоприятный статус возвращает зависимые claims и неопубликованный контент в review, оставляя audit trail.
 - Добавить мониторинг LLM cost/failures, сроков Meta token и перенести инфраструктурные границы в переносимый контур для Timeweb.
 
 **Готово, когда:**
 
-- Retrieval улучшен на реальной разметке с опубликованным сравнением до/после.
-- Смоделированное изменение статуса источника блокирует зависимый claim/content и создаёт понятную maintenance-задачу.
-- Raw evidence и approved claims остаются физически и логически разделены.
+- ~~Retrieval улучшен на реальной разметке с опубликованным сравнением до/после.~~
+- ~~Смоделированное изменение статуса источника блокирует зависимый claim/content и создаёт понятную maintenance-задачу.~~
+- ~~Raw evidence и approved claims остаются физически и логически разделены.~~
 
 **Вход для нового чата:** «Выполни этап 2 из `docs/ROADMAP.md`: усили базу знаний, retrieval и контур актуальности по измеримым метрикам. Не меняй evidence-gates.»
 
