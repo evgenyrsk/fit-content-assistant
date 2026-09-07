@@ -26,6 +26,10 @@ The production D1 database exposes 34 expected tables across source intake, evid
 
 The site is private and owner-only. Production environment revision 12 contains the expected RouterAI and Threads setting names; secret values were not read or logged. Five recent immutable versions were available before this release.
 
+## Authenticated production smoke
+
+The owner-authenticated interface loaded without an access or rendering failure. The bounded LLM probe returned `LLM подключена`: research, content and review routes all answered through their strict schemas. The Production Health panel returned `healthy`, 35 model runs in the preceding 24 hours, zero incomplete runs and zero sources overdue for revalidation. No source, claim or content review was approved and no external publication action was invoked during this dry run.
+
 ## Reproducible dry run
 
 1. Run `npm run check` from a clean checkout.
