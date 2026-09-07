@@ -57,7 +57,7 @@
 - [ ] Проверить прямой OpenAI, OpenRouter и RouterAI на одном eval-наборе, затем выбрать primary/fallback по качеству, функциям, задержке и стоимости.
 - [x] Реализовать strict schema и prompt contract для первого этапа `research_plan`.
 - [x] Сохранять `model_runs` и `audit_events` для модельного research plan.
-- [ ] Реализовать строгие схемы остальных этапов LLM-конвейера.
+- [x] Реализовать строгие схемы остальных этапов LLM-конвейера.
   - [x] `source_assessment`: все измерения, design-specific checks, finding и provenance.
   - [x] `body_assessment`: пять GRADE-доменов, contradictions и certainty gate.
   - [x] `claim_synthesis`: атомарный claim, scope, limitations, evidence ids и review date.
@@ -128,7 +128,7 @@
   - [ ] Внешний фоновый scheduler для проверки при закрытом приложении.
 - [x] Lexical search по source chunks и каноническим claims с раздельной выдачей.
 - [x] Ручное создание/утверждение claims с full-text evidence-трассировкой и отдельным human gate.
-- [ ] Реальный D1-архив контента, статусы и календарь.
+- [x] Реальный D1-архив контента, статусы и календарь.
   - [x] Сохранение traceable content items, fragments, claim links, model runs и audit events.
   - [x] Рабочий интерфейс канонического архива без demo data.
   - [x] Ручные статусы, version history, human fact-check, календарь и планирование публикаций.
@@ -142,7 +142,7 @@
 
 ## Ближайший измеримый результат
 
-Основной вертикальный контур собран: вопрос → источники → source/body review → claim draft → human claim approval → генерация строго на выбранной claim version → независимый fact-check → human review → календарь/публикация/метрики. Production smoke-сценарий подтвердил live RouterAI, PubMed discovery, full-text assessment и корректную fail-closed блокировку: нерелевантное исследование получило 15/100 и не открыло claim/content gate.
+Основной вертикальный контур собран: вопрос → источники → source/body review → claim draft → human claim approval → генерация строго на выбранной claim version → независимый fact-check → human review → календарь/публикация/метрики. Production regression подтвердил live RouterAI, PICO-aware PubMed discovery и 3/3 валидных full-text assessments. Система сохранила границы популяции, совместного вмешательства и контекста иммобилизации; source/body gates остались закрыты до человека. Отчёт: `docs/evals/2026-09-07-production-scientific-flow.md`.
 
 Следующий измеримый шаг — повысить полезность поиска, не ослабляя научные ограничения:
 
