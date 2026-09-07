@@ -22,7 +22,7 @@ interface WorkspaceViewProps {
 
 export function WorkspaceView({ initialTopic, activeFormat, onFormatChange, onOpenContent }: WorkspaceViewProps) {
   const [topic, setTopic] = useState(initialTopic || 'Нужно ли тренироваться до отказа для роста мышц?');
-  const [mode, setMode] = useState<Mode>('Исследовать');
+  const [mode, setMode] = useState<Mode>(activeFormat ? 'Создать' : 'Исследовать');
   const { status, result, error, start } = useResearchSearch();
   const llm = useLlmConnection();
   const [showAllClaims, setShowAllClaims] = useState(false);
@@ -35,6 +35,11 @@ export function WorkspaceView({ initialTopic, activeFormat, onFormatChange, onOp
     if (!topic.trim()) return;
     if (mode === 'Проверить') {
       document.getElementById('evidence-flow-demo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    if (mode === 'Создать') {
+      onFormatChange(activeFormat ?? 'Threads');
+      window.setTimeout(() => document.querySelector('.content-studio')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
       return;
     }
     onFormatChange(null);
@@ -54,10 +59,16 @@ export function WorkspaceView({ initialTopic, activeFormat, onFormatChange, onOp
   }
 
   function launchContent(format: ContentFormat, claimVersionId: string) {
+    setMode('Создать');
     onFormatChange(format);
     setContentClaimVersionIds([claimVersionId]);
     setContentAutoRunKey((value) => value + 1);
     window.setTimeout(() => document.querySelector('.content-studio')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+  }
+
+  function changeContentFormat(format: ContentFormat | null) {
+    if (format) setMode('Создать');
+    onFormatChange(format);
   }
 
   return (
@@ -68,7 +79,7 @@ export function WorkspaceView({ initialTopic, activeFormat, onFormatChange, onOp
         <ResearchResult topic={topic} working={status === 'working'} result={result} error={error} showAllClaims={showAllClaims} onToggleClaims={() => setShowAllClaims((value) => !value)} />
         {result && <LiveEvidenceWorkbench key={result.runId} result={result} question={topic} onContentFormat={launchContent} />}
         <SourceReviewQueue refreshKey={result?.runId ?? ''} />
-        <ContentComposer activeFormat={activeFormat} onFormatChange={onFormatChange} autoRunKey={contentAutoRunKey} autoRunClaimVersionIds={contentClaimVersionIds} onOpenContent={onOpenContent} />
+        <ContentComposer activeFormat={activeFormat} onFormatChange={changeContentFormat} autoRunKey={contentAutoRunKey} autoRunClaimVersionIds={contentClaimVersionIds} onOpenContent={onOpenContent} />
       </>}
     </>
   );

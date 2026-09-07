@@ -43,6 +43,40 @@ function ThreadsDiagnostics({ source }: { source: TrendSourceChoice }) {
   />;
 }
 
+function MetaSourceStates({ result, source, loading }: {
+  result: TrendDiscoveryResult | null;
+  source: TrendSourceChoice;
+  loading: boolean;
+}) {
+  if (loading) return null;
+  return (
+    <div className="meta-source-states" aria-label="Статус прямых источников">
+      {(source === 'all' || source === 'threads') && <MetaSourceState result={result} source="threads" label="Threads" />}
+      {(source === 'all' || source === 'instagram') && <MetaSourceState result={result} source="instagram" label="Instagram" />}
+    </div>
+  );
+}
+
+function TrendList({ result, loading, source, onChoose }: {
+  result: TrendDiscoveryResult | null;
+  loading: boolean;
+  source: TrendSourceChoice;
+  onChoose: (topic: string) => void;
+}) {
+  if (loading) return <div className="trend-list"><div className="trend-empty"><LoaderCircle className="spin" aria-hidden="true" /><p>Ищу свежие темы и проверяю их соответствие фитнес-направлению.</p></div></div>;
+  if (!result?.candidates.length) return <div className="trend-list"><div className="trend-empty"><TriangleAlert aria-hidden="true" /><p>{emptyMessage(result, source)}</p></div></div>;
+  return <div className="trend-list">{result.candidates.map((trend, index) => (
+    <article key={trend.title}>
+      <span className="trend-rank">0{index + 1}</span>
+      <div>
+        <div className="trend-tags"><span>{trend.growthSignal}</span><span>Научный потенциал {Math.round(trend.scientificResearchability * 100)}%</span></div>
+        <h3>{trend.title}</h3><p>{trend.sourceLabel} · {trend.freshnessMinutes < 60 ? `${trend.freshnessMinutes} мин` : `${Math.round(trend.freshnessMinutes / 60)} ч`} назад</p><small>{trend.platforms.join(' · ')}</small>
+      </div>
+      <button onClick={() => onChoose(trend.title)}>Исследовать <ArrowUpRight aria-hidden="true" /></button>
+    </article>
+  ))}</div>;
+}
+
 export function TrendScout({ source, onSourceChange, onChoose }: TrendScoutProps) {
   const { result, loading } = useTrendSignals(source);
 
@@ -56,26 +90,10 @@ export function TrendScout({ source, onSourceChange, onChoose }: TrendScoutProps
           </select>
         </label>
       </div>
-      {!loading && <div className="meta-source-states" aria-label="Статус прямых источников">
-        <MetaSourceState result={result} source="threads" label="Threads" />
-        <MetaSourceState result={result} source="instagram" label="Instagram" />
-      </div>}
+      <MetaSourceStates result={result} source={source} loading={loading} />
       <ThreadsDiagnostics source={source} />
       <p className="trend-disclaimer">{loading ? 'Обновляю сигналы…' : result?.message ?? 'Live-источник временно недоступен.'}</p>
-      <div className="trend-list">
-        {loading && <div className="trend-empty"><LoaderCircle className="spin" aria-hidden="true" /><p>Ищу свежие темы и проверяю их соответствие фитнес-направлению.</p></div>}
-        {!loading && !result?.candidates.length && <div className="trend-empty"><TriangleAlert aria-hidden="true" /><p>{emptyMessage(result, source)}</p></div>}
-        {result?.candidates.map((trend, index) => (
-          <article key={trend.title}>
-            <span className="trend-rank">0{index + 1}</span>
-            <div>
-              <div className="trend-tags"><span>{trend.growthSignal}</span><span>Научный потенциал {Math.round(trend.scientificResearchability * 100)}%</span></div>
-              <h3>{trend.title}</h3><p>{trend.sourceLabel} · {trend.freshnessMinutes < 60 ? `${trend.freshnessMinutes} мин` : `${Math.round(trend.freshnessMinutes / 60)} ч`} назад</p><small>{trend.platforms.join(' · ')}</small>
-            </div>
-            <button onClick={() => onChoose(trend.title)}>Исследовать <ArrowUpRight aria-hidden="true" /></button>
-          </article>
-        ))}
-      </div>
+      <TrendList result={result} loading={loading} source={source} onChoose={onChoose} />
     </section>
   );
 }

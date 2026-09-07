@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://forme-fitness-content-os.evgenyrsk7.chatgpt.site'),
   title: 'Forme — научный редактор фитнес-контента',
   description: 'От научного вопроса до понятного и точного контента.',
+  icons: {
+    icon: [{ url: '/meta-app-icon.svg', type: 'image/svg+xml' }],
+    apple: '/meta-app-icon.png',
+  },
   openGraph: {
     title: 'Forme — Fitness Content OS',
     description: 'Из научного вопроса — в точный контент.',

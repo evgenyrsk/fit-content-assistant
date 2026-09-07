@@ -51,7 +51,7 @@ export function ContentLibraryView({ onCreate, onOpenFormat }: ContentLibraryVie
       <div>{playbooks.map((item) => <button className={item.className} key={item.format}
         onClick={() => onOpenFormat(item.format)}><span>{item.mark}</span><p><strong>{item.format}</strong>
           <small>{item.copy}</small></p><ArrowUpRight aria-hidden="true" /></button>)}</div></section>
-    <ContentWorkflowBoard items={archive.items} saving={operations.saving} error={archive.error ?? operations.error}
+    <ContentWorkflowBoard items={archive.items} saving={operations.saving} error={archive.error ?? (composerOpen ? null : operations.error)}
       onEdit={edit} onReview={operations.review} onUpdate={operations.update} />
     <TopicBankPanel />
     <PerformancePanel items={archive.items} />

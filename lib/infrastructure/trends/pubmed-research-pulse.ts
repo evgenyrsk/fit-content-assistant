@@ -12,6 +12,7 @@ interface PubmedPulseOptions {
 
 function publicationTime(value: string | undefined, fallback: Date): Date {
   if (!value) return fallback;
+  if (/^\d{4}$/.test(value.trim())) return fallback;
   const parsed = new Date(value);
   return Number.isNaN(parsed.valueOf()) ? fallback : parsed;
 }
@@ -38,6 +39,12 @@ export function mapPubmedPulse(sources: ScientificSourceCandidate[], now: Date):
   });
 }
 
+export function eligiblePubmedPulse(sources: ScientificSourceCandidate[], now: Date, limit: number): TrendCandidate[] {
+  return mapPubmedPulse(sources, now)
+    .filter((candidate) => candidate.status === 'live' && candidate.audienceFit >= 0.5)
+    .slice(0, limit);
+}
+
 export class PubmedResearchPulse implements TrendProvider {
   readonly source = 'pubmed_pulse' as const;
   private readonly search: PubmedSearch;
@@ -52,8 +59,6 @@ export class PubmedResearchPulse implements TrendProvider {
     const topic = request.query?.trim() || '(resistance training OR exercise OR hypertrophy OR protein OR weight loss OR sleep)';
     const query = `${topic} AND ("last 60 days"[PDat])`;
     const sources = await this.search.search({ query, limit: request.limit, signal: request.signal });
-    return mapPubmedPulse(sources, this.now())
-      .filter((candidate) => candidate.audienceFit >= 0.5)
-      .slice(0, request.limit);
+    return eligiblePubmedPulse(sources, this.now(), request.limit);
   }
 }

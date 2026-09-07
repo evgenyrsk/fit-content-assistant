@@ -29,7 +29,7 @@ function ReviewBox({ saving, onSubmit }: { saving: boolean; onSubmit: (input: Om
     <label><input type="checkbox" checked={checks.trace} onChange={(event) => setChecks({ ...checks, trace: event.target.checked })} />Трассировка каждого факта проверена</label>
     <label><input type="checkbox" checked={checks.caveats} onChange={(event) => setChecks({ ...checks, caveats: event.target.checked })} />Оговорки и scope сохранены</label>
     <label><input type="checkbox" checked={checks.platform} onChange={(event) => setChecks({ ...checks, platform: event.target.checked })} />Формат платформы соблюдён</label>
-    <textarea rows={2} value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Комментарий или причина возврата" />
+    <textarea aria-label="Комментарий к факт-чеку" rows={2} value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Комментарий или причина возврата" />
     <div><button type="button" disabled={saving} onClick={() => submit('rejected')}>Вернуть</button>
       <button type="button" disabled={saving} onClick={() => submit('approved')}>Подтвердить</button></div></div>;
 }

@@ -32,9 +32,13 @@ export function FormeApp() {
   }, []);
 
   function openFormat(format: ContentFormat) {
-    navigate('workspace');
     setActiveFormat(format);
+    navigate('workspace');
     window.setTimeout(() => document.querySelector('.content-studio')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+  }
+
+  function openContentStudio() {
+    openFormat(activeFormat ?? 'Threads');
   }
 
   function repeatResearch(topic: string) {
@@ -50,7 +54,7 @@ export function FormeApp() {
         <div className="view-frame" key={activeView}>
           {activeView === 'workspace' && <WorkspaceView key={researchSeed.revision} initialTopic={researchSeed.topic} activeFormat={activeFormat} onFormatChange={setActiveFormat} onOpenContent={() => navigate('content')} />}
           {activeView === 'knowledge' && <KnowledgeView />}
-          {activeView === 'content' && <ContentLibraryView onCreate={() => navigate('workspace')} onOpenFormat={openFormat} />}
+          {activeView === 'content' && <ContentLibraryView onCreate={openContentStudio} onOpenFormat={openFormat} />}
           {activeView === 'history' && <HistoryView onRepeat={repeatResearch} />}
         </div>
         <footer>
