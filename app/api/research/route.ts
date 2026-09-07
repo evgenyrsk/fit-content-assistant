@@ -6,6 +6,7 @@ import { buildScientificQuery } from '@/lib/application/use-cases/build-scientif
 import { ingestFullTextDocuments } from '@/lib/application/use-cases/ingest-full-text-documents';
 import { ingestSourceDocuments } from '@/lib/application/use-cases/ingest-source-documents';
 import { reuseStoredFullText } from '@/lib/application/use-cases/reuse-stored-full-text';
+import { orderFullTextByCandidateRank } from '@/lib/application/use-cases/rank-scientific-candidates';
 import { searchScientificSources } from '@/lib/application/use-cases/search-scientific-sources';
 import { methodologyRelease } from '@/lib/domain';
 import type { FullTextCoverage, ResearchPlanningTrace, ScientificSourceCandidate, SourceDocumentCoverage } from '@/lib/domain';
@@ -178,7 +179,8 @@ export async function POST(request: Request): Promise<Response> {
     const downloadedFullTextCoverage = await capturePmcFullText(documentCoverage, sourceDocumentStore);
     const admittedSourceIds = documentCoverage.decisions.flatMap((decision) =>
       decision.decision === 'admitted_to_triage' ? [decision.sourceId] : []);
-    const fullTextCoverage = await reuseStoredFullText(admittedSourceIds, downloadedFullTextCoverage, sourceDocumentStore);
+    const reusableCoverage = await reuseStoredFullText(admittedSourceIds, downloadedFullTextCoverage, sourceDocumentStore);
+    const fullTextCoverage = orderFullTextByCandidateRank(reusableCoverage, result.candidates);
     const completed = {
       ...discovered,
       documentCoverage,

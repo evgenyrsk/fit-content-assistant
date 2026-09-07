@@ -1,4 +1,4 @@
-import type { ScientificSourceCandidate } from '../../domain/index.ts';
+import type { FullTextCoverage, ScientificSourceCandidate } from '../../domain/index.ts';
 import { buildScientificQuery } from './build-scientific-query.ts';
 
 export interface ScientificRetrievalFocus {
@@ -77,4 +77,21 @@ export function rankScientificCandidates(
     .sort((left, right) => right.score - left.score || left.index - right.index)
     .slice(0, limit)
     .map(({ candidate }) => candidate);
+}
+
+export function orderFullTextByCandidateRank(
+  coverage: FullTextCoverage,
+  candidates: ScientificSourceCandidate[],
+): FullTextCoverage {
+  const rank = new Map<string, number>(candidates.flatMap((candidate, index) =>
+    candidate.pmid ? [[`pmid:${candidate.pmid}`, index] as const] : []));
+  return {
+    ...coverage,
+    documents: coverage.documents.map((document, index) => ({ document, index }))
+      .sort((left, right) =>
+        (rank.get(left.document.sourceId) ?? Number.MAX_SAFE_INTEGER)
+        - (rank.get(right.document.sourceId) ?? Number.MAX_SAFE_INTEGER)
+        || left.index - right.index)
+      .map(({ document }) => document),
+  };
 }

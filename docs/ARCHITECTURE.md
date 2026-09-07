@@ -34,6 +34,7 @@ LLM связывает этапы и управляет инструментам
 - затем обращается к PubMed, Crossref и издательским страницам;
 - выполняет model-planned PubMed query вместе с широким детерминированным fallback, резервирует место для обоих путей и явно отмечает расширение поиска;
 - собирает ограниченный расширенный пул и применяет PICO-aware soft-reranking: intervention и target outcomes оцениваются раздельно, а source type влияет только на порядок discovery, но не на scientific gate;
+- переносит ranking order в очередь full-text assessment, чтобы ограниченный модельный бюджет не зависел от порядка ответа PMC;
 - сохраняет метаданные, полный контекст поиска и доступные секции PubMed-аннотаций как неизменяемые chunks;
 - сохраняет версию prompt, модельный run и событие решения отдельно от найденных source candidates.
 - явно различает `metadata_only`, `abstract_only` и `full_text`; аннотация служит для triage и не открывает evidence gate.
