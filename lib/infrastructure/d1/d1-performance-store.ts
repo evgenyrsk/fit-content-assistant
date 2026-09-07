@@ -2,6 +2,7 @@ import type { D1Database, D1PreparedStatement } from '@cloudflare/workers-types'
 import type { PerformanceStore } from '../../application/ports/performance-store.ts';
 import {
   validatePublicationMetric,
+  explainPerformance,
   type ContentPerformanceSummary, type PerformanceResult, type PublicationMetricInput,
 } from '../../domain/index.ts';
 
@@ -14,10 +15,12 @@ interface CountRow { count: number }
 function summary(row: SummaryRow): ContentPerformanceSummary {
   const interactions = Number(row.likes) + Number(row.comments) + Number(row.saves) + Number(row.shares);
   const views = Number(row.views);
+  const explanation = explainPerformance({ views, comments: Number(row.comments), saves: Number(row.saves), shares: Number(row.shares) });
   return {
     contentItemId: row.content_item_id, title: row.title, platform: row.platform,
     views, likes: Number(row.likes), comments: Number(row.comments), saves: Number(row.saves), shares: Number(row.shares),
     engagementRate: views > 0 ? Number(((interactions / views) * 100).toFixed(2)) : 0,
+    ...explanation,
     lastRecordedAt: row.recorded_at,
   };
 }

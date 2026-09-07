@@ -10,9 +10,27 @@ interface TrendDependencies {
   now?: () => Date;
 }
 
+function styleFit(title: string): number {
+  const value = title.toLowerCase();
+  const patterns = ['почему', 'правда', 'миф', 'работает', 'лучше', 'нужно', '?', 'vs', 'или', 'ошиб'];
+  return Math.min(1, 0.45 + patterns.filter((pattern) => value.includes(pattern)).length * 0.18);
+}
+
 function rank(candidate: TrendCandidate): number {
   const freshness = Math.max(0, 1 - candidate.freshnessMinutes / 1440);
-  return candidate.audienceFit * 0.4 + candidate.scientificResearchability * 0.35 + freshness * 0.2 - candidate.saturationRisk * 0.05;
+  return candidate.audienceFit * 0.3 + candidate.scientificResearchability * 0.3
+    + freshness * 0.15 + styleFit(candidate.title) * 0.2 - candidate.saturationRisk * 0.05;
+}
+
+function explain(candidate: TrendCandidate): TrendCandidate {
+  const fit = styleFit(candidate.title);
+  const reasons = [
+    `Аудитория ${Math.round(candidate.audienceFit * 100)}%`,
+    `Исследуемость ${Math.round(candidate.scientificResearchability * 100)}%`,
+    `Стиль ${Math.round(fit * 100)}%`,
+  ];
+  if (candidate.saturationRisk >= 0.65) reasons.push('Высокая насыщенность');
+  return { ...candidate, styleFit: fit, rankScore: Number(rank(candidate).toFixed(3)), rankReasons: reasons };
 }
 
 function resultStatus(candidateCount: number, activeSourceCount: number): TrendDiscoveryResult['status'] {
@@ -48,7 +66,7 @@ export async function discoverTrends(
   for (const source of dependencies.expectedSources ?? []) {
     if (!activeSources.includes(source) && !unavailableSources.includes(source)) unavailableSources.push(source);
   }
-  const ranked = candidates.sort((left, right) => rank(right) - rank(left)).slice(0, request.limit);
+  const ranked = candidates.map(explain).sort((left, right) => (right.rankScore ?? 0) - (left.rankScore ?? 0)).slice(0, request.limit);
   const refreshedAt = (dependencies.now ?? (() => new Date()))().toISOString();
   await dependencies.store?.save(ranked, refreshedAt);
   const status = resultStatus(ranked.length, activeSources.length);

@@ -41,7 +41,8 @@ export function PerformancePanel({ items }: Props) {
     <section className="performance-summary"><div className="subsection-heading"><BarChart3 aria-hidden="true" /><div><h3>Последние результаты</h3>
       <p>{performance.result?.snapshots ?? 0} сохранённых snapshots.</p></div></div><div>
         {performance.result?.summaries.slice(0, 12).map((item) => <article key={`${item.contentItemId}:${item.platform}`}><div><b>{item.platform}</b><span>{item.engagementRate}% engagement</span></div>
-          <h3>{item.title}</h3><p>{item.views} просмотров · {item.saves} сохранений · {item.shares} репостов</p></article>)}</div>
+          <h3>{item.title}</h3><p>{item.views} просмотров · {item.saves} сохранений ({item.saveRate}%) · {item.shares} репостов ({item.shareRate}%)</p>
+          <small>{item.workingExplanation}</small></article>)}</div>
       {!performance.result?.summaries.length && <p className="operations-empty">Метрик пока нет.</p>}</section>
     {performance.error && <p className="operations-error">{performance.error}</p>}
   </section>;

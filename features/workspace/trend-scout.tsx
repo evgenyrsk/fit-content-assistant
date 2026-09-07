@@ -3,7 +3,7 @@ import type { TrendSourceChoice } from '@/features/shared';
 import type { TrendDiscoveryResult, TrendSource } from '@/lib/domain';
 import { ThreadsConnectionPanel } from './threads-connection-panel';
 import { useTrendSignals } from './use-trend-signals';
-import { useThreadsConnection } from './use-threads-connection';
+import { useMetaConnection } from './use-meta-connection';
 
 interface TrendScoutProps {
   source: TrendSourceChoice;
@@ -33,13 +33,15 @@ function emptyMessage(result: TrendDiscoveryResult | null, source: TrendSourceCh
   return `${notice ? `${notice} ` : ''}Свежих подходящих публикаций по фитнес-темам сейчас не найдено.`;
 }
 
-function ThreadsDiagnostics({ source }: { source: TrendSourceChoice }) {
-  const connection = useThreadsConnection(source === 'threads');
-  if (source !== 'threads') return null;
+function MetaDiagnostics({ source }: { source: TrendSourceChoice }) {
+  const selected = source === 'instagram' ? 'instagram' : 'threads';
+  const connection = useMetaConnection(selected, source === 'threads' || source === 'instagram');
+  if (source !== 'threads' && source !== 'instagram') return null;
   return <ThreadsConnectionPanel
     status={connection.result}
     loading={connection.loading}
     onRefresh={connection.refresh}
+    sourceLabel={source === 'instagram' ? 'Instagram' : 'Threads'}
   />;
 }
 
@@ -69,8 +71,9 @@ function TrendList({ result, loading, source, onChoose }: {
     <article key={trend.title}>
       <span className="trend-rank">0{index + 1}</span>
       <div>
-        <div className="trend-tags"><span>{trend.growthSignal}</span><span>Научный потенциал {Math.round(trend.scientificResearchability * 100)}%</span></div>
+        <div className="trend-tags"><span>{trend.growthSignal}</span><span>Научный потенциал {Math.round(trend.scientificResearchability * 100)}%</span><span>Стиль {Math.round((trend.styleFit ?? 0) * 100)}%</span></div>
         <h3>{trend.title}</h3><p>{trend.sourceLabel} · {trend.freshnessMinutes < 60 ? `${trend.freshnessMinutes} мин` : `${Math.round(trend.freshnessMinutes / 60)} ч`} назад</p><small>{trend.platforms.join(' · ')}</small>
+        {trend.rankReasons?.length ? <small>{trend.rankReasons.join(' · ')}</small> : null}
       </div>
       <button onClick={() => onChoose(trend.title)}>Исследовать <ArrowUpRight aria-hidden="true" /></button>
     </article>
@@ -91,7 +94,7 @@ export function TrendScout({ source, onSourceChange, onChoose }: TrendScoutProps
         </label>
       </div>
       <MetaSourceStates result={result} source={source} loading={loading} />
-      <ThreadsDiagnostics source={source} />
+      <MetaDiagnostics source={source} />
       <p className="trend-disclaimer">{loading ? 'Обновляю сигналы…' : result?.message ?? 'Live-источник временно недоступен.'}</p>
       <TrendList result={result} loading={loading} source={source} onChoose={onChoose} />
     </section>

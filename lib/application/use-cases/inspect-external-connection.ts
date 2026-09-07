@@ -14,6 +14,7 @@ interface InspectConnectionDependencies {
 }
 
 const refreshWindowMs = 7 * 24 * 60 * 60 * 1_000;
+const sourceName = (source: InspectConnectionRequest['source']) => source === 'instagram' ? 'Instagram' : 'Threads';
 
 function credentialFreshness(expiresAt: string | undefined, now: Date): ExternalConnectionStatus['credentialFreshness'] {
   if (!expiresAt) return 'unknown';
@@ -33,7 +34,7 @@ function failedStatus(
   const detail = reason === 'credentials'
     ? 'Meta отклонила текущий доступ. Возможно, срок закончился или доступ был отозван.'
     : reason === 'permissions'
-      ? 'Подключённому аккаунту не хватает разрешения на чтение Threads.'
+      ? `Подключённому аккаунту не хватает разрешения на чтение ${sourceName(request.source)}.`
       : 'Meta временно не ответила на проверку. Секрет не раскрыт и настройки не изменены.';
   return {
     source: request.source,
@@ -72,7 +73,7 @@ function connectedStatus(
     accountLabel,
     expiresAt: request.expiresAt,
     checkedAt: now.toISOString(),
-    summary: 'Threads подключён',
+    summary: `${sourceName(request.source)} подключён`,
     detail: request.operatingMode === 'personal'
       ? 'Личный режим работает для аккаунта с ролью в Meta-приложении. Публичная проверка не нужна.'
       : 'Публичный режим Meta доступен.',
@@ -92,7 +93,7 @@ export async function inspectExternalConnection(
       operatingMode: request.operatingMode,
       credentialFreshness: 'unknown',
       checkedAt: now.toISOString(),
-      summary: 'Threads не подключён',
+      summary: `${sourceName(request.source)} не подключён`,
       detail: 'Серверный доступ ещё не настроен.',
       recommendedAction: 'Добавить доступ владельца как серверный секрет.',
     };

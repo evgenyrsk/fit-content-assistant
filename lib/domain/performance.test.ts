@@ -24,3 +24,12 @@ test('negative publication metrics are rejected', () => {
   });
   assert.ok(errors.some((error) => error.includes('likes')));
 });
+
+test('performance explanation prioritizes saves and never claims causality', async () => {
+  const { explainPerformance } = await import('./performance.ts');
+  const result = explainPerformance({ views: 1000, comments: 5, saves: 40, shares: 10 });
+  assert.equal(result.saveRate, 4);
+  assert.equal(result.qualitativeResponseRate, 5.5);
+  assert.match(result.workingExplanation, /возможно/);
+  assert.match(result.workingExplanation, /не доказанная причина/);
+});

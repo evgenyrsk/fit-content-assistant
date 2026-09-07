@@ -23,7 +23,25 @@ export interface ContentPerformanceSummary {
   saves: number;
   shares: number;
   engagementRate: number;
+  saveRate: number;
+  shareRate: number;
+  qualitativeResponseRate: number;
+  workingExplanation: string;
   lastRecordedAt: string;
+}
+
+export function explainPerformance(input: Pick<ContentPerformanceSummary, 'views' | 'comments' | 'saves' | 'shares'>): {
+  saveRate: number; shareRate: number; qualitativeResponseRate: number; workingExplanation: string;
+} {
+  const rate = (value: number) => input.views > 0 ? Number(((value / input.views) * 100).toFixed(2)) : 0;
+  const saveRate = rate(input.saves);
+  const shareRate = rate(input.shares);
+  const qualitativeResponseRate = rate(input.comments + input.saves + input.shares);
+  const strongest = saveRate >= shareRate && input.saves > 0
+    ? 'Материал чаще сохраняют: возможно, ценят практическую применимость.'
+    : shareRate > 0 ? 'Материал чаще пересылают: возможно, хорошо работает обсуждаемая формулировка.'
+      : 'Пока недостаточно сохранений и репостов для рабочей гипотезы.';
+  return { saveRate, shareRate, qualitativeResponseRate, workingExplanation: `${strongest} Это корреляция, не доказанная причина.` };
 }
 
 export interface PerformanceResult {

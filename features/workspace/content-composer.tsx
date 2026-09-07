@@ -76,7 +76,7 @@ function FactCheck({ result }: { result: ContentPipelineResponse }) {
   return <aside className="factcheck" data-state={passed ? 'passed' : 'blocked'}>
     <div><span>{passed ? <Check aria-hidden="true" /> : <CircleAlert aria-hidden="true" />}</span><p>
       <strong>{passed ? 'Фактический gate пройден' : 'Фактчек требует доработки'}</strong>
-      <small>{item.brief.requiredClaimVersionIds.length} approved-claims · стиль: временный нейтральный профиль</small>
+      <small>{item.brief.requiredClaimVersionIds.length} approved-claims · стиль: {item.brief.styleProfileVersion}</small>
     </p></div>
     <p>{passed
       ? 'Черновик сохранён для человеческого просмотра. Автопубликация отключена.'

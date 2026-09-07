@@ -12,6 +12,9 @@ export interface TrendCandidate {
   audienceFit: number;
   scientificResearchability: number;
   saturationRisk: number;
+  styleFit?: number;
+  rankScore?: number;
+  rankReasons?: string[];
   platforms: string[];
   status: 'live' | 'stale';
 }

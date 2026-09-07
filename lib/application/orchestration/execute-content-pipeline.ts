@@ -10,7 +10,7 @@ import { factReviewSchema, validateFactReview } from './fact-review-contract.ts'
 import type { FactReviewOutput } from './fact-review-contract.ts';
 import { missingRequiredCaveats } from './fact-review-preflight.ts';
 import type { ModelRunRecord } from './model-run.ts';
-import { neutralStyleProfile } from './neutral-style-profile.ts';
+import { approvedStyleProfile } from './approved-style-profile.ts';
 import type { BudgetProfile } from './pipeline-budget.ts';
 import { platformDraftSchema, validatePlatformDraft } from './platform-draft-contract.ts';
 import { validateVoiceEdit, voiceEditSchema } from './voice-edit-contract.ts';
@@ -91,7 +91,7 @@ function contentBrief(
       'Не расширять популяцию или область применимости.',
       'Не превращать личный опыт в доказательство.',
     ],
-    styleProfileVersion: neutralStyleProfile.version,
+    styleProfileVersion: approvedStyleProfile.version,
   };
 }
 
@@ -119,7 +119,7 @@ function completedExecution(input: {
       preservedCaveats: input.review.preservedCaveats, notes: input.review.notes,
     },
     status: ready ? 'ready_for_human_review' : 'needs_review',
-    styleProfileFallback: true, createdAt: input.createdAt,
+    styleProfileFallback: false, createdAt: input.createdAt,
   };
   return {
     status: contentItem.status, contentItem, modelRuns: input.modelRuns,
@@ -161,7 +161,7 @@ export async function executeContentPipeline(options: ExecuteContentOptions): Pr
   const voiceRun = await executeStructuredContentStage({
     stage: 'voice_edit', ...options.contentRuntime, contentItemId,
     prompt: voiceEditPrompt, schemaName: 'forme_voice_edit', outputSchema: voiceEditSchema,
-    input: { draft: platformDraft, requiredCaveats: brief.requiredCaveats, styleProfile: neutralStyleProfile },
+    input: { draft: platformDraft, requiredCaveats: brief.requiredCaveats, styleProfile: approvedStyleProfile },
     retrievedIds: [...selectedIds],
     validate: (value) => validateVoiceEdit(value, platformDraft, brief.requiredCaveats),
     now: clock, createId: makeId,

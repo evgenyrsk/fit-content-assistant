@@ -5,6 +5,7 @@ interface ThreadsConnectionPanelProps {
   status: ExternalConnectionStatus | null;
   loading: boolean;
   onRefresh: () => void;
+  sourceLabel?: string;
 }
 
 function statusLabel(status: ExternalConnectionStatus): string {
@@ -39,14 +40,14 @@ function RecommendedAction({ action }: { action?: string }) {
   return <small>{action}</small>;
 }
 
-function ConnectionDetails({ status }: { status: ExternalConnectionStatus | null }) {
+function ConnectionDetails({ status, sourceLabel }: { status: ExternalConnectionStatus | null; sourceLabel: string }) {
   if (!status) return null;
   const details = [
     status.operatingMode === 'personal' ? 'Личный режим Meta' : 'Публичный режим Meta',
     status.accountLabel ? `@${status.accountLabel.replace(/^@/, '')}` : undefined,
     `Проверено в ${checkedTime(status.checkedAt)}`,
   ].filter((value): value is string => Boolean(value));
-  return <ul aria-label="Детали подключения Threads">
+  return <ul aria-label={`Детали подключения ${sourceLabel}`}>
     {details.map((detail) => <li key={detail}>{detail}</li>)}
   </ul>;
 }
@@ -57,14 +58,14 @@ function checkedTime(value: string): string {
   return new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit' }).format(date);
 }
 
-function connectionPresentation(status: ExternalConnectionStatus | null, loading: boolean) {
+function connectionPresentation(status: ExternalConnectionStatus | null, loading: boolean, sourceLabel: string) {
   if (loading && !status) {
-    return { state: 'checking', title: 'Проверяю Threads', detail: 'Проверяю доступ владельца через Meta.' };
+    return { state: 'checking', title: `Проверяю ${sourceLabel}`, detail: 'Проверяю доступ владельца через Meta.' };
   }
   if (!status) {
     return {
       state: 'checking',
-      title: 'Не удалось проверить Threads',
+      title: `Не удалось проверить ${sourceLabel}`,
       detail: 'Диагностика не получила ответ. Поиск трендов продолжает работать независимо.',
     };
   }
@@ -76,8 +77,8 @@ function connectionPresentation(status: ExternalConnectionStatus | null, loading
   };
 }
 
-export function ThreadsConnectionPanel({ status, loading, onRefresh }: ThreadsConnectionPanelProps) {
-  const presentation = connectionPresentation(status, loading);
+export function ThreadsConnectionPanel({ status, loading, onRefresh, sourceLabel = 'Threads' }: ThreadsConnectionPanelProps) {
+  const presentation = connectionPresentation(status, loading, sourceLabel);
   return (
     <aside className="threads-connection" data-state={presentation.state}>
       <span className="threads-connection-icon">
@@ -90,9 +91,9 @@ export function ThreadsConnectionPanel({ status, loading, onRefresh }: ThreadsCo
         </div>
         <p>{presentation.detail}</p>
         <RecommendedAction action={presentation.action} />
-        <ConnectionDetails status={status} />
+        <ConnectionDetails status={status} sourceLabel={sourceLabel} />
       </div>
-      <button type="button" onClick={onRefresh} disabled={loading} aria-label="Повторно проверить Threads">
+      <button type="button" onClick={onRefresh} disabled={loading} aria-label={`Повторно проверить ${sourceLabel}`}>
         <RefreshCw className={loading ? 'spin' : undefined} aria-hidden="true" />
         <span>Проверить</span>
       </button>
