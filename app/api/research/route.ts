@@ -110,8 +110,10 @@ async function capturePmcFullText(
   coverage: SourceDocumentCoverage,
   store: D1SourceDocumentStore,
 ): Promise<FullTextCoverage> {
-  const ids = coverage.decisions.flatMap((decision) =>
-    decision.decision === 'admitted_to_triage' ? [decision.sourceId.replace('pmid:', '')] : []);
+  const admittedIds = coverage.decisions.flatMap((decision) =>
+    decision.decision === 'admitted_to_triage' ? [decision.sourceId] : []);
+  const documents = await Promise.all(admittedIds.map((sourceId) => store.findById(sourceId)));
+  const ids = documents.flatMap((document) => document?.pmcid ? [document.pmcid] : []);
   try {
     return await ingestFullTextDocuments(ids, {
       loader: new PmcOpenAccessLoader(),

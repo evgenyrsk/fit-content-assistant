@@ -42,7 +42,7 @@ PubMed-записи загружаются пакетно и сохраняют�
 
 Создаёт атомарные claims. У каждого есть область применимости, версия, уверенность, ограничения, supporting/neutral/contradicting evidence и дата следующей проверки.
 
-Строгий контракт проверяет, что confidence не выше body certainty, все assessment/chunk ids существуют, а дата пересмотра находится в будущем. Даже прошедший контракт model draft сохраняется как `needs_review`.
+Перед вызовом модели отдельный preparation-gate проверяет human confirmation, обязательные домены, допустимые источники и provenance. Он разделяет блокирующие причины и факторы снижения certainty: `publication_bias: unable_to_assess` ограничивает confidence и становится обязательным limitation, но не блокирует `needs_review` draft. После генерации строгий контракт проверяет, что confidence не выше body certainty, все assessment/chunk ids существуют, а дата пересмотра находится в будущем. Даже прошедший контракт model draft сохраняется как `needs_review`.
 
 ### 8. Claim review gate
 

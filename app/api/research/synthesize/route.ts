@@ -60,7 +60,7 @@ async function synthesize(
     occurredAt: execution.modelRun.completedAt,
   });
   const warning = execution.body
-    ? 'Совокупность данных сохранена как модельный черновик. Claim заблокирован до человеческого подтверждения и калибровки.'
+    ? 'Совокупность данных сохранена как модельный черновик. Claim draft закрыт до человеческого подтверждения; approval и Content Engine требуют отдельного claim review.'
     : 'Нет источников, прошедших evidence gate, либо модельный ответ не прошёл контракт.';
   return Response.json(response(execution.status, execution.body, warning));
 }

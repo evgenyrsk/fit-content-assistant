@@ -1,5 +1,6 @@
 export * from './body-certainty.ts';
 export * from './claim-draft.ts';
+export * from './claim-draft-policy.ts';
 export * from './content.ts';
 export * from './evidence.ts';
 export * from './evidence-review.ts';

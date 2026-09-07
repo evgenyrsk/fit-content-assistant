@@ -61,7 +61,7 @@ LLM связывает этапы и управляет инструментам
 - не вызывает следующий модельный этап, пока предыдущий gate не готов;
 - до экспертной калибровки любой body assessment требует ручного подтверждения.
 - модельный `eligible_for_synthesis` остаётся закрытым до добавочного human review; body synthesis читает только последнее подтверждённое решение по последней оценке каждого источника.
-- human review не переписывает модельный assessment и не может повысить `excluded` или `context_only`; body confirmation также не открывает claim до release-калибровки.
+- human review не переписывает модельный assessment и не может повысить `excluded` или `context_only`; body confirmation открывает только подготовку `needs_review` claim draft, а не approval или Content Engine.
 - каждый source assessment хранит отдельный читательский brief: plain-language summary, provenance-linked карточку выборки (участники, численность, группы), 3–5 тезисов и границу допустимого вывода; неуказанные характеристики не выводятся из косвенных данных.
 - source review index 0–100 рассчитывается детерминированно из dimension/integrity judgements, ограничивается gate и служит только навигацией; это не вероятность истинности и не appraisal quality score.
 
@@ -122,7 +122,7 @@ LLM связывает этапы и управляет инструментам
 
 Научная маршрутизация разделена по риску: discovery и research plan используют экономный research route, а source appraisal и body-of-evidence assessment — независимый review route. Смена модели не меняет доменные контракты, детерминированный score или human gates.
 
-После append-only подтверждения body review-модель может подготовить атомарный claim draft. Некалиброванная методология не мешает создать материал для человеческой проверки, но запрещает автоматическое утверждение: версия сохраняется как `needs_review`, содержит scope, limitations и точные source assessment/chunk links и не доступна Content Engine до отдельного claim review.
+После append-only подтверждения body review-модель может подготовить атомарный claim draft. Отдельный preparation-gate различает блокирующие причины и факторы снижения certainty: неизвестный publication bias ограничивает confidence и обязательно попадает в limitations, но сам по себе не запрещает черновик. Некалиброванная методология не мешает создать материал для человеческой проверки, но запрещает автоматическое утверждение: версия сохраняется как `needs_review`, содержит scope, limitations и точные source assessment/chunk links и не доступна Content Engine до отдельного claim review.
 
 Ручной контент использует тот же canonical archive. Каждая редакция создаёт immutable snapshot, сбрасывает human gate и редакционный статус в `draft`. `content_operations` хранит только editorial lifecycle; научное состояние остаётся в `content_items.status`. Планирование и публикация невозможны до подтверждённого fact-check. Банк тем, `narrative_only` заметки и performance snapshots не участвуют в расчёте evidence confidence.
 

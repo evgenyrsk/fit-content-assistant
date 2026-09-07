@@ -32,6 +32,14 @@ test('parses assessment sections with exact PMC offsets and license', () => {
   assert.equal(document.chunks[1].locator, 'PMC123:methods:offset-80');
 });
 
+test('normalizes the numeric identifiers returned by the official PMC BioC API', () => {
+  const numericIdentifiers = fixture();
+  numericIdentifiers[0].documents[0].id = '10180745';
+  numericIdentifiers[0].documents[0].passages[0].infons['article-id_pmc'] = '10180745';
+  const [document] = parsePmcOpenAccess(numericIdentifiers, '2026-08-27T00:00:00.000Z');
+  assert.equal(document.pmcid, 'PMC10180745');
+});
+
 test('rejects restrictive licenses and incomplete section coverage', () => {
   assert.deepEqual(parsePmcOpenAccess(fixture('CC BY-NC'), '2026-08-27T00:00:00.000Z'), []);
   const incomplete = fixture();
@@ -45,7 +53,7 @@ test('loads several PMIDs through one PMC Open Access request', async () => {
     fetcher: async (input) => { requestedUrl = String(input); return Response.json(fixture()); },
     now: () => new Date('2026-08-27T00:00:00.000Z'),
   });
-  const documents = await loader.load(['42', '43', 'invalid']);
-  assert.match(requestedUrl, /42,43/);
+  const documents = await loader.load(['PMC42', '43', 'invalid']);
+  assert.match(requestedUrl, /PMC42,PMC43/);
   assert.equal(documents.length, 1);
 });

@@ -51,6 +51,7 @@
 - статус `ready_for_human_review` не означает `publishable`: ручной просмотр обязателен.
 - ручной claim draft принимает только chunks из active full-text источников с разрешённым reuse и последним source review `included`;
 - ручной draft требует Methods и Results/Discussion, уникальные chunk ids, ограничения и будущую дату пересмотра;
+- model claim draft разделяет blocking и certainty reasons: неизвестный publication bias снижает потолок confidence и сохраняется в limitations, тогда как missing human confirmation, domains, provenance, hard stops и неизвестные evidence links остаются закрыты;
 - высокая уверенность в ручном claim требует минимум два различных источника;
 - approval невозможен без отдельного human review, supporting evidence и подтверждений provenance, scope и поиска противоречий;
 - eligibility каждого связанного источника повторно проверяется в момент approval; ретракция или снятый human include блокируют решение;

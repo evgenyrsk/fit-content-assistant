@@ -55,6 +55,43 @@ test('creates only a review draft when methodology is not calibrated but the bod
   assert.equal(result.modelRun.decision, 'needs_review');
 });
 
+test('creates a conservative draft when publication bias cannot be assessed', async () => {
+  const uncertainBody = {
+    ...readyBody,
+    assessment: {
+      ...readyBody.assessment, initialCertainty: 'high' as const, proposedCertainty: 'high' as const,
+      domains: readyBody.assessment.domains.map((domain) => domain.domain === 'publication_bias'
+        ? { ...domain, concern: 'unable_to_assess' as const, rationale: 'Слишком мало исследований.' }
+        : domain),
+    },
+  };
+  const result = await executeClaimSynthesis(uncertainBody, [eligibleSummary], {
+    provider: provider({ ...validClaimSynthesisDraft(), confidence: 'high' }),
+    model: 'research', budgetProfile: 'economy', researchRunId: 'research-1',
+    now: () => new Date('2026-08-27T00:00:00.000Z'),
+  });
+  assert.equal(result.claim?.status, 'needs_review');
+  assert.equal(result.claim?.confidence, 'moderate');
+  assert.ok(result.claim?.limitations.some((item) => item.includes('Publication bias не удалось оценить')));
+  assert.deepEqual(result.gate.certaintyReasons, ['publication_bias_unable_to_assess']);
+});
+
+test('does not call the model for a hard-stopped or unconfirmed source', async () => {
+  let called = false;
+  const fake = provider(validClaimSynthesisDraft());
+  fake.generateStructured = async () => { called = true; throw new Error('must not run'); };
+  const blockedSummary = {
+    ...eligibleSummary, decision: 'excluded' as const, reasons: ['retracted_record' as const],
+    humanReview: undefined,
+  };
+  const result = await executeClaimSynthesis(readyBody, [blockedSummary], {
+    provider: fake, model: 'research', budgetProfile: 'economy', researchRunId: 'research-1',
+  });
+  assert.equal(called, false);
+  assert.equal(result.claim, null);
+  assert.ok(result.gate.blockingReasons.includes('source_hard_stop'));
+});
+
 test('rejects confidence stronger than the body or an invented passage', async () => {
   const tooStrong = { ...validClaimSynthesisDraft(), confidence: 'high' as const };
   const highResult = await executeClaimSynthesis(readyBody, [eligibleSummary], {
@@ -67,4 +104,22 @@ test('rejects confidence stronger than the body or an invented passage', async (
     provider: provider(draft), model: 'research', budgetProfile: 'economy', researchRunId: 'research-1',
   });
   assert.equal(citationResult.claim, null);
+});
+
+test('rejects an evidence link to a hard-stopped source outside the eligible body', async () => {
+  const excludedSummary = {
+    ...eligibleSummary, id: 'assessment-retracted', decision: 'excluded' as const,
+    reasons: ['retracted_record' as const],
+    finding: { ...eligibleSummary.finding, provenanceIds: ['chunk-retracted'] },
+    humanReview: undefined,
+  };
+  const draft = validClaimSynthesisDraft();
+  draft.evidence[0] = {
+    ...draft.evidence[0], sourceAssessmentId: excludedSummary.id,
+    sourceChunkId: excludedSummary.finding.provenanceIds[0],
+  };
+  const result = await executeClaimSynthesis(readyBody, [eligibleSummary, excludedSummary], {
+    provider: provider(draft), model: 'research', budgetProfile: 'economy', researchRunId: 'research-1',
+  });
+  assert.equal(result.claim, null);
 });

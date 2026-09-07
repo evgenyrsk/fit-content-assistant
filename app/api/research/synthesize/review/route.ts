@@ -1,11 +1,12 @@
 import type { D1Database } from '@cloudflare/workers-types';
 import { env } from 'cloudflare:workers';
 import { submitBodyAssessmentReview } from '@/lib/application/use-cases/submit-body-assessment-review';
-import { methodologyRelease, type EvidenceReviewDecision } from '@/lib/domain';
+import type { EvidenceReviewDecision } from '@/lib/domain';
 import { D1AuditEventStore } from '@/lib/infrastructure/d1/d1-audit-event-store';
 import { D1BodyAssessmentReviewRepository } from '@/lib/infrastructure/d1/d1-body-assessment-review-repository';
 import { ensureEvidenceSchema } from '@/lib/infrastructure/d1/ensure-evidence-schema';
 import { ensurePipelineSchema } from '@/lib/infrastructure/d1/ensure-pipeline-schema';
+import { bodyReviewResponse } from './route-contract';
 
 interface ReviewBody {
   bodyAssessmentId?: unknown; decision?: unknown; evidenceSetChecked?: unknown;
@@ -38,7 +39,7 @@ export async function POST(request: Request): Promise<Response> {
     const review = await submitBodyAssessmentReview(input, {
       reviews: new D1BodyAssessmentReviewRepository(d1), audit: new D1AuditEventStore(d1),
     });
-    return Response.json({ review, claimGateOpened: methodologyRelease.calibrated });
+    return Response.json(bodyReviewResponse(review));
   } catch (cause) {
     const code = cause instanceof Error ? cause.message : '';
     if (!['checks_required', 'assessment_not_found', 'invalid_reason', 'invalid_review'].includes(code)) {

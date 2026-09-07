@@ -13,6 +13,7 @@ import { certaintyLabels, concernLabels, domainLabels, studyDecisionLabels, stud
 import { SourceAssessmentReview } from './source-assessment-review';
 import { SourceReadingBrief } from './source-reading-brief';
 import { useLiveEvidenceWorkbench } from './use-live-evidence-workbench';
+import { claimDraftActionMessage } from './body-review-presentation';
 
 function sourceTitle(result: ResearchSearchResult, sourceId: string): string {
   const pmid = sourceId.replace('pmid:', '');
@@ -76,7 +77,7 @@ type EvidenceFlow = ReturnType<typeof useLiveEvidenceWorkbench>;
 
 function ClaimDraftAction({ flow }: { flow: EvidenceFlow }) {
   if (flow.bodyReview?.decision !== 'confirmed' || !flow.body?.body) return null;
-  return <div className="claim-draft-action"><div><strong>Совокупность подтверждена</strong><p>Можно подготовить узкий тезис с точными evidence links. Это ещё не знание и не контент.</p></div><button type="button" disabled={flow.preparingClaim} onClick={() => void flow.prepareClaim(flow.body?.body?.id ?? '')}><Bot aria-hidden="true" />{flow.preparingClaim ? 'Готовлю claim draft…' : 'Подготовить claim draft'}</button></div>;
+  return <div className="claim-draft-action"><div><strong>Совокупность подтверждена</strong><p>{claimDraftActionMessage(flow.body.body)}</p></div><button type="button" disabled={flow.preparingClaim} onClick={() => void flow.prepareClaim(flow.body?.body?.id ?? '')}><Bot aria-hidden="true" />{flow.preparingClaim ? 'Готовлю claim draft…' : 'Подготовить claim draft'}</button></div>;
 }
 
 function BodyFlow({ flow, onContentFormat }: { flow: EvidenceFlow; onContentFormat: (format: ContentFormat, claimVersionId: string) => void }) {

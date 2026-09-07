@@ -11,6 +11,12 @@ export const eligibleSummary: SourceAssessmentSummary = {
     provenanceIds: ['chunk-1'],
   },
   methodologyVersion: '0.2.0-draft', createdAt: '2026-08-27T00:00:00.000Z',
+  humanReview: {
+    id: 'review-1', assessmentId: 'assessment-1', decision: 'confirmed',
+    findingChecked: true, provenanceChecked: true, scopeChecked: true,
+    reason: 'Источник, finding, provenance и scope проверены человеком.',
+    reviewerId: 'owner', createdAt: '2026-08-27T00:00:00.000Z',
+  },
 };
 
 export function validBodyAssessmentDraft(): BodyAssessmentDraft {

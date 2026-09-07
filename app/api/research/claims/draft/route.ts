@@ -12,16 +12,13 @@ import { ensureKnowledgeSchema } from '@/lib/infrastructure/d1/ensure-knowledge-
 import { ensurePipelineSchema } from '@/lib/infrastructure/d1/ensure-pipeline-schema';
 import { ensureResearchSchema } from '@/lib/infrastructure/d1/ensure-research-schema';
 import { createLlmRuntime } from '@/lib/infrastructure/llm/create-llm-runtime';
+import { claimDraftFailureWarning, emptyClaimSynthesisResponse } from './route-contract';
 
 interface RequestBody { bodyAssessmentId?: unknown }
 
 function database(): D1Database | null {
   const runtime = env as unknown as Record<string, string | D1Database | undefined>;
   return runtime.DB && typeof runtime.DB !== 'string' ? runtime.DB : null;
-}
-
-function response(status: ClaimSynthesisResponse['status'], warning: string): ClaimSynthesisResponse {
-  return { status, reviewRequired: true, claim: null, saved: null, warning };
 }
 
 async function ensureSchemas(d1: D1Database): Promise<void> {
@@ -44,10 +41,12 @@ export async function POST(request: Request): Promise<Response> {
     const body = await new D1BodyAssessmentReader(d1).findById(input.bodyAssessmentId, summaries);
     if (!body) return Response.json({ error: 'Совокупная оценка не найдена.' }, { status: 404 });
     const runtime = createLlmRuntime(env as unknown as Record<string, string | undefined>, 'review');
-    if (!runtime) return Response.json(response('awaiting_provider', 'Claim draft включится после подключения review-модели.'));
+    if (!runtime) return Response.json(emptyClaimSynthesisResponse('awaiting_provider', 'Claim draft включится после подключения review-модели.'));
     const execution = await executeClaimSynthesis(body, summaries, { ...runtime, researchRunId: body.researchRunId });
     await new D1ModelRunStore(d1).save(execution.modelRun);
-    if (!execution.claim) return Response.json(response('needs_review', 'Claim draft закрыт: сначала подтвердите body review и все обязательные проверки.'));
+    if (!execution.claim) return Response.json(emptyClaimSynthesisResponse(
+      'needs_review', claimDraftFailureWarning(execution.gate), execution.gate,
+    ));
     const saved = await new D1ClaimDraftStore(d1).save(execution.claim);
     await new D1AuditEventStore(d1).save({
       id: crypto.randomUUID(), aggregateType: 'claim', aggregateId: saved.claimId,
@@ -55,7 +54,7 @@ export async function POST(request: Request): Promise<Response> {
       payload: { claimVersionId: saved.versionId, version: saved.version, bodyAssessmentId: body.id, status: 'needs_review' },
     });
     const payload: ClaimSynthesisResponse = {
-      status: 'model_draft', reviewRequired: true, claim: execution.claim, saved,
+      status: 'model_draft', reviewRequired: true, claim: execution.claim, saved, gate: execution.gate,
       warning: 'Черновик сохранён. Он не считается знанием и не доступен Content Engine до отдельного human claim review.',
     };
     return Response.json(payload, { status: 201 });

@@ -39,5 +39,6 @@ export interface ClaimSynthesisResponse {
   reviewRequired: true;
   claim: ClaimDraftRecord | null;
   saved: SavedClaimVersion | null;
+  gate?: import('./claim-draft-policy.ts').ClaimDraftPreparationGate;
   warning: string;
 }

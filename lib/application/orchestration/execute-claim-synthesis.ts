@@ -1,5 +1,9 @@
 import type { LlmProvider } from '../ports/llm-provider.ts';
-import { canPrepareClaimDraft, type BodyAssessmentRecord, type BodyCertainty, type ClaimDraftRecord, type Confidence, type SourceAssessmentSummary } from '../../domain/index.ts';
+import {
+  clampClaimConfidence, evaluateClaimDraftPreparation,
+  type BodyAssessmentRecord, type BodyCertainty, type ClaimDraftPreparationGate,
+  type ClaimDraftRecord, type Confidence, type SourceAssessmentSummary,
+} from '../../domain/index.ts';
 import type { ModelRunRecord } from './model-run.ts';
 import { stageBudget, type BudgetProfile } from './pipeline-budget.ts';
 import { claimSynthesisSchema, validateClaimSynthesisDraft } from './claim-synthesis-contract.ts';
@@ -17,6 +21,7 @@ interface ClaimSynthesisOptions {
 export interface ClaimSynthesisExecution {
   status: 'model_draft' | 'needs_review';
   claim: ClaimDraftRecord | null;
+  gate: ClaimDraftPreparationGate;
   modelRun: ModelRunRecord;
 }
 
@@ -38,11 +43,23 @@ function confidenceAllowed(claim: Confidence, body: BodyCertainty): boolean {
   return normalizedClaim <= ranks[body];
 }
 
+function mergeLimitations(generated: string[], required: string[]): string[] {
+  const normalized = new Set(generated.map((item) => item.trim().toLocaleLowerCase('ru-RU')));
+  const additions = required.filter((item) => !normalized.has(item.toLocaleLowerCase('ru-RU')));
+  return [...additions, ...generated].slice(0, 12);
+}
+
 function evidenceReferencesAreValid(
   evidence: Array<{ sourceAssessmentId?: string; sourceChunkId: string }>,
   summaries: SourceAssessmentSummary[],
+  eligibleAssessmentIds: string[],
 ): boolean {
-  const byAssessment = new Map(summaries.map((summary) => [summary.id, new Set(summary.finding.provenanceIds)]));
+  const eligible = new Set(eligibleAssessmentIds);
+  const byAssessment = new Map(summaries
+    .filter((summary) => eligible.has(summary.id)
+      && summary.decision === 'eligible_for_synthesis'
+      && summary.humanReview?.decision === 'confirmed')
+    .map((summary) => [summary.id, new Set(summary.finding.provenanceIds)]));
   return evidence.every((item) => Boolean(item.sourceAssessmentId)
     && byAssessment.get(item.sourceAssessmentId as string)?.has(item.sourceChunkId) === true);
 }
@@ -61,31 +78,36 @@ export async function executeClaimSynthesis(
   const clock = options.now ?? (() => new Date());
   const startedAt = clock().toISOString();
   const modelRun = baseRecord(options, body, startedAt);
-  if (!canPrepareClaimDraft(body.assessment) || !options.provider.supports('structured_output', options.model)) {
-    return { status: 'needs_review', claim: null, modelRun };
+  const gate = evaluateClaimDraftPreparation(body.assessment, summaries);
+  if (gate.decision === 'blocked' || !options.provider.supports('structured_output', options.model)) {
+    return { status: 'needs_review', claim: null, gate, modelRun };
   }
   try {
     const budget = stageBudget('claim_synthesis', options.budgetProfile);
     const result = await options.provider.generateStructured<unknown>({
       model: options.model, system: claimSynthesisPrompt.system,
-      input: JSON.stringify({ bodyAssessment: body, sourceAssessments: summaries }),
+      input: JSON.stringify({ bodyAssessment: body, claimDraftPolicy: gate, sourceAssessments: summaries }),
       schemaName: 'forme_claim_synthesis', outputSchema: claimSynthesisSchema,
       maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,
       metadata: { runId: options.researchRunId, stage: 'claim_synthesis', promptVersion: claimSynthesisPrompt.version },
     });
     const draft = validateClaimSynthesisDraft(result.output);
     if (!confidenceAllowed(draft.confidence, body.assessment.proposedCertainty)
-      || !evidenceReferencesAreValid(draft.evidence, summaries)
+      || !evidenceReferencesAreValid(
+        draft.evidence, summaries, body.assessment.eligibleStudyAssessmentIds,
+      )
       || Date.parse(draft.reviewDueAt) <= Date.parse(startedAt)) {
       throw new Error('Claim exceeded the body assessment or cited unknown evidence.');
     }
     const createdAt = clock().toISOString();
     const claim: ClaimDraftRecord = {
       id: crypto.randomUUID(), stableKey: await stableKey(draft.statement, draft.scope),
-      ...draft, status: 'needs_review', methodologyVersion: body.assessment.methodologyVersion, createdAt,
+      ...draft, confidence: clampClaimConfidence(draft.confidence, gate.confidenceCeiling),
+      limitations: mergeLimitations(draft.limitations, gate.requiredLimitations),
+      status: 'needs_review', methodologyVersion: body.assessment.methodologyVersion, createdAt,
     };
     return {
-      status: 'model_draft', claim,
+      status: 'model_draft', claim, gate,
       modelRun: {
         ...modelRun, provider: result.provider, model: result.model,
         routedProvider: result.routedProvider, completedAt: createdAt,
@@ -94,6 +116,6 @@ export async function executeClaimSynthesis(
       },
     };
   } catch {
-    return { status: 'needs_review', claim: null, modelRun: { ...modelRun, completedAt: clock().toISOString() } };
+    return { status: 'needs_review', claim: null, gate, modelRun: { ...modelRun, completedAt: clock().toISOString() } };
   }
 }

@@ -17,6 +17,12 @@ function text(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function normalizePmcid(value: string): string {
+  const normalized = value.trim().toUpperCase();
+  if (/^\d+$/.test(normalized)) return `PMC${normalized}`;
+  return normalized;
+}
+
 export function permitsFormeReuse(license: string): boolean {
   const normalized = license.toLowerCase().replace(/[_\s]+/g, ' ').trim();
   if (normalized.includes('noncommercial') || normalized.includes('no derivatives')) return false;
@@ -61,7 +67,7 @@ function documentIdentity(document: JsonRecord, passages: unknown[]) {
   return {
     identifiers,
     pmid: text(identifiers['article-id_pmid']),
-    pmcid: (text(identifiers['article-id_pmc']) || text(document.id)).toUpperCase(),
+    pmcid: normalizePmcid(text(identifiers['article-id_pmc']) || text(document.id)),
     license: text(record(document.infons).license) || text(identifiers.license),
   };
 }
@@ -117,7 +123,10 @@ export class PmcOpenAccessLoader implements ScientificSourceDocumentLoader {
   }
 
   async load(externalIds: string[]): Promise<ScientificSourceDocument[]> {
-    const ids = externalIds.filter((id) => /^\d+$/.test(id)).slice(0, 10);
+    const ids = externalIds
+      .map(normalizePmcid)
+      .filter((id) => /^PMC\d+$/.test(id))
+      .slice(0, 10);
     if (ids.length === 0) return [];
     const url = `https://www.ncbi.nlm.nih.gov/research/bionlp/RESTful/pmcoa.cgi/BioC_json/${ids.join(',')}/unicode`;
     const response = await this.fetcher(url);

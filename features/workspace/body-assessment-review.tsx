@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react';
 import type { BodyAssessmentHumanReview, BodyAssessmentRecord, EvidenceReviewDecision } from '@/lib/domain';
 import { ReviewChecklist, ReviewDecisionPicker } from './evidence-review-fields';
 import { useEvidenceReviewAction } from './use-evidence-review-action';
+import { savedBodyReviewMessage } from './body-review-presentation';
 
 const checklist = [
   { key: 'evidenceSet', label: 'Состав корпуса данных проверен' },
@@ -31,7 +32,7 @@ export function BodyAssessmentReview({ body, onReviewed }: {
     if (review) { setSaved(review); onReviewed?.(review); }
   }
 
-  if (saved) return <div className="body-review-saved"><ShieldCheck aria-hidden="true" /><div><strong>Решение по совокупности сохранено</strong><p>{saved.reason}</p><small><LockKeyhole aria-hidden="true" />Можно подготовить claim draft; публикация и статус знания останутся закрыты до отдельного claim review.</small></div></div>;
+  if (saved) return <div className="body-review-saved"><ShieldCheck aria-hidden="true" /><div><strong>Решение по совокупности сохранено</strong><p>{saved.reason}</p><small><LockKeyhole aria-hidden="true" />{savedBodyReviewMessage(saved)}</small></div></div>;
   return <form className="evidence-human-review body-human-review" onSubmit={(event) => void submit(event)}><header><ShieldCheck aria-hidden="true" /><div><strong>Подтвердить совокупность данных</strong><p>Это решение не публикует claim и не запускает контент автоматически.</p></div></header>
     <ReviewDecisionPicker value={decision} name={`body-${body.id}`} onChange={setDecision} />
     {decision === 'confirmed' && <ReviewChecklist items={checklist} values={checks} onChange={(key, checked) => setChecks((current) => ({ ...current, [key]: checked }))} />}
