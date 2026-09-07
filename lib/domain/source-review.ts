@@ -30,6 +30,8 @@ export interface SourceRevalidationResult {
   checked: number;
   changed: number;
   unavailable: number;
+  blockedClaims: number;
+  blockedContent: number;
   completedAt: string;
 }
 

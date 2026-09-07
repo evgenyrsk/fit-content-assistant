@@ -13,6 +13,17 @@ interface RetrievalCase {
   distractorTitle: string;
 }
 
+interface RealCandidate {
+  pmid: string; title: string; sourceType: string; relevant: boolean; fullText: boolean;
+}
+
+interface RealRetrievalSnapshot {
+  snapshotDate: string;
+  reviewMethod: string;
+  focus: { question: string; population: string; intervention: string; outcomes: string[] };
+  candidates: RealCandidate[];
+}
+
 function source(id: string, title: string, sourceType: string): ScientificSourceCandidate {
   return {
     id: `pubmed:${id}`, provider: 'pubmed', title, sourceType, authors: [], pmid: id,
@@ -39,5 +50,28 @@ for (const item of cases) {
 
 const precisionAtOne = topOneHits / cases.length;
 const recallAtThree = recallAtThreeHits / cases.length;
-console.log(JSON.stringify({ dataset: 'scientific-retrieval-v1', cases: cases.length, precisionAtOne, recallAtThree }, null, 2));
+const realDatasetUrl = new URL('../../evals/real-pubmed-retrieval-v1.json', import.meta.url);
+const real = JSON.parse(await readFile(realDatasetUrl, 'utf8')) as RealRetrievalSnapshot;
+const realSources = real.candidates.map((item) => source(item.pmid, item.title, item.sourceType));
+const reranked = rankScientificCandidates(realSources, real.focus, realSources.length);
+const relevantPmids = new Set(real.candidates.filter((item) => item.relevant).map((item) => item.pmid));
+const totalRelevant = relevantPmids.size;
+const measure = (items: ScientificSourceCandidate[]) => {
+  const topTen = items.slice(0, 10);
+  const relevant = topTen.filter((item) => item.pmid && relevantPmids.has(item.pmid));
+  const fullTextRelevant = relevant.filter((item) => real.candidates.find((candidate) => candidate.pmid === item.pmid)?.fullText);
+  return {
+    recallAt10: relevant.length / totalRelevant,
+    precisionAt3: items.slice(0, 3).filter((item) => item.pmid && relevantPmids.has(item.pmid)).length / 3,
+    relevantFullTextShare: relevant.length ? fullTextRelevant.length / relevant.length : 0,
+    irrelevantCandidateShare: topTen.length ? (topTen.length - relevant.length) / topTen.length : 0,
+  };
+};
+console.log(JSON.stringify({
+  synthetic: { dataset: 'scientific-retrieval-v1', cases: cases.length, precisionAtOne, recallAtThree },
+  realPubmedSnapshot: {
+    dataset: 'real-pubmed-retrieval-v1', snapshotDate: real.snapshotDate, reviewMethod: real.reviewMethod,
+    candidates: real.candidates.length, before: measure(realSources), after: measure(reranked),
+  },
+}, null, 2));
 if (precisionAtOne < 0.95 || recallAtThree < 1) process.exitCode = 1;

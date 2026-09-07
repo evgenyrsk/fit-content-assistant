@@ -1,0 +1,22 @@
+{
+  "snapshotDate": "2026-09-07",
+  "reviewMethod": "owner-authorized editorial adjudication against the stated PICO; not an independent clinical review",
+  "focus": {
+    "question": "Помогает ли креатин увеличить силу и мышечную массу у здоровых взрослых?",
+    "population": "healthy adults",
+    "intervention": "creatine supplementation",
+    "outcomes": ["muscle strength", "muscle mass"]
+  },
+  "candidates": [
+    {"pmid":"34836013","title":"Creatine supplementation and resistance training in older women: a systematic review","sourceType":"Systematic Review","relevant":true,"fullText":true},
+    {"pmid":"41073834","title":"HMB and creatine co-supplementation in older adults","sourceType":"Randomized Controlled Trial","relevant":false,"fullText":false},
+    {"pmid":"39683542","title":"Creatine supplementation after stroke rehabilitation","sourceType":"Clinical Trial","relevant":false,"fullText":false},
+    {"pmid":"28054322","title":"Creatine during limb immobilization","sourceType":"Randomized Controlled Trial","relevant":false,"fullText":false},
+    {"pmid":"35303223","title":"Creatine kinase biomarkers after exercise","sourceType":"Journal Article","relevant":false,"fullText":false},
+    {"pmid":"37432300","title":"Creatine supplementation with resistance training for muscle strength and muscle mass in healthy adults: systematic review and meta-analysis","sourceType":"Meta-Analysis","relevant":true,"fullText":true},
+    {"pmid":"40977794","title":"Creatine supplementation and cognitive performance","sourceType":"Systematic Review","relevant":false,"fullText":false},
+    {"pmid":"39519498","title":"Creatine supplementation for muscle strength in adults younger than 50 years: systematic review and meta-analysis","sourceType":"Meta-Analysis","relevant":true,"fullText":true},
+    {"pmid":"34199420","title":"Creatine supplementation and resistance exercise in older adults","sourceType":"Systematic Review","relevant":true,"fullText":true},
+    {"pmid":"42103788","title":"Dietary supplements and resistance training adaptations","sourceType":"Systematic Review","relevant":false,"fullText":false}
+  ]
+}

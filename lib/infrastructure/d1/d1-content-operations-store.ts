@@ -140,6 +140,10 @@ export class D1ContentOperationsStore implements ContentOperationsStore {
     const current = operation?.editorial_status ?? (item.status === 'ready_for_human_review' ? 'ready' : 'draft');
     const errors = validateEditorialTransition(current, input, item.status, new Date(now));
     if (errors.length) throw new Error(errors.join(' '));
+    if (['ready', 'scheduled', 'published'].includes(input.editorialStatus)
+      && !await this.contentClaimsRemainEligible(input.contentItemId, now)) {
+      throw new Error('Переход заблокирован: factual fragment потерял свежую approved claim-трассировку.');
+    }
     const values = operationValues(input, operation, now);
     await this.database.prepare(`INSERT INTO content_operations
       (content_item_id, editorial_status, scheduled_for, published_at, publication_url, updated_at)
