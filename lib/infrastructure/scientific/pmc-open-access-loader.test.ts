@@ -58,11 +58,17 @@ test('rejects restrictive licenses and incomplete section coverage', () => {
 
 test('loads several PMIDs through one PMC Open Access request', async () => {
   let requestedUrl = '';
+  let receivedSignal: AbortSignal | undefined;
   const loader = new PmcOpenAccessLoader({
-    fetcher: async (input) => { requestedUrl = String(input); return Response.json(fixture()); },
+    fetcher: async (input, init) => {
+      requestedUrl = String(input);
+      receivedSignal = init?.signal as AbortSignal | undefined;
+      return Response.json(fixture());
+    },
     now: () => new Date('2026-08-27T00:00:00.000Z'),
   });
   const documents = await loader.load(['PMC42', '43', 'invalid']);
   assert.match(requestedUrl, /PMC42,PMC43/);
+  assert.ok(receivedSignal);
   assert.equal(documents.length, 1);
 });

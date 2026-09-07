@@ -8,6 +8,7 @@ interface PmcLoaderOptions {
   fetcher?: Fetcher;
   now?: () => Date;
   pmidsByPmcid?: ReadonlyMap<string, string>;
+  timeoutMs?: number;
 }
 
 function record(value: unknown): JsonRecord {
@@ -128,11 +129,13 @@ export class PmcOpenAccessLoader implements ScientificSourceDocumentLoader {
   private readonly fetcher: Fetcher;
   private readonly now: () => Date;
   private readonly pmidsByPmcid: ReadonlyMap<string, string>;
+  private readonly timeoutMs: number;
 
   constructor(options: PmcLoaderOptions = {}) {
     this.fetcher = options.fetcher ?? fetch;
     this.now = options.now ?? (() => new Date());
     this.pmidsByPmcid = options.pmidsByPmcid ?? new Map();
+    this.timeoutMs = options.timeoutMs ?? 12_000;
   }
 
   async load(externalIds: string[]): Promise<ScientificSourceDocument[]> {
@@ -142,7 +145,7 @@ export class PmcOpenAccessLoader implements ScientificSourceDocumentLoader {
       .slice(0, 10);
     if (ids.length === 0) return [];
     const url = `https://www.ncbi.nlm.nih.gov/research/bionlp/RESTful/pmcoa.cgi/BioC_json/${ids.join(',')}/unicode`;
-    const response = await this.fetcher(url);
+    const response = await this.fetcher(url, { signal: AbortSignal.timeout(this.timeoutMs) });
     if (!response.ok) throw new Error(`PMC Open Access fetch failed: ${response.status}`);
     return parsePmcOpenAccess(await response.json(), this.now().toISOString(), this.pmidsByPmcid);
   }
