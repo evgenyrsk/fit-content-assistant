@@ -33,6 +33,7 @@ LLM связывает этапы и управляет инструментам
 - сначала ищет в собственной базе;
 - затем обращается к PubMed, Crossref и издательским страницам;
 - выполняет model-planned PubMed query вместе с широким детерминированным fallback, резервирует место для обоих путей и явно отмечает расширение поиска;
+- собирает ограниченный расширенный пул и применяет PICO-aware soft-reranking: intervention и target outcomes оцениваются раздельно, а source type влияет только на порядок discovery, но не на scientific gate;
 - сохраняет метаданные, полный контекст поиска и доступные секции PubMed-аннотаций как неизменяемые chunks;
 - сохраняет версию prompt, модельный run и событие решения отдельно от найденных source candidates.
 - явно различает `metadata_only`, `abstract_only` и `full_text`; аннотация служит для triage и не открывает evidence gate.
@@ -161,6 +162,7 @@ Rights-aware full-text ingestion зафиксирован в `docs/decisions/000
 Трассируемый контентный конвейер зафиксирован в `docs/decisions/0012-traceable-content-pipeline.md`.
 Claim-scoped запуск контента зафиксирован в `docs/decisions/0022-claim-scoped-content-launch.md`.
 Сбалансированный PubMed retrieval и rights-aware reuse full text зафиксированы в `docs/decisions/0023-balanced-scientific-retrieval.md`.
+PICO-aware soft-reranking и его границы зафиксированы в `docs/decisions/0024-pico-aware-candidate-reranking.md`.
 Ручной owner-reviewed claim workflow зафиксирован в `docs/decisions/0013-manual-claim-review.md`.
 Автономный operations-слой без LLM зафиксирован в `docs/decisions/0014-autonomous-operations-layer.md`.
 Российский portability target зафиксирован в `docs/decisions/0015-timeweb-portability-target.md`.

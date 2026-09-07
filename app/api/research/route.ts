@@ -159,6 +159,13 @@ export async function POST(request: Request): Promise<Response> {
       searches,
       retrievalQuery: planning.trace.searchQuery,
       fallbackRetrievalQuery: buildScientificQuery(query),
+      retrievalFocus: planning.trace.draft ? {
+        question: planning.trace.draft.normalizedQuestion,
+        population: planning.trace.draft.population,
+        intervention: planning.trace.draft.intervention,
+        comparator: planning.trace.draft.comparator,
+        outcomes: planning.trace.draft.outcomes,
+      } : { question: buildScientificQuery(query) },
       createId: () => runId,
     });
     const discovered = { ...result, planning: planning.trace };

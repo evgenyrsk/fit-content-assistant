@@ -16,7 +16,8 @@
     "test:application": "node --experimental-strip-types --test lib/application/orchestration/*.test.ts lib/application/use-cases/*.test.ts",
     "test:adapters": "node --experimental-strip-types --test lib/infrastructure/d1/*.test.ts lib/infrastructure/scientific/*.test.ts lib/infrastructure/trends/*.test.ts lib/infrastructure/llm/*.test.ts lib/infrastructure/pdf/*.test.ts",
     "eval:reviewer": "node --experimental-strip-types scripts/evals/run-routerai-reviewer-eval.ts",
-    "check": "npm run architecture && npm run lint && npm run typecheck && npm run test:domain && npm run test:application && npm run test:adapters && npm run build"
+    "eval:retrieval": "node --experimental-strip-types scripts/evals/run-scientific-retrieval-eval.ts",
+    "check": "npm run architecture && npm run lint && npm run typecheck && npm run test:domain && npm run test:application && npm run test:adapters && npm run eval:retrieval && npm run build"
   },
   "dependencies": {
     "lucide-react": "^1.34.0",

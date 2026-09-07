@@ -1,0 +1,182 @@
+[
+  {
+    "id": "creatine-strength-mass",
+    "question": "Помогает ли креатин увеличить силу и мышечную массу у здоровых взрослых?",
+    "population": "healthy adults",
+    "intervention": "creatine supplementation",
+    "outcomes": ["muscle strength", "muscle mass"],
+    "relevantTitle": "Creatine supplementation with resistance training for muscle strength and muscle mass in healthy adults",
+    "distractorTitle": "Does creatine cause hair loss? A randomized controlled trial"
+  },
+  {
+    "id": "failure-hypertrophy",
+    "question": "Нужно ли тренироваться до отказа для роста мышц?",
+    "population": "healthy adults",
+    "intervention": "training to failure",
+    "outcomes": ["muscle hypertrophy"],
+    "relevantTitle": "Resistance training to failure versus non-failure for muscle hypertrophy",
+    "distractorTitle": "Aerobic exercise and cognitive function in healthy adults"
+  },
+  {
+    "id": "protein-hypertrophy",
+    "question": "Какая доза белка помогает росту мышц?",
+    "population": "healthy adults",
+    "intervention": "dietary protein dose",
+    "outcomes": ["muscle hypertrophy"],
+    "relevantTitle": "Dietary protein dose and muscle hypertrophy during resistance training",
+    "distractorTitle": "Protein intake and kidney stones in clinical populations"
+  },
+  {
+    "id": "walking-weight-loss",
+    "question": "Помогает ли ходьба снижать вес?",
+    "population": "adults with overweight",
+    "intervention": "walking steps",
+    "outcomes": ["weight loss"],
+    "relevantTitle": "Walking steps interventions for weight loss in adults with overweight",
+    "distractorTitle": "Walking speed and fall risk in older adults"
+  },
+  {
+    "id": "sleep-recovery",
+    "question": "Как сон влияет на восстановление после тренировки?",
+    "population": "healthy adults",
+    "intervention": "sleep duration",
+    "outcomes": ["exercise recovery"],
+    "relevantTitle": "Sleep duration and exercise recovery in healthy adults",
+    "distractorTitle": "Sleep duration and academic performance in adolescents"
+  },
+  {
+    "id": "training-volume-hypertrophy",
+    "question": "Какой объём тренировок нужен для роста мышц?",
+    "population": "trained adults",
+    "intervention": "resistance training volume",
+    "outcomes": ["muscle hypertrophy"],
+    "relevantTitle": "Resistance training volume dose response for muscle hypertrophy in trained adults",
+    "distractorTitle": "Endurance training volume and marathon performance"
+  },
+  {
+    "id": "rest-strength",
+    "question": "Влияет ли отдых между подходами на силу?",
+    "population": "trained adults",
+    "intervention": "rest interval",
+    "outcomes": ["muscle strength"],
+    "relevantTitle": "Rest interval duration and muscle strength gains in resistance-trained adults",
+    "distractorTitle": "Rest interval and blood pressure recovery after running"
+  },
+  {
+    "id": "caffeine-endurance",
+    "question": "Улучшает ли кофеин выносливость?",
+    "population": "healthy athletes",
+    "intervention": "caffeine supplementation",
+    "outcomes": ["endurance performance"],
+    "relevantTitle": "Caffeine supplementation and endurance performance in healthy athletes",
+    "distractorTitle": "Caffeine consumption and sleep quality"
+  },
+  {
+    "id": "cardio-hypertrophy",
+    "question": "Мешает ли кардио росту мышц?",
+    "population": "healthy adults",
+    "intervention": "concurrent aerobic exercise and resistance training",
+    "outcomes": ["muscle hypertrophy"],
+    "relevantTitle": "Concurrent aerobic exercise and resistance training effects on muscle hypertrophy",
+    "distractorTitle": "Aerobic exercise for cognitive function in healthy adults"
+  },
+  {
+    "id": "cold-recovery",
+    "question": "Ускоряет ли ледяная ванна восстановление?",
+    "population": "healthy athletes",
+    "intervention": "cold water immersion",
+    "outcomes": ["exercise recovery"],
+    "relevantTitle": "Cold water immersion for exercise recovery in healthy athletes",
+    "distractorTitle": "Cold exposure and brown adipose tissue"
+  },
+  {
+    "id": "stretching-flexibility",
+    "question": "Помогает ли растяжка улучшить гибкость?",
+    "population": "healthy adults",
+    "intervention": "stretching",
+    "outcomes": ["flexibility range of motion"],
+    "relevantTitle": "Stretching interventions improve flexibility and range of motion in healthy adults",
+    "distractorTitle": "Stretching before running and injury incidence"
+  },
+  {
+    "id": "creatine-safety",
+    "question": "Безопасен ли креатин для здоровых взрослых?",
+    "population": "healthy adults",
+    "intervention": "creatine supplementation",
+    "outcomes": ["adverse events safety"],
+    "relevantTitle": "Safety and adverse events of creatine supplementation in healthy adults",
+    "distractorTitle": "Creatine supplementation and sprint performance"
+  },
+  {
+    "id": "slow-repetitions",
+    "question": "Дают ли медленные повторения больше мышечного роста?",
+    "population": "healthy adults",
+    "intervention": "slow repetition tempo",
+    "outcomes": ["muscle hypertrophy"],
+    "relevantTitle": "Slow repetition tempo during resistance training and muscle hypertrophy",
+    "distractorTitle": "Resistance training frequency and blood pressure"
+  },
+  {
+    "id": "low-load-strength",
+    "question": "Можно ли развить силу тренировками с лёгкими весами?",
+    "population": "healthy adults",
+    "intervention": "low load resistance training",
+    "outcomes": ["muscle strength"],
+    "relevantTitle": "Low-load versus high-load resistance training for muscle strength",
+    "distractorTitle": "Low-load exercise and tendon pain"
+  },
+  {
+    "id": "steps-health",
+    "question": "Сколько шагов в день связано со снижением смертности?",
+    "population": "adults",
+    "intervention": "daily walking steps",
+    "outcomes": ["all cause mortality"],
+    "relevantTitle": "Daily walking steps and all-cause mortality in adults",
+    "distractorTitle": "Walking steps and short-term weight loss"
+  },
+  {
+    "id": "hiit-cardio",
+    "question": "Эффективнее ли интервальные тренировки обычного кардио?",
+    "population": "healthy adults",
+    "intervention": "high intensity interval training",
+    "outcomes": ["cardiorespiratory fitness"],
+    "relevantTitle": "High-intensity interval training versus continuous exercise for cardiorespiratory fitness",
+    "distractorTitle": "High-intensity interval training and appetite"
+  },
+  {
+    "id": "soreness-growth",
+    "question": "Означает ли мышечная боль хороший рост мышц?",
+    "population": "healthy adults",
+    "intervention": "delayed onset muscle soreness",
+    "outcomes": ["muscle hypertrophy"],
+    "relevantTitle": "Delayed onset muscle soreness as a marker of muscle hypertrophy",
+    "distractorTitle": "Delayed onset muscle soreness treatment with massage"
+  },
+  {
+    "id": "frequency-hypertrophy",
+    "question": "Как частота тренировок влияет на рост мышц?",
+    "population": "healthy adults",
+    "intervention": "resistance training frequency",
+    "outcomes": ["muscle hypertrophy"],
+    "relevantTitle": "Resistance training frequency and muscle hypertrophy in healthy adults",
+    "distractorTitle": "Resistance training frequency and mood"
+  },
+  {
+    "id": "beta-alanine-endurance",
+    "question": "Улучшает ли бета-аланин выносливость?",
+    "population": "healthy athletes",
+    "intervention": "beta alanine supplementation",
+    "outcomes": ["exercise endurance performance"],
+    "relevantTitle": "Beta-alanine supplementation and exercise endurance performance in athletes",
+    "distractorTitle": "Beta-alanine supplementation and skin tingling"
+  },
+  {
+    "id": "magnesium-cramps",
+    "question": "Помогает ли магний от мышечных судорог?",
+    "population": "adults",
+    "intervention": "magnesium supplementation",
+    "outcomes": ["muscle cramps"],
+    "relevantTitle": "Magnesium supplementation for muscle cramps in adults",
+    "distractorTitle": "Magnesium supplementation and sleep quality"
+  }
+]

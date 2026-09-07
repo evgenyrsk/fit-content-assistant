@@ -28,7 +28,12 @@ test('covers the representative fitness research matrix', () => {
     ['Мешает ли кардио росту мышц?', 'aerobic exercise muscle hypertrophy'],
     ['Ускоряет ли ледяная ванна восстановление?', 'cold water immersion recovery'],
     ['Помогает ли растяжка улучшить гибкость?', 'stretching flexibility'],
-    ['Безопасен ли креатин для здоровых взрослых?', 'creatine healthy adults'],
+    ['Безопасен ли креатин для здоровых взрослых?', 'safety adverse events creatine healthy adults'],
+    ['Как частота тренировок влияет на рост мышц?', 'training frequency muscle hypertrophy'],
+    ['Помогает ли магний от мышечных судорог?', 'magnesium muscle cramps'],
+    ['Улучшает ли бета-аланин выносливость?', 'beta alanine endurance'],
+    ['Означает ли мышечная боль хороший рост мышц?', 'delayed onset muscle soreness muscle hypertrophy'],
+    ['Связано ли число шагов со смертностью?', 'walking steps mortality'],
   ] as const;
   for (const [question, expected] of cases) assert.equal(buildScientificQuery(question), expected);
 });
