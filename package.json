@@ -16,11 +16,13 @@
     "test:application": "node --experimental-strip-types --test lib/application/orchestration/*.test.ts lib/application/use-cases/*.test.ts",
     "test:adapters": "node --experimental-strip-types --test lib/infrastructure/d1/*.test.ts lib/infrastructure/scientific/*.test.ts lib/infrastructure/trends/*.test.ts lib/infrastructure/llm/*.test.ts lib/infrastructure/pdf/*.test.ts",
     "test:api": "node --experimental-strip-types --test app/api/research/claims/draft/route-contract.test.ts app/api/research/synthesize/review/route-contract.test.ts",
-    "test:ui": "node --experimental-strip-types --test features/workspace/body-review-presentation.test.ts",
+    "test:ui": "node --experimental-strip-types --test features/workspace/*.test.ts",
     "eval:reviewer": "node --experimental-strip-types scripts/evals/run-routerai-reviewer-eval.ts",
     "eval:retrieval": "node --experimental-strip-types scripts/evals/run-scientific-retrieval-eval.ts",
     "eval:style": "node --experimental-strip-types scripts/evals/run-style-profile-eval.ts",
-    "check": "npm run architecture && npm run lint && npm run typecheck && npm run test:domain && npm run test:application && npm run test:adapters && npm run test:api && npm run test:ui && npm run eval:retrieval && npm run eval:style && npm run build"
+    "eval:release": "node --experimental-strip-types scripts/evals/run-release-readiness-eval.ts",
+    "verify:recovery": "node --experimental-strip-types scripts/ops/run-backup-restore-drill.ts",
+    "check": "npm run architecture && npm run lint && npm run typecheck && npm run test:domain && npm run test:application && npm run test:adapters && npm run test:api && npm run test:ui && npm run eval:retrieval && npm run eval:style && npm run eval:release && npm run verify:recovery && npm run build"
   },
   "dependencies": {
     "lucide-react": "^1.34.0",

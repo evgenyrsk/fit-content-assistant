@@ -22,6 +22,10 @@
 .llm-connection-icon svg { width: 20px; height: 20px; }
 .llm-connection-copy { min-width: 0; }
 .llm-connection-copy > .overline { margin: 0 0 5px; }
+.operations-health .overline { display: flex; align-items: center; gap: 6px; }
+.operations-health .overline svg { width: 13px; height: 13px; }
+.operations-health .llm-connection-icon { color: #fff; background: var(--forest-800); }
+.operations-health[data-state='attention_required'] .llm-connection-icon { color: #76581c; background: #f5d477; }
 .llm-connection-copy > div { display: flex; align-items: center; gap: 8px; }
 .llm-connection-copy strong { font-size: var(--type-body); }
 .llm-connection-copy > div > span {

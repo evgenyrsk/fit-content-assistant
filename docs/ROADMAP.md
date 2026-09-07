@@ -98,12 +98,12 @@ Forme превращает исследовательский вопрос в п
 
 **Что входит:**
 
-- Расширить release eval: модельные и экспертные graders после калибровки, negative cases, UI regression и полный production dry run без внешней публикации.
-- Проверить privacy, rate limits, ключи, backup/restore, monitoring, SLO и rollback.
-- Подготовить Timeweb migration plan: data boundaries, D1/R2-compatible замены, перенос секретов и проверка восстановления.
-- Зафиксировать остаточные риски, запреты и пострелизный maintenance процесс.
+- ~~Расширить release eval: negative cases, UI regression и полный production dry run без внешней публикации.~~ Модельные и экспертные graders остаются advisory до отдельной независимой калибровки; автоматическое одобрение выключено.
+- ~~Проверить privacy, rate limits, ключи, backup/restore, monitoring, SLO и rollback.~~ Глобальный limiter и live managed-platform restore зафиксированы как pre-cutover hardening, а не скрыты как пройденные.
+- ~~Подготовить Timeweb migration plan: data boundaries, D1/R2-compatible замены, перенос секретов и проверка восстановления.~~
+- ~~Зафиксировать остаточные риски, запреты и пострелизный maintenance процесс.~~
 
-**Готово, когда:** есть release report с пройденными gate, воспроизводимый dry run, проверенный backup/restore, план миграции и список остаточных рисков.
+**Готово, когда:** ~~есть release report с пройденными gate, воспроизводимый dry run, проверенный backup/restore, план миграции и список остаточных рисков.~~ Контрактный restore drill пройден; живое восстановление D1/R2 в Timeweb staging остаётся обязательным gate перед отдельным решением о миграции.
 
 **Вход для нового чата:** «Выполни этап 4 из `docs/ROADMAP.md`: проведи release-readiness и подготовь Timeweb portability. Не мигрируй и не публикуй без моего отдельного подтверждения.»
 

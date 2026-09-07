@@ -5,6 +5,7 @@ import type { ContentFormat, Mode } from '@/features/shared';
 import { ContentComposer } from './content-composer';
 import { EvidenceFlowDemo } from './evidence-flow-demo';
 import { LlmConnectionPanel } from './llm-connection-panel';
+import { OperationsHealthPanel } from './operations-health-panel';
 import { LiveEvidenceWorkbench } from './live-evidence-workbench';
 import { ResearchConsole } from './research-console';
 import { ResearchResult } from './research-result';
@@ -12,6 +13,7 @@ import { ReviewerDemo } from './reviewer-demo';
 import { SourceReviewQueue } from './source-review-queue';
 import { useResearchSearch } from './use-research-search';
 import { useLlmConnection } from './use-llm-connection';
+import { useOperationsHealth } from './use-operations-health';
 
 interface WorkspaceViewProps {
   initialTopic?: string;
@@ -25,6 +27,7 @@ export function WorkspaceView({ initialTopic, activeFormat, onFormatChange, onOp
   const [mode, setMode] = useState<Mode>(activeFormat ? 'Создать' : 'Исследовать');
   const { status, result, error, start } = useResearchSearch();
   const llm = useLlmConnection();
+  const operations = useOperationsHealth();
   const [showAllClaims, setShowAllClaims] = useState(false);
   const [trendOpen, setTrendOpen] = useState(false);
   const [trendSource, setTrendSource] = useState<'all' | 'google_trends' | 'google_news' | 'pubmed_pulse' | 'threads' | 'instagram'>('all');
@@ -75,6 +78,7 @@ export function WorkspaceView({ initialTopic, activeFormat, onFormatChange, onOp
     <>
       <ResearchConsole topic={topic} mode={mode} status={status} trendOpen={trendOpen} trendSource={trendSource} onTopicChange={setTopic} onModeChange={setMode} onStart={startWork} onTrendToggle={() => setTrendOpen((value) => !value)} onTrendSourceChange={setTrendSource} onTrendChoose={chooseTrend} />
       <LlmConnectionPanel status={llm.result} loading={llm.loading} onProbe={llm.probe} />
+      <OperationsHealthPanel health={operations.result} loading={operations.loading} />
       {mode === 'Проверить' ? <><EvidenceFlowDemo onLiveRun={openLiveResearch} /><ReviewerDemo /></> : <>
         <ResearchResult topic={topic} working={status === 'working'} result={result} error={error} showAllClaims={showAllClaims} onToggleClaims={() => setShowAllClaims((value) => !value)} />
         {result && <LiveEvidenceWorkbench key={result.runId} result={result} question={topic} onContentFormat={launchContent} />}

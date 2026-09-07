@@ -1,5 +1,11 @@
 # Контроль качества и evals
 
+## Release readiness
+
+`npm run eval:release` выполняет детерминированные negative cases для automatic claim approval, публичного языка claim и editorial publication transitions. `npm run verify:recovery` проверяет канонический logical backup/restore со сравнением количества строк/объектов и SHA-256. Обе проверки обязательны внутри `npm run check`.
+
+Model и expert graders не считаются откалиброванными, пока methodology release `0.2.0-draft` остаётся draft. Их решения advisory; автоматическое утверждение claim запрещено до независимой разметки и достижения документированного порога agreement.
+
 ## Главный принцип
 
 Красивый ответ не считается качественным, если его нельзя проверить. Оценка разделяется на научную корректность, retrieval, авторский голос, платформенную пригодность и продуктовую полезность.
