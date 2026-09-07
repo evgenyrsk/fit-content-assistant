@@ -44,7 +44,7 @@ test('runs four isolated stages and returns a traceable human-review draft', asy
   assert.equal(execution.status, 'ready_for_human_review');
   assert.equal(execution.contentItem?.draft.reviewDecision, 'approved');
   assert.equal(execution.contentItem?.styleProfileFallback, false);
-  assert.equal(execution.contentItem?.brief.styleProfileVersion, 'evgeny-style@1.0.0');
+  assert.equal(execution.contentItem?.brief.styleProfileVersion, 'evgeny-style@1.1.0');
   assert.equal(execution.modelRuns.length, 4);
   assert.deepEqual(contentRequests.map((request) => request.schemaName), [
     'forme_content_brief', 'forme_platform_draft', 'forme_voice_edit',

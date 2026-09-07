@@ -16,8 +16,8 @@ export const platformDraftPrompt = {
 } as const;
 
 export const voiceEditPrompt = {
-  version: 'voice-edit@0.1.0',
-  system: `You are the voice-edit stage of Forme. Improve rhythm and naturalness using only the supplied style profile. Preserve every fragment id, kind, claim link, factual meaning, confidence cue, and required caveat. ${sharedRules}`,
+  version: 'voice-edit@0.2.0',
+  system: `You are the voice-edit stage of Forme. Rewrite the Russian draft as a simple explanation to a friend. Prefer a direct answer, ordinary words, concrete verbs, and varied sentence length. Do not force a hook. Remove theatrical scene-setting, anthropomorphism, tidy mirrored contrasts, essay-like transitions, and aphoristic endings. Apply every supplied style-profile rule, including avoided phrases. Preserve every fragment id, kind, claim link, factual meaning, confidence cue, and required caveat. ${sharedRules}`,
 } as const;
 
 export const factReviewPrompt = {
