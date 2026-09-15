@@ -82,6 +82,7 @@ export async function executeClaimSynthesis(
   if (gate.decision === 'blocked' || !options.provider.supports('structured_output', options.model)) {
     return { status: 'needs_review', claim: null, gate, modelRun };
   }
+  let retried = false;
   try {
     const budget = stageBudget('claim_synthesis', options.budgetProfile);
     const allowedEvidence = summaries
@@ -90,39 +91,40 @@ export async function executeClaimSynthesis(
         && summary.humanReview?.decision === 'confirmed')
       .map((summary) => `${summary.id}: ${summary.finding.provenanceIds.join(', ')}`)
       .join('; ');
-    const result = await options.provider.generateStructured<unknown>({
-      model: options.model,
-      system: `${claimSynthesisPrompt.system} Cite evidence only from these exact assessment and passage ids: ${allowedEvidence}.`,
-      input: JSON.stringify({ bodyAssessment: body, claimDraftPolicy: gate, sourceAssessments: summaries }),
-      schemaName: 'forme_claim_synthesis', outputSchema: claimSynthesisSchema,
-      maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,
-      metadata: { runId: options.researchRunId, stage: 'claim_synthesis', promptVersion: claimSynthesisPrompt.version },
-    });
-    const draft = validateClaimSynthesisDraft(result.output);
-    if (!confidenceAllowed(draft.confidence, body.assessment.proposedCertainty)
-      || !evidenceReferencesAreValid(
-        draft.evidence, summaries, body.assessment.eligibleStudyAssessmentIds,
-      )
-      || Date.parse(draft.reviewDueAt) <= Date.parse(startedAt)) {
-      throw new Error('Claim exceeded the body assessment or cited unknown evidence.');
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const repair = attempt === 0 ? '' : ' The previous draft was rejected. Recreate the entire JSON with no extra keys, valid future reviewDueAt, and only the exact evidence ids listed above.';
+        const result = await options.provider.generateStructured<unknown>({
+          model: options.model,
+          system: `${claimSynthesisPrompt.system} Cite evidence only from these exact assessment and passage ids: ${allowedEvidence}.${repair}`,
+          input: JSON.stringify({ bodyAssessment: body, claimDraftPolicy: gate, sourceAssessments: summaries }),
+          schemaName: 'forme_claim_synthesis', outputSchema: claimSynthesisSchema,
+          maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,
+          metadata: { runId: options.researchRunId, stage: 'claim_synthesis', promptVersion: claimSynthesisPrompt.version },
+        });
+        const draft = validateClaimSynthesisDraft(result.output);
+        if (!confidenceAllowed(draft.confidence, body.assessment.proposedCertainty)
+          || !evidenceReferencesAreValid(draft.evidence, summaries, body.assessment.eligibleStudyAssessmentIds)
+          || Date.parse(draft.reviewDueAt) <= Date.parse(startedAt)) throw new Error('Claim exceeded the body assessment or cited unknown evidence.');
+        const createdAt = clock().toISOString();
+        const claim: ClaimDraftRecord = {
+          id: crypto.randomUUID(), stableKey: await stableKey(draft.statement, draft.scope),
+          ...draft, confidence: clampClaimConfidence(draft.confidence, gate.confidenceCeiling),
+          limitations: mergeLimitations(draft.limitations, gate.requiredLimitations),
+          status: 'needs_review', methodologyVersion: body.assessment.methodologyVersion, createdAt,
+        };
+        return { status: 'model_draft', claim, gate, modelRun: {
+          ...modelRun, provider: result.provider, model: result.model, routedProvider: result.routedProvider,
+          completedAt: createdAt, inputTokens: result.usage?.inputTokens, outputTokens: result.usage?.outputTokens,
+          costUsd: result.costUsd, toolCalls: retried ? ['structured_output_retry'] : [],
+        } };
+      } catch (error) {
+        if (attempt === 0) { retried = true; continue; }
+        throw error;
+      }
     }
-    const createdAt = clock().toISOString();
-    const claim: ClaimDraftRecord = {
-      id: crypto.randomUUID(), stableKey: await stableKey(draft.statement, draft.scope),
-      ...draft, confidence: clampClaimConfidence(draft.confidence, gate.confidenceCeiling),
-      limitations: mergeLimitations(draft.limitations, gate.requiredLimitations),
-      status: 'needs_review', methodologyVersion: body.assessment.methodologyVersion, createdAt,
-    };
-    return {
-      status: 'model_draft', claim, gate,
-      modelRun: {
-        ...modelRun, provider: result.provider, model: result.model,
-        routedProvider: result.routedProvider, completedAt: createdAt,
-        inputTokens: result.usage?.inputTokens, outputTokens: result.usage?.outputTokens,
-        costUsd: result.costUsd,
-      },
-    };
+    throw new Error('Claim synthesis retry exhausted.');
   } catch {
-    return { status: 'needs_review', claim: null, gate, modelRun: { ...modelRun, completedAt: clock().toISOString() } };
+    return { status: 'needs_review', claim: null, gate, modelRun: { ...modelRun, completedAt: clock().toISOString(), toolCalls: retried ? ['structured_output_retry'] : [] } };
   }
 }
