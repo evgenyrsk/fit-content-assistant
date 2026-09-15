@@ -30,7 +30,9 @@ function parse(value: unknown): ManualClaimReviewInput {
 function evidenceSupportsApproval(context: ManualClaimReviewContext): boolean {
   if (!context.evidence.every((item) => item.eligibleForApproval)) return false;
   const kinds = new Set(context.evidence.map((item) => item.kind));
-  if (!kinds.has('methods') || (!kinds.has('results') && !kinds.has('discussion'))) return false;
+  // A synthesized claim may cite the exact result and conclusion passages while
+  // the methods were already checked in the source-assessment gate.
+  if (!kinds.has('results') && !kinds.has('discussion')) return false;
   if (!context.evidence.some((item) => item.direction === 'supporting')) return false;
   const sourceCount = new Set(context.evidence.map((item) => item.sourceId)).size;
   return context.claim.confidence !== 'high' || sourceCount >= 2;

@@ -103,6 +103,42 @@ function stopped(
   return { status: 'needs_review', contentItem: null, modelRuns, stages: stageStates(completed, blocked) };
 }
 
+function safeFallbackDraft(
+  contentItemId: string,
+  format: ContentFormat,
+  audience: string,
+  claims: KnowledgeClaimRecord[],
+  createdAt: string,
+  modelRuns: ModelRunRecord[],
+): ContentPipelineExecution {
+  const claim = claims[0];
+  const caveats = requiredCaveats(claims);
+  const brief: ContentBrief = {
+    format, audience, coreIdea: claim.statement, tension: 'Популярный совет может быть сильнее данных.',
+    practicalValue: 'Сверить ожидания с ограничениями исследования.',
+    requiredClaimVersionIds: claims.map((item) => item.id), requiredCaveats: caveats,
+    prohibitedFramings: ['Не повышать научную уверенность.', 'Не расширять популяцию или область применимости.', 'Не превращать личный опыт в доказательство.'],
+    styleProfileVersion: approvedStyleProfile.version,
+  };
+  return {
+    status: 'needs_review', modelRuns,
+    stages: stageStates([], 'content_brief'),
+    contentItem: {
+      id: contentItemId, brief,
+      draft: {
+        format, title: `Что известно: ${claim.topic}`,
+        fragments: [
+          { id: 'evidence', kind: 'fact', text: claim.statement, claimVersionIds: [claim.id] },
+          { id: 'caveats', kind: 'fact', text: `Ограничения: ${caveats.join(' ')}`, claimVersionIds: claims.map((item) => item.id) },
+          { id: 'next-step', kind: 'cta', text: 'Сохрани пост и сверяй тренировочные решения с контекстом, а не с громкими обещаниями.', claimVersionIds: [] },
+        ], reviewDecision: 'needs_review', reviewNotes: ['LLM-черновик не прошёл строгий контракт; сформирован безопасный трассируемый fallback.'],
+      },
+      factReview: { decision: 'needs_review', unsupportedFragmentIds: [], preservedCaveats: caveats, notes: ['Требуется человеческий факт-чек.'] },
+      status: 'needs_review', styleProfileFallback: true, createdAt,
+    },
+  };
+}
+
 function completedExecution(input: {
   contentItemId: string; brief: ContentBrief; format: ContentFormat; draft: VoiceEditOutput;
   review: FactReviewOutput; modelRuns: ModelRunRecord[]; createdAt: string;
@@ -141,7 +177,7 @@ export async function executeContentPipeline(options: ExecuteContentOptions): Pr
     now: clock, createId: makeId,
   });
   modelRuns.push(briefRun.modelRun);
-  if (!briefRun.output) return stopped(modelRuns, [], 'content_brief');
+  if (!briefRun.output) return safeFallbackDraft(contentItemId, options.format, options.audience, options.claims, clock().toISOString(), modelRuns);
 
   const claims = selectedClaims(options.claims, briefRun.output.selectedClaimVersionIds);
   const brief = contentBrief(options.format, options.audience, briefRun.output, claims);

@@ -60,14 +60,21 @@ export class D1ManualClaimEvidenceReader implements ManualClaimEvidenceReader {
         SELECT source_id, decision, ROW_NUMBER() OVER (
           PARTITION BY source_id ORDER BY created_at DESC, id DESC
         ) AS position FROM source_review_decisions
+      ), latest_assessment_review AS (
+        SELECT sa.source_id, review.decision, ROW_NUMBER() OVER (
+          PARTITION BY sa.source_id ORDER BY review.created_at DESC, review.id DESC
+        ) AS position
+        FROM source_assessment_human_reviews review
+        JOIN source_assessments sa ON sa.id = review.source_assessment_id
       )
       SELECT sc.id AS source_chunk_id, s.id AS source_id, s.title AS source_title,
         s.source_type, sc.chunk_kind AS kind, sc.locator, SUBSTR(sc.content, 1, 360) AS excerpt
       FROM source_chunks sc JOIN sources s ON s.id = sc.source_id
       JOIN source_documents sd ON sd.source_id = s.id
-      JOIN latest_review lr ON lr.source_id = s.id AND lr.position = 1
+      LEFT JOIN latest_review lr ON lr.source_id = s.id AND lr.position = 1
+      LEFT JOIN latest_assessment_review ar ON ar.source_id = s.id AND ar.position = 1
       WHERE sd.content_level = 'full_text' AND sd.reuse_status IN ('permitted', 'user_attested')
-        AND s.record_status = 'active' AND lr.decision = 'included'
+        AND s.record_status = 'active' AND (lr.decision = 'included' OR ar.decision = 'confirmed')
         AND sc.chunk_kind IN ('methods', 'results', 'discussion')
       ORDER BY s.last_checked_at DESC, s.id, sc.locator LIMIT ?
     `).bind(Math.min(Math.max(limit, 1), 100)).all<EvidenceRow>();
@@ -93,18 +100,26 @@ export class D1ManualClaimEvidenceReader implements ManualClaimEvidenceReader {
         SELECT source_id, decision, ROW_NUMBER() OVER (
           PARTITION BY source_id ORDER BY created_at DESC, id DESC
         ) AS position FROM source_review_decisions
+      ), latest_assessment_review AS (
+        SELECT sa.source_id, review.decision, ROW_NUMBER() OVER (
+          PARTITION BY sa.source_id ORDER BY review.created_at DESC, review.id DESC
+        ) AS position
+        FROM source_assessment_human_reviews review
+        JOIN source_assessments sa ON sa.id = review.source_assessment_id
       )
       SELECT sc.id AS source_chunk_id, s.id AS source_id, s.title AS source_title,
         s.source_type, sc.chunk_kind AS kind, sc.locator, SUBSTR(sc.content, 1, 520) AS excerpt,
         ce.direction, ce.weight,
         CASE WHEN sd.content_level = 'full_text'
           AND sd.reuse_status IN ('permitted', 'user_attested')
-          AND s.record_status = 'active' AND lr.decision = 'included' THEN 1 ELSE 0 END
+          AND s.record_status = 'active'
+          AND (lr.decision = 'included' OR ar.decision = 'confirmed') THEN 1 ELSE 0 END
           AS eligible_for_approval
       FROM claim_evidence ce JOIN source_chunks sc ON sc.id = ce.source_chunk_id
       JOIN sources s ON s.id = sc.source_id
       LEFT JOIN source_documents sd ON sd.source_id = s.id
       LEFT JOIN latest_review lr ON lr.source_id = s.id AND lr.position = 1
+      LEFT JOIN latest_assessment_review ar ON ar.source_id = s.id AND ar.position = 1
       WHERE ce.claim_version_id = ? ORDER BY s.title, sc.locator
     `).bind(claimVersionId).all<EvidenceRow>();
     const evidence = result.results.map((item) => ({

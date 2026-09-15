@@ -35,25 +35,32 @@ export async function executeStructuredContentStage<T>(options: ContentStageOpti
     retrievedIds: options.retrievedIds, toolCalls: [], decision: 'needs_review',
   };
   if (!options.provider.supports('structured_output', options.model)) return { output: null, modelRun: base };
+  let retried = false;
   try {
     const budget = stageBudget(options.stage, options.budgetProfile);
-    const result = await options.provider.generateStructured<unknown>({
-      model: options.model, system: options.prompt.system, input: JSON.stringify(options.input),
-      schemaName: options.schemaName, outputSchema: options.outputSchema,
-      maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,
-      metadata: { runId: options.contentItemId, stage: options.stage, promptVersion: options.prompt.version },
-    });
-    const output = options.validate(result.output);
-    return {
-      output,
-      modelRun: {
-        ...base, provider: result.provider, model: result.model, routedProvider: result.routedProvider,
-        completedAt: clock().toISOString(), decision: 'approved',
-        inputTokens: result.usage?.inputTokens, outputTokens: result.usage?.outputTokens,
-        costUsd: result.costUsd,
-      },
-    };
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const repair = attempt === 0 ? '' : ' The previous output was rejected. Recreate the complete JSON from scratch with no extra keys, preserve every required caveat verbatim, and link every factual fragment only to the supplied claim IDs.';
+        const result = await options.provider.generateStructured<unknown>({
+          model: options.model, system: `${options.prompt.system}${repair}`, input: JSON.stringify(options.input),
+          schemaName: options.schemaName, outputSchema: options.outputSchema,
+          maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,
+          metadata: { runId: options.contentItemId, stage: options.stage, promptVersion: options.prompt.version },
+        });
+        const output = options.validate(result.output);
+        return { output, modelRun: {
+          ...base, provider: result.provider, model: result.model, routedProvider: result.routedProvider,
+          completedAt: clock().toISOString(), decision: 'approved',
+          inputTokens: result.usage?.inputTokens, outputTokens: result.usage?.outputTokens,
+          costUsd: result.costUsd, toolCalls: retried ? ['structured_output_retry'] : [],
+        } };
+      } catch (error) {
+        if (attempt === 0) { retried = true; continue; }
+        throw error;
+      }
+    }
+    throw new Error('Content stage retry exhausted.');
   } catch {
-    return { output: null, modelRun: { ...base, completedAt: clock().toISOString() } };
+    return { output: null, modelRun: { ...base, completedAt: clock().toISOString(), toolCalls: retried ? ['structured_output_retry'] : [] } };
   }
 }
