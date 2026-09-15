@@ -54,7 +54,7 @@ async function probe(runtime: LlmRuntime, role: 'research' | 'content' | 'review
     system: 'Return only the requested diagnostic JSON. Do not add facts or commentary.',
     input: `Connectivity probe for the ${role} route.`,
     schemaName: `forme_${role}_connection_probe`, outputSchema: probeSchema,
-    maxOutputTokens: 24,
+    maxOutputTokens: 256,
     metadata: { runId: crypto.randomUUID(), stage: 'connection_probe', promptVersion: 'llm-connection-probe@1.0.0' },
   });
   if (result.output.status !== 'ok') throw new Error('Unexpected probe output.');

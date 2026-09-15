@@ -1,4 +1,4 @@
-import type { LlmProvider } from '../ports/llm-provider.ts';
+import type { LlmExecutionResult, LlmProvider } from '../ports/llm-provider.ts';
 import { evaluateBodyGate, type BodyAssessmentRecord, type SourceAssessmentSummary } from '../../domain/index.ts';
 import type { ModelRunRecord } from './model-run.ts';
 import { stageBudget, type BudgetProfile } from './pipeline-budget.ts';
@@ -20,6 +20,12 @@ export interface BodyAssessmentExecution {
   status: 'model_draft' | 'needs_review';
   body: BodyAssessmentRecord | null;
   modelRun: ModelRunRecord;
+}
+
+interface ValidatedBodyDraft {
+  draft: ReturnType<typeof validateBodyAssessmentDraft>;
+  result: LlmExecutionResult<unknown>;
+  retried: boolean;
 }
 
 function baseRecord(options: BodyAssessmentExecutionOptions, summaries: SourceAssessmentSummary[], timestamp: string): ModelRunRecord {
@@ -51,6 +57,53 @@ function referencesAreValid(
     && domainIds.flat().every((id) => allowed.includes(id));
 }
 
+function repairInstruction(error: unknown, summaries: SourceAssessmentSummary[]): string {
+  const ids = summaries.map((summary) => summary.id).join(', ');
+  const detail = error instanceof Error ? error.message : 'invalid body assessment output';
+  return [
+    'The previous response was rejected. Regenerate the complete JSON from scratch.',
+    `Validation issue: ${detail.slice(0, 180)}.`,
+    `Use only these source assessment ids: ${ids}.`,
+    'eligibleStudyAssessmentIds must contain exactly the eligible-for-synthesis ids; include all five GRADE domains exactly once.',
+    'Return only JSON matching the supplied strict schema.',
+  ].join(' ');
+}
+
+async function generateValidatedDraft(
+  question: string,
+  outcomeId: string,
+  summaries: SourceAssessmentSummary[],
+  options: BodyAssessmentExecutionOptions,
+): Promise<ValidatedBodyDraft> {
+  const budget = stageBudget('body_assessment', options.budgetProfile);
+  const input = JSON.stringify({ question, outcomeId, sourceAssessments: summaries });
+  let repair = '';
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const result = await options.provider.generateStructured<unknown>({
+        model: options.model,
+        system: repair ? `${bodyAssessmentPrompt.system} ${repair}` : bodyAssessmentPrompt.system,
+        input, schemaName: 'forme_body_assessment', outputSchema: bodyAssessmentSchema,
+        maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,
+        metadata: { runId: options.researchRunId, stage: 'body_assessment', promptVersion: bodyAssessmentPrompt.version },
+      });
+      const draft = validateBodyAssessmentDraft(result.output);
+      const domainIds = draft.domains.map((domain) => domain.supportingAssessmentIds);
+      if (!referencesAreValid(draft.eligibleStudyAssessmentIds, draft.contradictoryStudyAssessmentIds, domainIds, summaries)) {
+        throw new Error('Body assessment referenced an invalid source assessment.');
+      }
+      return { draft, result, retried: attempt > 0 };
+    } catch (error) {
+      if (attempt === 0) {
+        repair = repairInstruction(error, summaries);
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw new Error('Body assessment retry exhausted.');
+}
+
 export async function executeBodyAssessment(
   question: string,
   outcomeId: string,
@@ -65,19 +118,7 @@ export async function executeBodyAssessment(
     return { status: 'needs_review', body: null, modelRun };
   }
   try {
-    const budget = stageBudget('body_assessment', options.budgetProfile);
-    const result = await options.provider.generateStructured<unknown>({
-      model: options.model, system: bodyAssessmentPrompt.system,
-      input: JSON.stringify({ question, outcomeId, sourceAssessments: summaries }),
-      schemaName: 'forme_body_assessment', outputSchema: bodyAssessmentSchema,
-      maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,
-      metadata: { runId: options.researchRunId, stage: 'body_assessment', promptVersion: bodyAssessmentPrompt.version },
-    });
-    const draft = validateBodyAssessmentDraft(result.output);
-    const domainIds = draft.domains.map((domain) => domain.supportingAssessmentIds);
-    if (!referencesAreValid(draft.eligibleStudyAssessmentIds, draft.contradictoryStudyAssessmentIds, domainIds, summaries)) {
-      throw new Error('Body assessment referenced an invalid source assessment.');
-    }
+    const { draft, result, retried } = await generateValidatedDraft(question, outcomeId, summaries, options);
     const assessment = {
       ...draft, questionId: options.researchRunId, outcomeId,
       domains: draft.domains.map((domain) => ({ ...domain, assessor: 'model_draft' as const })),
@@ -94,7 +135,7 @@ export async function executeBodyAssessment(
         ...modelRun, provider: result.provider, model: result.model,
         routedProvider: result.routedProvider, completedAt: createdAt,
         inputTokens: result.usage?.inputTokens, outputTokens: result.usage?.outputTokens,
-        costUsd: result.costUsd,
+        costUsd: result.costUsd, toolCalls: retried ? ['structured_output_retry'] : [],
       },
     };
   } catch {

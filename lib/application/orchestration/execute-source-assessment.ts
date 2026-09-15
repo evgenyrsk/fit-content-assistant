@@ -109,7 +109,9 @@ async function generateValidatedDraft(
 ): Promise<ValidatedAssessmentDraft> {
   const budget = stageBudget('source_assessment', options.budgetProfile);
   let repair = '';
-  for (let attempt = 0; attempt < 2; attempt += 1) {
+  // Large evidence schemas occasionally need more than one bounded repair pass.
+  // Keep this finite: a source never bypasses validation or becomes eligible on failure.
+  for (let attempt = 0; attempt < 3; attempt += 1) {
     let draftOutput: unknown;
     try {
       const result = await options.provider.generateStructured<unknown>({
@@ -124,7 +126,7 @@ async function generateValidatedDraft(
       return { draft, result, retried: attempt > 0 };
     } catch (error) {
       const retryable = ['invalid_model_output', 'invalid_provenance'].includes(failureCode(error));
-      if (attempt === 0 && retryable) {
+      if (attempt < 2 && retryable) {
         onRepair();
         repair = repairInstruction(error, draftOutput, document);
         continue;

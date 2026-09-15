@@ -84,8 +84,15 @@ export async function executeClaimSynthesis(
   }
   try {
     const budget = stageBudget('claim_synthesis', options.budgetProfile);
+    const allowedEvidence = summaries
+      .filter((summary) => body.assessment.eligibleStudyAssessmentIds.includes(summary.id)
+        && summary.decision === 'eligible_for_synthesis'
+        && summary.humanReview?.decision === 'confirmed')
+      .map((summary) => `${summary.id}: ${summary.finding.provenanceIds.join(', ')}`)
+      .join('; ');
     const result = await options.provider.generateStructured<unknown>({
-      model: options.model, system: claimSynthesisPrompt.system,
+      model: options.model,
+      system: `${claimSynthesisPrompt.system} Cite evidence only from these exact assessment and passage ids: ${allowedEvidence}.`,
       input: JSON.stringify({ bodyAssessment: body, claimDraftPolicy: gate, sourceAssessments: summaries }),
       schemaName: 'forme_claim_synthesis', outputSchema: claimSynthesisSchema,
       maxOutputTokens: budget.maxOutputTokens, maxToolCalls: 0,

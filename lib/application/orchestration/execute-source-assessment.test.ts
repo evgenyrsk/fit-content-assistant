@@ -139,7 +139,7 @@ test('records an exhausted contract repair in the model run', async () => {
   const result = await executeSourceAssessment('Does creatine improve strength?', document('full_text'), {
     provider: fake, model: 'research', budgetProfile: 'economy', researchRunId: 'research-1',
   });
-  assert.equal(calls, 2);
+  assert.equal(calls, 3);
   assert.equal(result.failure, 'invalid_model_output');
   assert.deepEqual(result.modelRun.toolCalls, ['structured_output_retry']);
 });

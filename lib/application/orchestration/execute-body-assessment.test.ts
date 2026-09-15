@@ -35,6 +35,25 @@ test('rejects an invented source assessment id', async () => {
   assert.equal(result.body, null);
 });
 
+test('retries a malformed body draft once with repair guidance', async () => {
+  let calls = 0;
+  const fake = provider(validBodyAssessmentDraft());
+  fake.generateStructured = async <T>() => {
+    calls += 1;
+    const output = calls === 1
+      ? { ...validBodyAssessmentDraft(), domains: validBodyAssessmentDraft().domains.slice(1) }
+      : validBodyAssessmentDraft();
+    return { output: output as T, provider: 'openrouter', model: 'research', requestId: `request-${calls}` };
+  };
+  const result = await executeBodyAssessment('question', 'strength', [eligibleSummary], {
+    provider: fake, model: 'research', budgetProfile: 'economy',
+    researchRunId: 'research-1', methodologyVersion: '0.2.0-draft', methodologyCalibrated: false,
+  });
+  assert.equal(result.status, 'model_draft');
+  assert.equal(calls, 2);
+  assert.deepEqual(result.modelRun.toolCalls, ['structured_output_retry']);
+});
+
 test('does not call a model without eligible source assessments', async () => {
   let called = false;
   const fake = provider(validBodyAssessmentDraft());
