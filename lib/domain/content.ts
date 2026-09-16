@@ -59,6 +59,6 @@ export interface ContentPipelineResponse {
   message: string;
   stages: ContentStageState[];
   contentItem: ContentItemRecord | null;
-  publishable: false;
-  reviewRequired: true;
+  publishable: boolean;
+  reviewRequired: boolean;
 }

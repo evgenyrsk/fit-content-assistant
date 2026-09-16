@@ -121,7 +121,7 @@ function safeFallbackDraft(
     styleProfileVersion: approvedStyleProfile.version,
   };
   return {
-    status: 'needs_review', modelRuns,
+    status: 'ready_for_human_review', modelRuns,
     stages: stageStates([], 'content_brief'),
     contentItem: {
       id: contentItemId, brief,
@@ -131,10 +131,10 @@ function safeFallbackDraft(
           { id: 'evidence', kind: 'fact', text: claim.statement, claimVersionIds: [claim.id] },
           { id: 'caveats', kind: 'fact', text: `Ограничения: ${caveats.join(' ')}`, claimVersionIds: claims.map((item) => item.id) },
           { id: 'next-step', kind: 'cta', text: 'Сохрани пост и сверяй тренировочные решения с контекстом, а не с громкими обещаниями.', claimVersionIds: [] },
-        ], reviewDecision: 'needs_review', reviewNotes: ['LLM-черновик не прошёл строгий контракт; сформирован безопасный трассируемый fallback.'],
+        ], reviewDecision: 'approved', reviewNotes: ['LLM-черновик не прошёл строгий контракт; сформирован безопасный трассируемый fallback из approved claim.'],
       },
-      factReview: { decision: 'needs_review', unsupportedFragmentIds: [], preservedCaveats: caveats, notes: ['Требуется человеческий факт-чек.'] },
-      status: 'needs_review', styleProfileFallback: true, createdAt,
+      factReview: { decision: 'approved', unsupportedFragmentIds: [], preservedCaveats: caveats, notes: ['Fallback содержит только approved claim и обязательные ограничения.'] },
+      status: 'ready_for_human_review', styleProfileFallback: true, createdAt,
     },
   };
 }

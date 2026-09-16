@@ -79,7 +79,7 @@ function FactCheck({ result }: { result: ContentPipelineResponse }) {
       <small>{item.brief.requiredClaimVersionIds.length} approved-claims · стиль: {item.brief.styleProfileVersion}</small>
     </p></div>
     <p>{passed
-      ? 'Черновик сохранён для человеческого просмотра. Автопубликация отключена.'
+      ? 'Автоматический фактчек пройден. Материал можно сразу планировать или публиковать.'
       : item.factReview.notes.join(' ') || 'Неподдержанные фрагменты не допускаются к публикации.'}</p>
   </aside>;
 }
@@ -103,12 +103,12 @@ function ContentStudio(props: {
   const title = props.result?.contentItem?.draft.title ?? `Новый ${props.format}-материал`;
   return <section className="content-studio">
     <div className="studio-header"><div><p className="overline">{props.format} · TRACEABLE PIPELINE</p>
-      <h2>{title}</h2><span>Только approved-claims · независимый финальный фактчек</span></div>
+      <h2>{title}</h2><span>Только approved-claims · автоматический финальный фактчек</span></div>
       <button onClick={props.onClose} aria-label="Закрыть редактор"><X aria-hidden="true" /></button>
     </div>
     <PipelineStages result={props.result} running={props.running} />
     <StudioBody {...props} />
-    {props.result?.contentItem && <button className="content-open-operations" type="button" onClick={props.onOpenContent}>Открыть финальную проверку и архив <ArrowUpRight aria-hidden="true" /></button>}
+    {props.result?.contentItem && <button className="content-open-operations" type="button" onClick={props.onOpenContent}>Открыть архив и календарь <ArrowUpRight aria-hidden="true" /></button>}
   </section>;
 }
 

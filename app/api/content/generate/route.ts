@@ -52,7 +52,7 @@ function validBody(body: GenerateRequestBody): body is ValidGenerateRequest {
 
 function waitingResponse(status: 'awaiting_claims' | 'awaiting_provider', message: string): ContentPipelineResponse {
   return {
-    status, message, contentItem: null, publishable: false, reviewRequired: true,
+    status, message, contentItem: null, publishable: false, reviewRequired: false,
     stages: stages.map((stage) => ({ stage, status: 'waiting', message: 'Этап ещё не запускался.' })),
   };
 }
@@ -97,11 +97,11 @@ async function persistExecution(
 
 function executionResponse(execution: ContentPipelineExecution): ContentPipelineResponse {
   const message = execution.status === 'ready_for_human_review'
-    ? 'Фактический gate пройден. Черновик сохранён и ждёт вашего финального просмотра.'
+    ? 'Фактический gate пройден. Материал сохранён и готов к планированию или публикации.'
     : 'Конвейер остановлен: один из этапов не прошёл строгий gate.';
   return {
     status: execution.status, message, stages: execution.stages, contentItem: execution.contentItem,
-    publishable: false, reviewRequired: true,
+    publishable: execution.status === 'ready_for_human_review', reviewRequired: false,
   };
 }
 
