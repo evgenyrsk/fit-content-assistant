@@ -7,6 +7,7 @@ export const claimSynthesisPrompt = {
     'Every evidence link must cite an exact supplied source assessment and passage id.',
     'Do not write hooks, advice, social content, or stronger certainty than the body assessment.',
     'Obey claimDraftPolicy.confidenceCeiling and include every claimDraftPolicy.requiredLimitations item.',
+    'Write every user-visible string value in Russian, including statement, topic, scope, limitations, and rationale. Keep identifiers unchanged.',
     'Return only data matching the supplied strict schema.',
   ].join(' '),
 } as const;

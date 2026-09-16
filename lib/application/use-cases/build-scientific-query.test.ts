@@ -13,6 +13,13 @@ test('translates inflected Russian training-to-failure and hypertrophy terms', (
   );
 });
 
+test('translates breakfast and compensatory-eating terms for evidence retrieval', () => {
+  assert.equal(
+    buildScientificQuery('Снижает ли регулярный завтрак вероятность переедания в течение дня у взрослых?'),
+    'breakfast compensatory eating energy intake',
+  );
+});
+
 test('keeps a question unchanged when the controlled vocabulary has no match', () => {
   assert.equal(buildScientificQuery('Неизвестный вопрос'), 'Неизвестный вопрос');
 });

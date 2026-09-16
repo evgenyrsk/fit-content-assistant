@@ -1,4 +1,7 @@
 const vocabulary: Array<[RegExp, string]> = [
+  [/пропуск\p{L}*\s+завтрак\p{L}*|не\s+завтрак\p{L}*/giu, 'breakfast skipping'],
+  [/завтрак\p{L}*|утренн\p{L}*\s+при[её]м\p{L}*\s+пищ\p{L}*/giu, 'breakfast'],
+  [/переедани\p{L}*|компенсаторн\p{L}*\s+(?:при[её]м\p{L}*\s+пищ\p{L}*|питани\p{L}*)/giu, 'compensatory eating energy intake'],
   [/тренир\p{L}*\s+до\s+отказ\p{L}*|мышечн\p{L}*\s+отказ\p{L}*/giu, 'training to failure'],
   [/мышечн\p{L}*\s+бол\p{L}*|крепатур\p{L}*/giu, 'delayed onset muscle soreness'],
   [/рост\p{L}*\s+мышц\p{L}*|гипертроф\p{L}*/giu, 'muscle hypertrophy'],
